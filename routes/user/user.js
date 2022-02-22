@@ -4,5 +4,6 @@ const router = express.Router();
 
 router.get("/user", function (req, res) {
   res.get("내정보창이에요");
+  console.log("hi");
 });
 module.exports = router;
