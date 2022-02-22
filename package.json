@@ -1,0 +1,22 @@
+{
+  "name": "4-fulllstack-zoe-mystudylibrary",
+  "version": "1.0.0",
+  "description": "지역을 입력하면 주변 도서관이 검색되고 평점을 남길 수 있는 사이트입니다",
+  "main": "Root.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zoe0631/4-fulllstack-Zoe-mystudyLibrary.git"
+  },
+  "author": "Zoe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zoe0631/4-fulllstack-Zoe-mystudyLibrary/issues"
+  },
+  "homepage": "https://github.com/Zoe0631/4-fulllstack-Zoe-mystudyLibrary#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
+}
