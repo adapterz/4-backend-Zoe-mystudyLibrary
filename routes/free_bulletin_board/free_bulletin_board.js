@@ -2,8 +2,11 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/free_bulletin_board", function (req, res) {
-  res.get("자유게시판");
+router.get("/", function (req, res) {
+  res.send("자유게시판");
+
+
+  console.log("/free_bulletin_board");
 });
 
 module.exports = router;

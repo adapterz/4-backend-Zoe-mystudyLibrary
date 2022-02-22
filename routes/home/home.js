@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", function (req, res) {
-  res.get("홈화면");
-  console.log("hi");
+  res.send("홈화면");
+  console.log("home");
 });
 module.exports = router;

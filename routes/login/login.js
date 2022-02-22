@@ -2,7 +2,10 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/login", function (req, res) {
-  res.get("로그인 창");
+router.get("/", function (req, res) {
+  res.send("로그인 창");
+
+
+  console.log("/login");
 });
 module.exports = router;

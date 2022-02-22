@@ -2,7 +2,10 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/new_user", function (req, res) {
-  res.get("회원가입");
+router.get("/", function (req, res) {
+  res.send("회원가입");
+
+
+  console.log("/new_user");
 });
 module.exports = router;

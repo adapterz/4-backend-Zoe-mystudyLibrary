@@ -2,7 +2,9 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/service_description", function (req, res) {
-  res.get("서비스설명");
+router.get("/", function (req, res) {
+  res.send("서비스설명");
+
+  console.log("/service_description");
 });
 module.exports = router;
