@@ -29,6 +29,11 @@ app.use("/service_description", service_description_router);
 app.use("/study_proof_shot", study_proof_shot_router);
 app.use("/user", user_router);
 
+// 404 에러처리
+app.get("/", function (req, res) {
+  res.status(404).send("not founded page");
+});
+
 app.listen(port, () => {
   console.log("Test Lib Server");
 });
