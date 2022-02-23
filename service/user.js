@@ -63,8 +63,18 @@ export function Login(input_id, input_pw) {
   console.log("로그인 성공");
   return 2;
 }
+// 회원가입 전 약관동의 체크 여부
+// 인자1: 해당 서비스 이용약관 동의에 체크 했는지 여부, 인자2: 개인정보 수집 및 이용 동의에 체크 했는지 여부
+export function IsAllCheckedBeforeSignUp(
+  checking_terms_of_use,
+  checking_about_personal_information
+) {
+  // 두 인자 모두 true면 true 반환
+  if (checking_terms_of_use && checking_about_personal_information) return true;
+  return false;
+}
 
-// 회원가입 로직
+// 회원가입 통합 로직
 // 1. 아이디 중복 체크
 function IsNonExistedID(input_id) {
   // 기존 유저들의 아이디와 새로 가입하려는 유저가 입력한 아이디와 비교해서 겹치는 아이디가 있으면 false 반환
@@ -148,11 +158,11 @@ export function SignUp(
 ) {
   // 유효성 검사
   // 1. 기존에 존재하는 아이디면 회원가입 불가
-  if (!IsNonExistedID(input_id)) return false;
+  if (!IsNonExistedID(input_id)) return 0;
   // 2. '비밀번호'와 '비밀번호 확인'이 일치하지 않으면 회원가입 불가
-  if (!IsSamePw(input_pw, input_confirm_pw)) return false;
+  if (!IsSamePw(input_pw, input_confirm_pw)) return 1;
   // 3. '비밀번호'가 유효하지 않으면 회원가입 불가
-  if (!IsValid(input_pw)) return false;
+  if (!IsValid(input_pw)) return 2;
 
   // 암호화
   // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
@@ -173,5 +183,5 @@ export function SignUp(
   };
 
   users.push(new_user);
-  return true;
+  return 3;
 }
