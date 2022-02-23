@@ -1,5 +1,6 @@
 // 로그인, 회원가입, 내 정보 관련 비즈니스 로직
 // 암호화에 필요한 모듈
+// 필요모듈
 const crypto = require("crypto");
 
 // 예시 유저 정보
@@ -40,10 +41,10 @@ export function Login(input_id, input_pw) {
       break;
     }
   }
-  // 존재하지 않는 ID를 입력했을 경우 false 리턴
+  // 존재하지 않는 ID를 입력했을 경우 0 리턴
   if (user_index === null) {
     console.log("입력한 ID가 존재하지 않습니다");
-    return false;
+    return 0;
   }
   // 암호화
   // 해당 유저의 salts 불러오기
@@ -56,11 +57,11 @@ export function Login(input_id, input_pw) {
   // 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
   if (hash_pw !== users[user_index].Password) {
     console.log("입력한 PW가 일치하지 않습니다.");
-    return false;
+    return 1;
   }
 
   console.log("로그인 성공");
-  return true;
+  return 2;
 }
 
 // 회원가입 로직
