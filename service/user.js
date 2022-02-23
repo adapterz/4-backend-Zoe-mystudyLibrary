@@ -31,7 +31,7 @@ const users = [
 ];
 
 // 로그인 기능
-function Login(input_id, input_pw) {
+export function Login(input_id, input_pw) {
   let user_index = null;
   // 입력한 ID의 user index 찾기
   for (const index in users) {

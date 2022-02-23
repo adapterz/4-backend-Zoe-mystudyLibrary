@@ -7,6 +7,6 @@ const control = require("./controller_new_user");
 // 기본화면
 router.get("/", control.get_new_user);
 // 회원가입 요청
-router.post("/".control.sign_up);
+router.post("/sign_up", control.sign_up);
 // 모듈화
 module.exports = router;
