@@ -1,10 +1,10 @@
 // 공부인증샷 라우터
 const express = require("express");
 const router = express.Router();
+const control = require("./controller_study_proof_shot");
 
-router.get("/", function (req, res) {
-  res.send("공부인증샷");
+// 요청 별 정의
+router.get("/", control.get_study_proof_shot);
 
-  console.log("/study_proof_shoot");
-});
+// 모듈화
 module.exports = router;

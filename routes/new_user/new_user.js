@@ -1,11 +1,10 @@
-// 회원가입
+// 회원가입화면 라우터
 const express = require("express");
 const router = express.Router();
+const control = require("./controller_new_user");
 
-router.get("/", function (req, res) {
-  res.send("회원가입");
+// 요청 별 정의
+router.get("/", control.get_new_user);
 
-
-  console.log("/new_user");
-});
+// 모듈화
 module.exports = router;

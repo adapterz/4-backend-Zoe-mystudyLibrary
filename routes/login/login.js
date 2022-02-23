@@ -1,11 +1,10 @@
-// 로그인 라우터
+// 로그인창 라우터
 const express = require("express");
 const router = express.Router();
+const control = require("./controller_login");
 
-router.get("/", function (req, res) {
-  res.send("로그인 창");
+// 요청 별 정의
+router.get("/", control.get_login);
 
-
-  console.log("/login");
-});
+// 모듈화
 module.exports = router;

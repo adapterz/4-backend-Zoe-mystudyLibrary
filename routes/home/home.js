@@ -1,9 +1,10 @@
-// 자유게시판 눌렀을 때 라우터
+// 홈 화면 라우터
 const express = require("express");
 const router = express.Router();
+const control = require("./controller_home");
 
-router.get("/", function (req, res) {
-  res.send("홈화면");
-  console.log("home");
-});
+// 요청 별 정의
+router.get("/", control.get_home);
+
+// 모듈화
 module.exports = router;

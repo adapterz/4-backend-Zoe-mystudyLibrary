@@ -2,7 +2,7 @@
 const express = require("express");
 const app = express();
 
-// Csp
+// 컨텐츠 보안 정책에 따른 미들웨어 사용
 const helmet = require("helmet");
 app.use(helmet());
 app.disable("x-powered-by");
@@ -10,7 +10,7 @@ app.disable("x-powered-by");
 // 포트번호 지정
 const port = 3000;
 
-// router
+// 경로별로 라우팅
 const adj_lib_router = require("./routes/adj_lib/adj_lib");
 const free_bulletin_board_router = require("./routes/free_bulletin_board/free_bulletin_board");
 const home_router = require("./routes/home/home");
