@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const users = [
   {
     ID: "syjg1234",
-    Password: "startup1234!",
+    Password: "hassing_pw1",
     Name: "Zoe",
     Gender: "Woman",
     Phone_number: "01028400631",
@@ -14,7 +14,7 @@ const users = [
   },
   {
     ID: "ye1919",
-    Password: "startup123!",
+    Password: "hassing_pw2",
     Name: "Yeji",
     Gender: "Woman",
     Phone_number: "01128400631",
@@ -22,13 +22,46 @@ const users = [
   },
   {
     ID: "hihi123",
-    Password: "hihi987!",
+    Password: "hassing_pw3",
     Name: "Leehi",
     Gender: "Man",
     Phone_number: "01234567890",
     salt: "12a13",
   },
 ];
+
+// 로그인 기능
+function Login(input_id, input_pw) {
+  let user_index = null;
+  // 입력한 ID의 user index 찾기
+  for (const index in users) {
+    if (input_id === users[index].id) {
+      user_index = index;
+      break;
+    }
+  }
+  // 존재하지 않는 ID를 입력했을 경우 false 리턴
+  if (user_index === null) {
+    console.log("입력한 ID가 존재하지 않습니다");
+    return false;
+  }
+  // 암호화
+  // 해당 유저의 salts 불러오기
+  const salts = users[user_index].salt;
+  // 해싱
+  const hash_pw = crypto
+    .createHash("sha512")
+    .update(input_pw + salts)
+    .digest("hex");
+  // 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
+  if (hash_pw !== users[user_index].Password) {
+    console.log("입력한 PW가 일치하지 않습니다.");
+    return false;
+  }
+
+  console.log("로그인 성공");
+  return true;
+}
 
 // 회원가입 로직
 // 1. 아이디 중복 체크
@@ -141,6 +174,3 @@ export function SignUp(
   users.push(new_user);
   return true;
 }
-
-// 로그인 기능
-//function Login(input_id, input_pw) {}
