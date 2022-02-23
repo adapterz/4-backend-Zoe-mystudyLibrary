@@ -117,4 +117,5 @@ function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
   };
 
   users.push(new_user);
+  return true;
 }
