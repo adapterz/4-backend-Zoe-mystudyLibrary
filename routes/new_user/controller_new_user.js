@@ -11,12 +11,12 @@ const get_new_user = function (req, res) {
 const sign_up = function (req, res) {
   const body = req.body;
   service_user.SignUp(
-    body.id,
-    body.pw,
-    body.confirm_pw,
-    body.name,
-    body.gender,
-    body.phone_num
+    body.id.toString(),
+    body.pw.toString(),
+    body.confirm_pw.toString(),
+    body.name.toString(),
+    body.gender.toString(),
+    body.phone_num.toString()
   );
   res.end();
 };
