@@ -1,4 +1,7 @@
 // 로그인, 회원가입, 내 정보 관련 비즈니스 로직
+// 암호화에 필요한 모듈
+const crypto = require("crypto");
+
 // 예시 유저 정보
 const users = [
   {
@@ -7,6 +10,7 @@ const users = [
     Name: "Zoe",
     Gender: "Woman",
     Phone_number: "01028400631",
+    salt: "1234#",
   },
   {
     ID: "ye1919",
@@ -14,6 +18,7 @@ const users = [
     Name: "Yeji",
     Gender: "Woman",
     Phone_number: "01128400631",
+    salt: "1234!",
   },
   {
     ID: "hihi123",
@@ -21,6 +26,7 @@ const users = [
     Name: "Leehi",
     Gender: "Man",
     Phone_number: "01234567890",
+    salt: "12a13",
   },
 ];
 
@@ -107,15 +113,27 @@ function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
   // 3. '비밀번호'가 유효하지 않으면 회원가입 불가
   if (!IsValid(input_pw)) return false;
 
+  // 암호화
+  // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
+  const salts = crypto.randomBytes(128).toString("base64");
+  const hash_pw = crypto
+    .createHash("sha512")
+    .update(input_pw + salts)
+    .digest("hex");
+
   // 유효성 검사 통과하면 유저 정보에 신규 유저 추가
   const new_user = {
     ID: input_id,
-    Password: input_pw,
+    Password: hash_pw,
     Name: name,
     Gender: gender,
     Phone_number: phone_num,
+    salt: salts,
   };
 
   users.push(new_user);
   return true;
 }
+
+// 로그인
+//function Login(input_id, input_pw) {}
