@@ -104,7 +104,14 @@ function IsSamePw(input_pw, input_confirm_pw) {
 }
 
 // main. 회원가입 로직
-function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
+export function SignUp(
+  input_id,
+  input_pw,
+  input_confirm_pw,
+  name,
+  gender,
+  phone_num
+) {
   // 유효성 검사
   // 1. 기존에 존재하는 아이디면 회원가입 불가
   if (!IsNonExistedID(input_id)) return false;
@@ -135,5 +142,5 @@ function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
   return true;
 }
 
-// 로그인
+// 로그인 기능
 //function Login(input_id, input_pw) {}
