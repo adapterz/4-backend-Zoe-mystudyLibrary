@@ -21,7 +21,6 @@ const sign_up = function (req, res) {
   res.end();
 };
 
-// post
 module.exports = {
   get_new_user: get_new_user,
   sign_up: sign_up,
