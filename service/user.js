@@ -1,7 +1,4 @@
 // 로그인, 회원가입, 내 정보 관련 비즈니스 로직
-// 암호화에 필요한 모듈
-// 필요모듈
-const crypto = require("crypto");
 
 // 예시 유저 정보
 const users = [
@@ -31,50 +28,7 @@ const users = [
   },
 ];
 
-// 로그인 기능
-export function Login(input_id, input_pw) {
-  let user_index = null;
-  // 입력한 ID의 user index 찾기
-  for (const index in users) {
-    if (input_id === users[index].id) {
-      user_index = index;
-      break;
-    }
-  }
-  // 존재하지 않는 ID를 입력했을 경우 0 리턴
-  if (user_index === null) {
-    console.log("입력한 ID가 존재하지 않습니다");
-    return 0;
-  }
-  // 암호화
-  // 해당 유저의 salts 불러오기
-  const salts = users[user_index].salt;
-  // 해싱
-  const hash_pw = crypto
-    .createHash("sha512")
-    .update(input_pw + salts)
-    .digest("hex");
-  // 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
-  if (hash_pw !== users[user_index].Password) {
-    console.log("입력한 PW가 일치하지 않습니다.");
-    return 1;
-  }
-
-  console.log("로그인 성공");
-  return 2;
-}
-// 회원가입 전 약관동의 체크 여부
-// 인자1: 해당 서비스 이용약관 동의에 체크 했는지 여부, 인자2: 개인정보 수집 및 이용 동의에 체크 했는지 여부
-export function IsAllCheckedBeforeSignUp(
-  checking_terms_of_use,
-  checking_about_personal_information
-) {
-  // 두 인자 모두 true면 true 반환
-  if (checking_terms_of_use && checking_about_personal_information) return true;
-  return false;
-}
-
-// 회원가입 통합 로직
+// 회원가입 관련 유효성 검사
 // 1. 아이디 중복 체크
 function IsNonExistedID(input_id) {
   // 기존 유저들의 아이디와 새로 가입하려는 유저가 입력한 아이디와 비교해서 겹치는 아이디가 있으면 false 반환
@@ -146,42 +100,10 @@ function IsSamePw(input_pw, input_confirm_pw) {
   // 다르면 false
   return false;
 }
-
-// main. 회원가입 로직
-export function SignUp(
-  input_id,
-  input_pw,
-  input_confirm_pw,
-  name,
-  gender,
-  phone_num
-) {
-  // 유효성 검사
-  // 1. 기존에 존재하는 아이디면 회원가입 불가
-  if (!IsNonExistedID(input_id)) return 0;
-  // 2. '비밀번호'와 '비밀번호 확인'이 일치하지 않으면 회원가입 불가
-  if (!IsSamePw(input_pw, input_confirm_pw)) return 1;
-  // 3. '비밀번호'가 유효하지 않으면 회원가입 불가
-  if (!IsValid(input_pw)) return 2;
-
-  // 암호화
-  // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
-  const salts = crypto.randomBytes(128).toString("base64");
-  const hash_pw = crypto
-    .createHash("sha512")
-    .update(input_pw + salts)
-    .digest("hex");
-
-  // 유효성 검사 통과하면 유저 정보에 신규 유저 추가
-  const new_user = {
-    ID: input_id,
-    Password: hash_pw,
-    Name: name,
-    Gender: gender,
-    Phone_number: phone_num,
-    salt: salts,
-  };
-
-  users.push(new_user);
-  return 3;
-}
+// 모듈화
+module.exports = {
+  IsAllCheckedBeforeSignUp: IsAllCheckedBeforeSignUp,
+  IsNonExistedID: IsNonExistedID,
+  IsValid: IsValid,
+  IsSamePw: IsSamePw,
+};
