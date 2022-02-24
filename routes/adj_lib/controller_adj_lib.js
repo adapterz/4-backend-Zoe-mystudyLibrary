@@ -2,9 +2,7 @@
 
 // 해당 라우터에서 get 요청을 받았을 때
 const get_adj_lib = function (req, res) {
-  res.send("내주변도서관탭이에요");
-
-  console.log("/adj_lib");
+  res.status(200).send("내주변도서관탭이에요");
 };
 
 // 모듈화
