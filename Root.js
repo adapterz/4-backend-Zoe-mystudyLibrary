@@ -2,7 +2,12 @@
 const express = require("express");
 const app = express();
 
-// 컨텐츠 보안 정책에 따른 미들웨어 사용
+// req.body 사용에 필요한 'body-parser' 미들웨어
+const bodyParser = require("body-parser");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extends: true }));
+
+// 컨텐츠 보안 정책에 따른 'helmet' 미들웨어 사용
 const helmet = require("helmet");
 app.use(helmet());
 app.disable("x-powered-by");
@@ -30,7 +35,7 @@ app.use("/study_proof_shot", study_proof_shot_router);
 app.use("/user", user_router);
 
 // 404 에러처리
-app.get("/", function (req, res) {
+app.get("/not_found", function (req, res) {
   res.status(404).send("not founded page");
 });
 
