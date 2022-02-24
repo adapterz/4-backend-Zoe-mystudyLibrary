@@ -38,8 +38,8 @@ function is_valid_post(
   input_tags,
   input_created
 ) {
-  if (!business_logic.is_valid_title(input_title)) return 0;
-  if (!business_logic.is_valid_content(input_content)) return 1;
+  if (!business_logic.is_valid_title(input_title)) return false;
+  if (!business_logic.is_valid_content(input_content)) return false;
 
   // 유효성 검사 통과하면 작성한 글을 게시글 목록에 추가
   const new_post = {
@@ -51,7 +51,7 @@ function is_valid_post(
     created: input_created,
   };
   boards.push(new_post);
-  return 2;
+  return true;
 }
 // 모듈화
 module.exports = {
