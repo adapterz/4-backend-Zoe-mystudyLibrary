@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Zoe0631/4-fulllstack-Zoe-mystudyLibrary#readme",
   "dependencies": {
+    "body-parser": "^1.19.2",
     "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-prettier": "^4.0.0",
