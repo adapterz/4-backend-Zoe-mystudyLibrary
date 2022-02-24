@@ -30,7 +30,7 @@ const boards = [
   },
 ];
 
-function is_valid_post(
+function can_post(
   input_title,
   input_content,
   input_id,
@@ -53,7 +53,46 @@ function is_valid_post(
   boards.push(new_post);
   return true;
 }
+
+function revise_post(
+  input_title,
+  input_content,
+  input_id,
+  input_name,
+  input_tags
+) {
+  if (!business_logic.is_valid_title(input_title)) return false;
+  if (!business_logic.is_valid_content(input_content)) return false;
+  let this_index = null;
+  // 유효성 검사 통과 시 글 수정 (날짜와 id는 변경x)
+  for (const index of boards) {
+    if (input_id === boards[index].id) {
+      this_index = index;
+      break;
+    }
+  }
+
+  boards[this_index].title = input_title;
+  boards[this_index].content = input_content;
+  boards[this_index].name = input_name;
+  boards[this_index].tags = input_tags;
+}
+
+function delete_post(input_id) {
+  let this_index = null;
+  // 해당 게시글의 index 찾기
+  for (const index of boards) {
+    if (input_id === boards[index].id) {
+      this_index = index;
+      break;
+    }
+  }
+  // 게시글 삭제
+  boards[this_index].pop();
+}
 // 모듈화
 module.exports = {
-  is_valid_post: is_valid_post,
+  can_post: can_post,
+  revise_post: revise_post,
+  delete_post: delete_post,
 };

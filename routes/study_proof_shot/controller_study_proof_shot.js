@@ -59,7 +59,7 @@ const write_posting = function (req, res) {
   // 작성한 정보 가져오기
   const new_posting = req.body;
   // 게시글 목록에 추가
-  const can_post = model_post.is_valid_post(
+  const can_post = model_post.can_post(
     new_posting.title.toString(),
     new_posting.content.toString(),
     new_posting.id.toString(),
@@ -75,9 +75,32 @@ const write_posting = function (req, res) {
     res.status(201).redirect("/study_proof_shot");
   }
 };
-// TODO
-// 댓글쓰기, 검색기능
 
+// 게시글 수정하기
+const revise_posting = function (req, res) {
+  // 수정한 정보 가져오기
+  const revised_posting = req.body;
+  // 기존 게시글 수정
+  model_post.revise_post(
+    revised_posting.title.toString(),
+    revised_posting.content.toString(),
+    revised_posting.id.toString(),
+    revised_posting.name.toString(),
+    revise_posting.tags.toString()
+  );
+
+  res.status(200).send("게시글 수정");
+};
+
+// 게시글삭제하기
+const delete_posting = function (req, res) {
+  // 삭제할 게시글 id 받아오기
+  const delete_posting_id = req.params.id;
+  // 게시글 삭제
+  model_post.delete_post(delete_posting_id.toString());
+
+  res.status(200).send("게시글 삭제");
+};
 // TODO
 // 댓글쓰기, 검색기능
 
@@ -87,4 +110,6 @@ module.exports = {
   get_detail_elements_of_board: get_detail_elements_of_board,
   get_write_page: get_write_page,
   write_posting: write_posting,
+  revise_posting: revise_posting,
+  delete_posting: delete_posting,
 };

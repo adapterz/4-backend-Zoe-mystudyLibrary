@@ -102,7 +102,6 @@ function IsSamePw(input_pw, input_confirm_pw) {
 }
 // 모듈화
 module.exports = {
-  IsAllCheckedBeforeSignUp: IsAllCheckedBeforeSignUp,
   IsNonExistedID: IsNonExistedID,
   IsValid: IsValid,
   IsSamePw: IsSamePw,
