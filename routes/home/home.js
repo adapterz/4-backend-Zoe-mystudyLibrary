@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("./controller_home");
 
-// 요청 별 정의
+// 홈화면
 router.get("/", controller.get_home);
 
 // 모듈화
