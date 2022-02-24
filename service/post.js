@@ -30,14 +30,16 @@ const boards = [
 // 2. 글 내용이 2글자 이상, 5000글자 이하 인가
 function is_valid_title(input_title) {
   // 2글자 미만, 50글자 초과면 유효하지 않은 제목
-  if (input_title < 2 || input_title > 50) return false;
+  const title_len = input_title.length;
+  if (title_len < 2 || title_len > 50) return false;
   // 이외의 경우는 유효
   return true;
 }
 
 function is_valid_content(input_content) {
   // 2글자 미만, 5000글자 초과면 유효하지 않은 내용
-  if (input_content < 2 || input_content > 5000) return false;
+  const content_len = input_content.length;
+  if (content_len < 2 || content_len > 5000) return false;
   // 이외 경우는 유효
   return true;
 }
