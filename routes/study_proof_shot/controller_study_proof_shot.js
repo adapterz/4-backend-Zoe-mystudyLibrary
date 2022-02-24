@@ -1,6 +1,7 @@
 // 공부인증샷 창의 라우터의 컨트롤러
 
 // 예시 글 목록
+const { is_valid_post } = require("../../service/post");
 const boards = [
   {
     id: 3,
@@ -55,9 +56,21 @@ const write_posting = function (req, res) {
   // 작성한 정보 가져오기
   const new_posting = req.body;
   // 게시글 목록에 추가
-  boards.push(new_posting);
-  // 작성 완료 후 게시글 목록으로 가기
-  res.redirect("/free_bulletin_board");
+  const case_post = is_valid_post(
+    new_posting.title.toString(),
+    new_posting.content.toString(),
+    new_posting.id.toString(),
+    new_posting.name.toString(),
+    new_posting.created.toString()
+  );
+  if (case_post === 0) {
+    res.send("제목은 2글자 이상 50글자 이하입니다.");
+  } else if (case_post === 1) {
+    res.send("글 내용은 2글자 이상 5000글자 이하입니다.");
+  } else if (case_post == 2) {
+    // 작성 완료 후 게시글 목록으로 가기
+    res.redirect("/free_bulletin_board");
+  }
 };
 
 // TODO
