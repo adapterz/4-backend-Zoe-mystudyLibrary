@@ -9,7 +9,7 @@ const get_new_user = function (req, res) {
   console.log("/new_user");
 };
 // 회원가입 약관확인
-export const confirm_terms_of_use = function (req, res) {
+const confirm_terms_of_use = function (req, res) {
   const body = req.body;
   // 프로퍼티 임시로 정의(나중에 데이터 가져올 떄 코드 다시 짜주기)
   body.is_agree_terms_of_use = undefined;
@@ -36,7 +36,7 @@ const sign_up = function (req, res) {
   body.gender = null;
   body.confirm_pw = null;
 
-  // 회원가입 성공 여부/ 실패했다면 원인 return
+  // 회원가입 성공 여부/ 실패했다면 원인 num값으로 return
   const case_sign_up = service_user.SignUp(
     body.id.toString(),
     body.pw.toString(),
@@ -55,12 +55,14 @@ const sign_up = function (req, res) {
     res.send(
       "'비밀번호'는 8~16자리 사이의 영문,숫자,특수문자(!,@,#,$,%,^,&,*)의 조합이어야합니다."
     );
+    // 회원가입 성공 시 홈화면으로
   } else if (case_sign_up === 3) {
-    res.send("회원가입 성공");
+    res.redirect("/");
   }
 };
 
 module.exports = {
   get_new_user: get_new_user,
+  confirm_terms_of_use: confirm_terms_of_use,
   sign_up: sign_up,
 };

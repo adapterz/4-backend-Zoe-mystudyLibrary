@@ -12,14 +12,15 @@ const login = function (req, res) {
   // body 프로퍼티 임시로 정의(나중에 데이터 가져올 떄 코드 다시 짜주기)
   body.pw = null;
 
-  // 로그인 성공 여부
+  // 로그인 성공 여부/ 실패했다면 실패한 이유 num으로 리턴
   const case_login = service_user.Login(body.id.toString(), body.pw.toString());
   // return 값에 따라 분기처리
   if (case_login === 0) res.send("ID가 존재하지 않습니다.");
   else if (case_login === 1) res.send("비밀번호가 일치하지 않습니다.");
   else if (case_login === 2) res.send("로그인 성공");
-  else res.end();
 };
+
+// 모듈화
 module.exports = {
   get_login: get_login,
   login: login,
