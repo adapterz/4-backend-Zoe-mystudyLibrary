@@ -1,6 +1,6 @@
 // 자유게시판 라우터의 컨트롤러
 
-// post 비즈니스로직 객체
+// model 객체
 const model_post = require("/model/post");
 
 // 예시 글 목록

@@ -1,7 +1,6 @@
 // 공부인증샷 창의 라우터의 컨트롤러
-// post 비즈니스로직 객체
-const post_manage = require("/service/post");
-const model_post = require("../../model/post");
+// model 객체
+const model_post = require("/model/post");
 
 // 예시 글 목록
 const boards = [
