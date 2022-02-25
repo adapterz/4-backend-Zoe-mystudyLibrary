@@ -24,6 +24,7 @@ const new_user_router = require("./routes/new_user/new_user");
 const service_description_router = require("./routes/service_description/service_description");
 const study_proof_shot_router = require("./routes/study_proof_shot/study_proof_shot");
 const user_router = require("./routes/user/user");
+const my_post_router = require("./routes/my_post/my_post");
 
 app.use("/adj_lib", adj_lib_router);
 app.use("/free_bulletin_board", free_bulletin_board_router);
@@ -33,6 +34,7 @@ app.use("/new_user", new_user_router);
 app.use("/service_description", service_description_router);
 app.use("/study_proof_shot", study_proof_shot_router);
 app.use("/user", user_router);
+app.use("/my_post", my_post_router);
 
 // 404 에러처리
 app.get("/not_found", function (req, res) {
