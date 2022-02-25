@@ -14,9 +14,10 @@ const login = function (req, res) {
 
   // 로그인 성공 여부
   const can_login = model_user.Login(body.id.toString(), body.pw.toString());
-  // return 값에 따라 분기처리
+  // 로그인 실패
   if (!can_login) res.status(401).send("로그인실패");
-  else if (can_login) res.status(200).send("로그인 성공");
+  // 로그인 후 홈화면으로 가기
+  else if (can_login) res.status(200).redirect("/");
 };
 
 // 모듈화
