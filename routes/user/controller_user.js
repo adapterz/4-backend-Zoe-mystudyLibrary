@@ -13,7 +13,7 @@ const get_profile = function (req, res) {
 
 // 내 프로필 수정(patch)
 const patch_profile = function (req, res) {
-  // 기존 유저 정보 가져오기(DB배우고 수정)
+  // 기존 유저 정보 가져오기(DB 배우고 수정)
   const user_data = null;
 
   // 입력된 프로필 정보 가져오기
@@ -37,7 +37,7 @@ const get_user_data = function (req, res) {
 
 // 연락처 및 회원 정보 창(patch)
 const patch_user_data = function (req, res) {
-  // 기존 유저 정보 가져오기(DB배우고 수정)
+  // 기존 유저 정보 가져오기(DB 배우고 수정)
   const user_data = null;
 
   // 입력된 정보 가져오기
@@ -58,7 +58,7 @@ const get_revise_pw = function (req, res) {
 // 비밀번호 수정(patch)
 // 고민: 자동입력방지 문자는 어떻게하지...?
 const patch_revise_pw = function (req, res) {
-  // 기존 유저 정보 가져오기(DB배우고 수정)
+  // 기존 유저 정보 가져오기(DB 배우고 수정)
   const user_data = null;
 
   // 입력된 비밀번호 정보 가져오기
