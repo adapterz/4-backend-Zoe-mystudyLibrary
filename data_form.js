@@ -63,6 +63,11 @@ const boards = [
     content: "글내용3",
     tags: ["태그3-1", "태그3-2"],
     created: "2022-02-24",
+    comments: [
+      { user_id: "댓글1" },
+      { user_id: "댓글2" },
+      { user_id: "댓글3" },
+    ],
   },
   {
     id: 2,
@@ -72,6 +77,11 @@ const boards = [
     content: "글내용2",
     tags: ["태그2-1", "태그2-2"],
     created: "2022-02-24",
+    comments: [
+      { user_id: "댓글1" },
+      { user_id: "댓글2" },
+      { user_id: "댓글3" },
+    ],
   },
   {
     id: 1,
@@ -81,6 +91,11 @@ const boards = [
     content: "글내용1",
     tags: ["태그1-1", "태그1-2"],
     created: "2022-02-24",
+    comments: [
+      { user_id: "댓글1" },
+      { user_id: "댓글2" },
+      { user_id: "댓글3" },
+    ],
   },
 ];
 

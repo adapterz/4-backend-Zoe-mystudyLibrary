@@ -12,6 +12,11 @@ const boards = [
     content: "글내용3",
     tags: ["태그3-1", "태그3-2"],
     created: "2022-02-24",
+    comments: [
+      { user_id: "댓글1" },
+      { user_id: "댓글2" },
+      { user_id: "댓글3" },
+    ],
   },
   {
     id: 2,
@@ -21,6 +26,11 @@ const boards = [
     content: "글내용2",
     tags: ["태그2-1", "태그2-2"],
     created: "2022-02-24",
+    comments: [
+      { user_id: "댓글1" },
+      { user_id: "댓글2" },
+      { user_id: "댓글3" },
+    ],
   },
   {
     id: 1,
@@ -30,6 +40,44 @@ const boards = [
     content: "글내용1",
     tags: ["태그1-1", "태그1-2"],
     created: "2022-02-24",
+    comments: [
+      { user_id: "댓글1" },
+      { user_id: "댓글2" },
+      { user_id: "댓글3" },
+    ],
+  },
+];
+// 예시 유저 정보
+const users = [
+  {
+    ID: "syjg1234",
+    Password: "hassing_pw1",
+    Name: "Zoe",
+    Gender: "Woman",
+    Phone_number: "01028400631",
+    salt: "1234#",
+    nickname: null,
+    profile_shot: null,
+  },
+  {
+    ID: "ye1919",
+    Password: "hassing_pw2",
+    Name: "Yeji",
+    Gender: "Woman",
+    Phone_number: "01128400631",
+    salt: "1234!",
+    nickname: null,
+    profile_shot: null,
+  },
+  {
+    ID: "hihi123",
+    Password: "hassing_pw3",
+    Name: "Leehi",
+    Gender: "Man",
+    Phone_number: "01234567890",
+    salt: "12a13",
+    nickname: null,
+    profile_shot: null,
   },
 ];
 
@@ -54,6 +102,7 @@ function can_post(
     content: input_content,
     tags: input_tags,
     created: input_created,
+    comments: null,
   };
   boards.push(new_post);
   return true;
@@ -99,9 +148,56 @@ function delete_post(input_id) {
 
   return true;
 }
+
+// 댓글 작성
+function post_comment(user_id, new_comment, post_id) {
+  let this_index = null;
+  // 해당 게시글의 index 찾기
+  for (const index of boards) {
+    if (post_id === boards[index].id) {
+      this_index = index;
+      break;
+    }
+  }
+
+  // 새 댓글 정보
+  const new_comment_data = {
+    user_id: new_comment,
+  };
+
+  boards[this_index].comments.push(new_comment_data);
+
+  return true;
+}
+
+// 댓글 삭제
+function delete_comment(post_id, user_id) {
+  // 입력한 post_id의 boards index 찾기
+  let boards_index = null;
+  for (const index in boards) {
+    if (post_id === boards[index].id) {
+      boards_index = index;
+      break;
+    }
+  }
+  // 해당 게시글의 해당 유저가 작성한 댓글 정보 찾기
+  let comments_index = null;
+  for (const index in boards) {
+    if (user_id === boards[boards_index].comments[index].user_id) {
+      comments_index = index;
+      break;
+    }
+  }
+  // 댓글 삭제
+  boards[boards_index].comments.splice(comments_index, 1);
+  return true;
+}
+
 // 모듈화
 module.exports = {
   can_post: can_post,
   revise_post: revise_post,
   delete_post: delete_post,
+  post_comment: post_comment,
+  delete_comment: delete_comment,
 };

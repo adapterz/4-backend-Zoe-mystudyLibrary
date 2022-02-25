@@ -11,9 +11,18 @@ router.get("/:id", controller.get_detail_elements_of_board);
 router.get("/write", controller.get_write_page);
 // 글작성 완료시
 router.post("/write", controller.write_posting);
+// 게시글 수정창 열기
+router.get("/revise/:id", controller.revise);
 // 게시물 수정
-router.patch("/:id", controller.revise_posting);
+router.patch("/revise/:id", controller.revise_posting);
 // 게시물 삭제
-router.delete("/:id", controller.delete_posting);
+router.delete("/revise/:id", controller.delete_posting);
+// 댓글창 불러오기
+router.get("/:id/:comments", controller.get_comment);
+// 댓글 작성
+router.post("/:id/:comments", controller.post_comment);
+// 댓글 삭제
+router.delete("/:id/comments", controller.delete_comment);
+
 // 모듈화
 module.exports = router;

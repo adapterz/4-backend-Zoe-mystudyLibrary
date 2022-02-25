@@ -15,6 +15,12 @@ router.post("/write", controller.write_posting);
 router.patch("/:id", controller.revise_posting);
 // 게시물 삭제
 router.delete("/:id", controller.delete_posting);
-// 삭제
+// 댓글창 불러오기
+router.get("/:id/:comments", controller.get_comment);
+// 댓글 작성
+router.post("/:id/:comments", controller.post_comment);
+// 댓글 삭제
+router.delete("/:id/comments", controller.delete_comment);
+
 // 모듈화
 module.exports = router;
