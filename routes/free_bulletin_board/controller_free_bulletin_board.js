@@ -105,7 +105,7 @@ const delete_posting = function (req, res) {
   // 게시글 삭제
   model_post.delete_post(delete_posting_id.toString());
 
-  res.status(200).send("게시글 삭제");
+  res.status(204).send("게시글 삭제");
 };
 
 // TODO
