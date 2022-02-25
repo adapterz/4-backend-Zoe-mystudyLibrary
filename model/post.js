@@ -7,6 +7,7 @@ const boards = [
   {
     id: 3,
     name: "닉네임3",
+    category: "자유게시판",
     title: "글제목3",
     content: "글내용3",
     tags: ["태그3-1", "태그3-2"],
@@ -15,6 +16,7 @@ const boards = [
   {
     id: 2,
     name: "닉네임2",
+    category: "공부인증샷",
     title: "글제목2",
     content: "글내용2",
     tags: ["태그2-1", "태그2-2"],
@@ -23,6 +25,7 @@ const boards = [
   {
     id: 1,
     name: "닉네임1",
+    category: "자유게시판",
     title: "글제목1",
     content: "글내용1",
     tags: ["태그1-1", "태그1-2"],
@@ -32,6 +35,7 @@ const boards = [
 
 function can_post(
   input_title,
+  input_category,
   input_content,
   input_id,
   input_name,
@@ -44,6 +48,7 @@ function can_post(
   // 유효성 검사 통과하면 작성한 글을 게시글 목록에 추가
   const new_post = {
     id: input_id,
+    category: input_category,
     name: input_name,
     title: input_title,
     content: input_content,
