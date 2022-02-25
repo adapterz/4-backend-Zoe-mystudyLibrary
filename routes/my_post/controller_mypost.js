@@ -7,5 +7,10 @@ const my = function (req, res) {
   res.status(200).send("내가 작성한 글/후기");
 };
 
+// TODO
+
+// 내가 작성한 글, 내가 작성한 댓글, 내가 작성한 후기
+// 내 관심도서관(adj_lib 코드 작성 후 구현)
+
 // 모듈화
 module.exports = { my: my };
