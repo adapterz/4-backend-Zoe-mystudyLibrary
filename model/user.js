@@ -125,7 +125,7 @@ function revise_pw(input_new_pw, input_confirm_new_pw, input_id) {
   }
   // 기존 유저 비밀번호/salts 변경
   users[user_index].Password = hashing_data.temp_hash_pw;
-  users[user_index].salts = hashing_data.temp_hash_pw;
+  users[user_index].salts = hashing_data.temp_salts;
 }
 
 // 모듈화
