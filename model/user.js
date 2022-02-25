@@ -131,6 +131,24 @@ function revise_profile(input_photo, input_nickname, input_id) {
 
   // TODO
   // 사진 변경
+
+  return true;
+}
+
+// 회원정보(폰번호 변경)
+function revise_user_data(input_phone_num, input_id) {
+  // user 정보 찾기
+  // 입력한 ID의 user index 찾기
+  let user_index = null;
+  for (const index in users) {
+    if (input_id === users[index].id) {
+      user_index = index;
+      break;
+    }
+  }
+  users[user_index].Phone_number = input_phone_num;
+
+  return true;
 }
 
 // 비밀번호 변경
@@ -160,6 +178,8 @@ function revise_pw(input_pw, input_new_pw, input_confirm_new_pw, input_id) {
   // 기존 유저 비밀번호/salts 변경
   users[user_index].Password = hashing_data.temp_hash_pw;
   users[user_index].salts = hashing_data.temp_salts;
+
+  return true;
 }
 
 // 모듈화
@@ -168,5 +188,6 @@ module.exports = {
   IsAllCheckedBeforeSignUp: IsAllCheckedBeforeSignUp,
   SignUp: SignUp,
   revise_profile: revise_profile,
+  revise_user_data: revise_user_data,
   revise_pw: revise_pw,
 };

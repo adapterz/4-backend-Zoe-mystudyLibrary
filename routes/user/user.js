@@ -10,7 +10,9 @@ router.get("/profile", controller.get_profile);
 // 내 프로필 변경
 router.patch("/profile", controller.patch_profile);
 // 내 연락처 및 회원정보창
-router.get("/user_data", controller.get_user);
+router.get("/user_data", controller.get_user_data);
+// 연락처 변경요청
+router.patch("/user_data", controller.patch_user_data);
 // 비밀번호변경창
 router.get("/new_pw", controller.get_revise_pw);
 // 비밀번호변경요청

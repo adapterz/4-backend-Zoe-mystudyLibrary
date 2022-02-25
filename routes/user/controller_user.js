@@ -35,6 +35,21 @@ const get_user_data = function (req, res) {
   res.status(200).send("내회원정보창");
 };
 
+// 연락처 및 회원 정보 창(patch)
+const patch_user_data = function (req, res) {
+  // 기존 유저 정보 가져오기(DB배우고 수정)
+  const user_data = null;
+
+  // 입력된 정보 가져오기
+  const new_user_data = req.body;
+
+  // 번호 변경
+  model_user.revise_user_data(new_user_data.Phone_number, user_data.id);
+
+  // 내정보창으로이동
+  res.status(200).redirect("/user");
+};
+
 // 비밀번호 수정(get)
 const get_revise_pw = function (req, res) {
   res.status(200).send("비밀번호변경창");
@@ -63,14 +78,13 @@ const patch_revise_pw = function (req, res) {
   res.send(200).redirect("/user");
 };
 
-//
-
 // 모듈화
 module.exports = {
   get_user: get_user,
   get_profile: get_profile,
   patch_profile: patch_profile,
   get_user_data: get_user_data,
+  patch_user_data: patch_user_data,
   get_revise_pw: get_revise_pw,
   patch_revise_pw: patch_revise_pw,
 };
