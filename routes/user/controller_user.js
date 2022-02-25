@@ -13,17 +13,29 @@ const get_revise_pw = function (req, res) {
 };
 
 // 비밀번호 수정(patch)
+// 고민: 자동입력방지 문자는 어떻게하지...?
 const patch_revise_pw = function (req, res) {
+  // 기존 유저 정보 가져오기(DB배우고 수정)
+  const user_data = null;
+
   // 입력된 비밀번호 정보 가져오기
   const new_user_data = req.body;
+  // 임시 필드 생성(나중에 수정)
+  new_user_data.new_pw = undefined;
+
   // 비밀번호 변경
   model_user.revise_pw(
-    new_user_data.pw.toString(),
-    new_user_data.confirm_pw.toString()
+    user_data.pw.toString(),
+    new_user_data.new_pw.toString(),
+    new_user_data.confirm_pw.toString(),
+    user_data.ID.toString()
   );
+
   // 상태코드
   res.send(200).send("비밀번호 변경 성공");
 };
+
+//
 
 // 모듈화
 module.exports = {

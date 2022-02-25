@@ -103,17 +103,7 @@ function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
 }
 
 // 비밀번호 변경
-function revise_pw(input_new_pw, input_confirm_new_pw, input_id) {
-  // 비밀번호 유효성 검사
-  // 1. '비밀번호'와 '비밀번호 확인'이 일치하지 않으면 회원가입 불가
-  if (!business_logic.IsSamePw(input_new_pw, input_confirm_new_pw))
-    return false;
-  // 2. '비밀번호'가 유효하지 않으면 회원가입 불가
-  if (!business_logic.IsValid(input_confirm_new_pw)) return false;
-
-  // 암호 해싱
-  const hashing_data = business_logic.hash_pw(input_new_pw);
-
+function revise_pw(input_pw, input_new_pw, input_confirm_new_pw, input_id) {
   // user 정보 찾기
   // 입력한 ID의 user index 찾기
   let user_index = null;
@@ -123,6 +113,19 @@ function revise_pw(input_new_pw, input_confirm_new_pw, input_id) {
       break;
     }
   }
+  // 유저 정보의 비밀번호와 입력한 현재 비밀번호가 다르면 비밀번호 변경 불가
+  if (users[user_index].Password !== input_pw) return false;
+
+  // 비밀번호 유효성 검사
+  // 1. '비밀번호'와 '비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
+  if (!business_logic.IsSamePw(input_new_pw, input_confirm_new_pw))
+    return false;
+  // 2. '비밀번호'가 유효하지 않으면 비밀번호 변경 불가
+  if (!business_logic.IsValid(input_confirm_new_pw)) return false;
+
+  // 암호 해싱
+  const hashing_data = business_logic.hash_pw(input_new_pw);
+
   // 기존 유저 비밀번호/salts 변경
   users[user_index].Password = hashing_data.temp_hash_pw;
   users[user_index].salts = hashing_data.temp_salts;
