@@ -6,6 +6,34 @@ const model_user = require("/model/user");
 const get_user = function (req, res) {
   res.status(200).send("내정보창");
 };
+// 내 프로필(get)
+const get_profile = function (req, res) {
+  res.status(200).send("내프로필창");
+};
+
+// 내 프로필 수정(patch)
+const patch_profile = function (req, res) {
+  // 기존 유저 정보 가져오기(DB배우고 수정)
+  const user_data = null;
+
+  // 입력된 프로필 정보 가져오기
+  const new_user_data = req.body;
+
+  // 프로필 정보 변경
+  model_user.revise_profile(
+    new_user_data.profile_shot,
+    new_user_data.nickname,
+    user_data.id
+  );
+
+  // 내정보창으로 이동
+  res.status(200).redirect("/user");
+};
+
+// 연락처 및 회원 정보 창(get)
+const get_user_data = function (req, res) {
+  res.status(200).send("내회원정보창");
+};
 
 // 비밀번호 수정(get)
 const get_revise_pw = function (req, res) {
@@ -31,8 +59,8 @@ const patch_revise_pw = function (req, res) {
     user_data.ID.toString()
   );
 
-  // 상태코드
-  res.send(200).send("비밀번호 변경 성공");
+  // 내정보창으로 이동
+  res.send(200).redirect("/user");
 };
 
 //
@@ -40,6 +68,9 @@ const patch_revise_pw = function (req, res) {
 // 모듈화
 module.exports = {
   get_user: get_user,
+  get_profile: get_profile,
+  patch_profile: patch_profile,
+  get_user_data: get_user_data,
   get_revise_pw: get_revise_pw,
   patch_revise_pw: patch_revise_pw,
 };

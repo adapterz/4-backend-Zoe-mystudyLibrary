@@ -10,6 +10,8 @@ const users = [
     Gender: "Woman",
     Phone_number: "01028400631",
     salt: "1234#",
+    nickname: null,
+    profile_shot: null,
   },
   {
     ID: "ye1919",
@@ -18,6 +20,8 @@ const users = [
     Gender: "Woman",
     Phone_number: "01128400631",
     salt: "1234!",
+    nickname: null,
+    profile_shot: null,
   },
   {
     ID: "hihi123",
@@ -26,6 +30,8 @@ const users = [
     Gender: "Man",
     Phone_number: "01234567890",
     salt: "12a13",
+    nickname: null,
+    profile_shot: null,
   },
 ];
 
@@ -120,10 +126,21 @@ function hashing_pw(input_pw) {
   };
 }
 
+// 닉네임 글자 수 체크(2~8글자)
+function check_len_nickname(input_nickname) {
+  const len_nickname = input_nickname.length;
+  // 닉네임 길이가 유효하지 않을 때
+  if (len_nickname < 2 || len_nickname > 8) return false;
+
+  // 닉네임 2~8글자
+  return true;
+}
+
 // 모듈화
 module.exports = {
   IsNonExistedID: IsNonExistedID,
   IsValid: IsValid,
   IsSamePw: IsSamePw,
   hash_pw: hashing_pw,
+  check_len_nickname: check_len_nickname,
 };

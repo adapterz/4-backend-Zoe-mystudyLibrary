@@ -13,6 +13,8 @@ const users = [
     Gender: "Woman",
     Phone_number: "01028400631",
     salt: "1234#",
+    nickname: null,
+    profile_shot: null,
   },
   {
     ID: "ye1919",
@@ -21,6 +23,8 @@ const users = [
     Gender: "Woman",
     Phone_number: "01128400631",
     salt: "1234!",
+    nickname: null,
+    profile_shot: null,
   },
   {
     ID: "hihi123",
@@ -29,6 +33,8 @@ const users = [
     Gender: "Man",
     Phone_number: "01234567890",
     salt: "12a13",
+    nickname: null,
+    profile_shot: null,
   },
 ];
 
@@ -76,6 +82,7 @@ function IsAllCheckedBeforeSignUp(
   if (checking_terms_of_use && checking_about_personal_information) return true;
   return false;
 }
+
 // main. 회원가입 로직
 function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
   // 유효성 검사
@@ -88,18 +95,42 @@ function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
 
   // 암호 해싱
   const hashing_data = business_logic.hash_pw(input_pw);
+
   // 유효성 검사 통과하면 유저 정보에 신규 유저 추가
   const new_user = {
-    ID: input_id,
-    Password: hashing_data.temp_hash_pw,
-    Name: name,
-    Gender: gender,
-    Phone_number: phone_num,
-    salt: hashing_data.temp_salts,
+    ID: input_id.toString(),
+    Password: hashing_data.temp_hash_pw.toString(),
+    Name: name.toString(),
+    Gender: gender.toString(),
+    Phone_number: phone_num.toString(),
+    salt: hashing_data.temp_salts.toString(),
+    nickname: null,
+    profile_shot: null,
   };
 
   users.push(new_user);
   return true;
+}
+
+// 프로필 변경
+function revise_profile(input_photo, input_nickname, input_id) {
+  // 유효성 검사
+  // 닉네임 길이 2~8글자가 아니면 false 반환
+  if (!business_logic.check_len_nickname(input_nickname)) return false;
+
+  // user 정보 찾기
+  // 입력한 ID의 user index 찾기
+  let user_index = null;
+  for (const index in users) {
+    if (input_id === users[index].id) {
+      user_index = index;
+      break;
+    }
+  }
+  users[user_index].nickname = input_nickname;
+
+  // TODO
+  // 사진 변경
 }
 
 // 비밀번호 변경
@@ -136,5 +167,6 @@ module.exports = {
   Login: Login,
   IsAllCheckedBeforeSignUp: IsAllCheckedBeforeSignUp,
   SignUp: SignUp,
+  revise_profile: revise_profile,
   revise_pw: revise_pw,
 };
