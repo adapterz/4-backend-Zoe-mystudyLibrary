@@ -182,6 +182,24 @@ function revise_pw(input_pw, input_new_pw, input_confirm_new_pw, input_id) {
   return true;
 }
 
+// 회원탈퇴
+function delete_user_data(input_id) {
+  // user 정보 찾기
+  // 입력한 ID의 user index 찾기
+  let user_index = -1;
+  for (const index in users) {
+    if (input_id === users[index].id) {
+      user_index = index;
+      break;
+    }
+  }
+
+  // 회원정보 삭제
+  users.splice(user_index, 1);
+
+  return true;
+}
+
 // 모듈화
 module.exports = {
   Login: Login,
@@ -190,4 +208,5 @@ module.exports = {
   revise_profile: revise_profile,
   revise_user_data: revise_user_data,
   revise_pw: revise_pw,
+  delete_user_data: delete_user_data,
 };

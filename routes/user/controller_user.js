@@ -76,6 +76,28 @@ const patch_revise_pw = function (req, res) {
   res.send(200).redirect("/user");
 };
 
+// 회원탈퇴창(get)
+const get_drop_out = function (req, res) {
+  res.status(200).send("회원탈퇴창");
+};
+// 회원탈퇴요청
+const delete_drop_out = function (req, res) {
+  // 기존 유저 정보 가져오기(DB 배우고 수정)
+  const user_data = null;
+
+  // 회원탈퇴안내 동의여부 (DB 배우고 나중에 수정)
+  const is_agree = null;
+
+  // 회원정보삭제
+  if (is_agree) {
+    model_user.delete_user_data(user_data.id);
+    // 홈 화면으로 이동
+    res.status(204).redirect("/");
+  } else if (!is_agree) {
+    res.status(200).send("탈퇴 안내를 확인하고 동의해주세요.");
+  }
+};
+
 // 모듈화
 module.exports = {
   get_user: get_user,
@@ -85,4 +107,6 @@ module.exports = {
   patch_user_data: patch_user_data,
   get_revise_pw: get_revise_pw,
   patch_revise_pw: patch_revise_pw,
+  get_drop_out: get_drop_out,
+  delete_drop_out: delete_drop_out,
 };

@@ -17,5 +17,9 @@ router.patch("/user_data", controller.patch_user_data);
 router.get("/new_pw", controller.get_revise_pw);
 // 비밀번호변경요청
 router.patch("/new_pw", controller.patch_revise_pw);
+// 회원탈퇴창
+router.get("/drop_out", controller.get_drop_out);
+// 회원탈퇴요청
+router.delete("/drop_out", controller.delete_drop_out);
 // 모듈화
 module.exports = router;
