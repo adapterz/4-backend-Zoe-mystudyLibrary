@@ -8,6 +8,7 @@ const boards = [
   {
     id: 3,
     name: "닉네임3",
+    category: "자유게시판",
     title: "글제목3",
     content: "글내용3",
     tags: ["태그3-1", "태그3-2"],
@@ -16,6 +17,7 @@ const boards = [
   {
     id: 2,
     name: "닉네임2",
+    category: "공부인증샷",
     title: "글제목2",
     content: "글내용2",
     tags: ["태그2-1", "태그2-2"],
@@ -24,6 +26,7 @@ const boards = [
   {
     id: 1,
     name: "닉네임1",
+    category: "자유게시판",
     title: "글제목1",
     content: "글내용1",
     tags: ["태그1-1", "태그1-2"],
@@ -34,17 +37,17 @@ const boards = [
 // 전체 게시물 보기
 const get_free_bulletin_board = function (req, res) {
   // TODO
-  // DB에서 글 정보 가져오기(현재는 예시, DB 관련 공부 후 코드 다시 짜기)
-  // const boards = DB에서 가져오기(전체)
+  // DB 에서 글 정보 가져오기(현재는 예시, DB 관련 공부 후 코드 다시 짜기)
+  // const boards = DB 에서 가져오기(전체)
   res.status(200).send(boards);
 };
 // 게시물 상세보기
 const get_detail_elements_of_board = function (req, res) {
   // TODO
-  // DB에서 글 정보 가져오기(현재는 예시, DB 관련 공부 후 코드 다시 짜기)
+  // DB 에서 글 정보 가져오기(현재는 예시, DB 관련 공부 후 코드 다시 짜기)
   // const id = req.params.id;
 
-  // const boards = DB에서 가져오기(id참조)
+  // const boards = DB 에서 가져오기(id 참조)
   res.status(200).send(boards);
 };
 
@@ -63,6 +66,7 @@ const write_posting = function (req, res) {
   // 게시글 목록에 추가
   const can_post = model_post.can_post(
     new_posting.title.toString(),
+    new_posting.category.toString(),
     new_posting.content.toString(),
     new_posting.id.toString(),
     new_posting.name.toString(),
@@ -88,7 +92,7 @@ const revise_posting = function (req, res) {
     revised_posting.content.toString(),
     revised_posting.id.toString(),
     revised_posting.name.toString(),
-    revise_posting.tags.toString()
+    revised_posting.tags.toString()
   );
 
   res.status(200).send("게시글 수정");
