@@ -1,6 +1,7 @@
 // 로그인화면의 라우터의 컨트롤러
 // 모델 객체
 const model_user = require("/model/user");
+
 // 해당 라우터에서 get 요청을 받았을 때(기본화면)
 const get_login = function (req, res) {
   res.status(200).send("로그인 창");
