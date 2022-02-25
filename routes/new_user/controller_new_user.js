@@ -32,12 +32,8 @@ const confirm_terms_of_use = function (req, res) {
 // 회원가입 요청
 const sign_up = function (req, res) {
   const body = req.body;
-  // 프로퍼티 임시로 정의(나중에 데이터 가져올 떄 코드 다시 짜주기)
-  body.phone_num = null;
-  body.gender = null;
-  body.confirm_pw = null;
 
-  // 회원가입 성공 여부/ 실패했다면 원인 num값으로 return
+  // 회원가입 성공 여부/ 실패했다면 원인 num 값으로 return
   const can_sign_up = model_user.SignUp(
     body.id.toString(),
     body.pw.toString(),

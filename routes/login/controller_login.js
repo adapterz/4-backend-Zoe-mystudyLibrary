@@ -9,9 +9,8 @@ const get_login = function (req, res) {
 
 // 로그인
 const login = function (req, res) {
+  // 로그인 입력 정보 가져오기
   const body = req.body;
-  // body 프로퍼티 임시로 정의(나중에 데이터 가져올 떄 코드 다시 짜주기)
-  body.pw = null;
 
   // 로그인 성공 여부
   const can_login = model_user.Login(body.id.toString(), body.pw.toString());

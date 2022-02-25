@@ -63,8 +63,6 @@ const patch_revise_pw = function (req, res) {
 
   // 입력된 비밀번호 정보 가져오기
   const new_user_data = req.body;
-  // 임시 필드 생성(나중에 수정)
-  new_user_data.new_pw = undefined;
 
   // 비밀번호 변경
   model_user.revise_pw(
