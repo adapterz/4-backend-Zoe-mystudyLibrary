@@ -33,7 +33,6 @@ const users = [
 ];
 
 // 로그인 기능
-
 function Login(input_id, input_pw) {
   let user_index = null;
   // 입력한 ID의 user index 찾기
@@ -87,26 +86,46 @@ function SignUp(input_id, input_pw, input_confirm_pw, name, gender, phone_num) {
   // 3. '비밀번호'가 유효하지 않으면 회원가입 불가
   if (!business_logic.IsValid(input_pw)) return false;
 
-  // 암호화
-  // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
-  const salts = crypto.randomBytes(128).toString("base64");
-  const hash_pw = crypto
-    .createHash("sha512")
-    .update(input_pw + salts)
-    .digest("hex");
-
+  // 암호 해싱
+  const hashing_data = business_logic.hash_pw(input_pw);
   // 유효성 검사 통과하면 유저 정보에 신규 유저 추가
   const new_user = {
     ID: input_id,
-    Password: hash_pw,
+    Password: hashing_data.temp_hash_pw,
     Name: name,
     Gender: gender,
     Phone_number: phone_num,
-    salt: salts,
+    salt: hashing_data.temp_salts,
   };
 
   users.push(new_user);
   return true;
+}
+
+// 비밀번호 변경
+function revise_pw(input_new_pw, input_confirm_new_pw, input_id) {
+  // 비밀번호 유효성 검사
+  // 1. '비밀번호'와 '비밀번호 확인'이 일치하지 않으면 회원가입 불가
+  if (!business_logic.IsSamePw(input_new_pw, input_confirm_new_pw))
+    return false;
+  // 2. '비밀번호'가 유효하지 않으면 회원가입 불가
+  if (!business_logic.IsValid(input_confirm_new_pw)) return false;
+
+  // 암호 해싱
+  const hashing_data = business_logic.hash_pw(input_new_pw);
+
+  // user 정보 찾기
+  // 입력한 ID의 user index 찾기
+  let user_index = null;
+  for (const index in users) {
+    if (input_id === users[index].id) {
+      user_index = index;
+      break;
+    }
+  }
+  // 기존 유저 비밀번호/salts 변경
+  users[user_index].Password = hashing_data.temp_hash_pw;
+  users[user_index].salts = hashing_data.temp_hash_pw;
 }
 
 // 모듈화
@@ -114,4 +133,5 @@ module.exports = {
   Login: Login,
   IsAllCheckedBeforeSignUp: IsAllCheckedBeforeSignUp,
   SignUp: SignUp,
+  revise_pw: revise_pw,
 };
