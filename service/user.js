@@ -1,6 +1,7 @@
 // 로그인, 회원가입, 내 정보 관련 비즈니스 로직
 
 // 예시 유저 정보
+const crypto = require("crypto");
 const users = [
   {
     ID: "syjg1234",
@@ -100,9 +101,29 @@ function IsSamePw(input_pw, input_confirm_pw) {
   // 다르면 false
   return false;
 }
+
+// 입력한 비밀번호 바탕으로 해싱된 암호 생성
+function hashing_pw(input_pw) {
+  // 암호화
+  // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
+  const salts = crypto.randomBytes(128).toString("base64");
+  // 해싱된 암호
+  const hashed_pw = crypto
+    .createHash("sha512")
+    .update(input_pw + salts)
+    .digest("hex");
+
+  // json값으로 리턴
+  return {
+    temp_hash_pw: hashed_pw,
+    temp_salts: salts,
+  };
+}
+
 // 모듈화
 module.exports = {
   IsNonExistedID: IsNonExistedID,
   IsValid: IsValid,
   IsSamePw: IsSamePw,
+  hash_pw: hashing_pw,
 };
