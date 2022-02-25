@@ -81,6 +81,8 @@ function revise_post(
   boards[this_index].content = input_content;
   boards[this_index].name = input_name;
   boards[this_index].tags = input_tags;
+
+  return true;
 }
 
 function delete_post(input_id) {
@@ -93,7 +95,9 @@ function delete_post(input_id) {
     }
   }
   // 게시글 삭제
-  boards[this_index].pop();
+  boards.splice(this_index, 1);
+
+  return true;
 }
 // 모듈화
 module.exports = {
