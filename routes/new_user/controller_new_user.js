@@ -5,7 +5,14 @@ const model_user = require("/model/user");
 
 // 해당 라우터에서 get 요청을 받았을 때(약관확인 창)
 const get_new_user = function (req, res) {
-  res.status(200).send("회원가입");
+  const sign_up_page = {
+    checkbox1: "해당 사이트 이용약관, 개인정보 수집 및 이용에 모두 동의합니다.",
+    checkbox2: "mystudyLibrary 이용약관 동의(필수)",
+    checkbox2_content: "여러분을 환영합니다",
+    checkbox3: "개인정보 수집 및 이용 동의(필수)",
+    checkbox3_content: "개인정보법에 따라 ~",
+  };
+  res.status(200).json(sign_up_page);
 };
 // 회원가입 약관확인
 const confirm_terms_of_use = function (req, res) {
@@ -22,11 +29,28 @@ const confirm_terms_of_use = function (req, res) {
 
   // return 값에 따른 분기처리
   if (is_all_checked) {
-    res.status(200).send("약관동의");
+    const sign_up_page = {
+      ID: "아이디 입력",
+      Password: "비밀번호 입력",
+      confirm_pw: "비밀번호 확인",
+      name: "이름",
+      Gender: "성별선택",
+      Phone_number: "전화번호 입력",
+    };
+    res.status(200).json(sign_up_page);
   } else if (!is_all_checked) {
-    res
-      .status(200)
-      .send("이용약관과 개인정보 수집 및 이용에 대한 안내 모두 동의해주세요");
+    const sign_up_page = {
+      checkbox1:
+        "해당 사이트 이용약관, 개인정보 수집 및 이용에 모두 동의합니다.",
+      checkbox2: "mystudyLibrary 이용약관 동의(필수)",
+      checkbox2_content: "여러분을 환영합니다",
+      checkbox3: "개인정보 수집 및 이용 동의(필수)",
+      checkbox3_content: "개인정보법에 따라 ~",
+    };
+    const fail = {
+      state: "이용약관과 개인정보 수집 및 이용에 대한 안내 모두 동의해주세요",
+    };
+    res.status(200).json(sign_up_page + fail);
   }
 };
 // 회원가입 요청
