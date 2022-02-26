@@ -55,6 +55,7 @@ const get_study_proof_shot = function (req, res) {
   // const boards = DB 에서 가져오기(전체)
   res.send(boards);
 };
+
 // 게시물 상세보기
 const get_detail_elements_of_board = function (req, res) {
   // TODO
@@ -92,7 +93,8 @@ const write_posting = function (req, res) {
   );
   // 유효성 검사 실패
   if (!can_post) {
-    res.status(304).send("유효하지 않은 작성 글");
+    const fail = { state: "유효하지 않은 작성글" };
+    res.status(200).json(new_posting + fail);
     // 포스팅 성공
   } else if (can_post) {
     res.status(201).redirect("/free_bulletin_board/" + new_posting.id);
@@ -118,7 +120,7 @@ const get_revise = function (req, res) {
 
 // 게시글 수정하기
 const revise_posting = function (req, res) {
-  // 수정한 정보 가져오기
+  // 수정된 정보 가져오기
   const revised_posting = req.body;
   // 기존 게시글 수정
   /*
@@ -181,10 +183,11 @@ const delete_comment = function (req, res) {
   const post_id = req.params.id;
   // 유저 아이디 (받아오기)
   const user_id = null;
-  // 게시글 삭제
+  // 댓글 삭제
   model_post.delete_post(post_id, user_id);
-
-  res.status(200).send("게시글 삭제");
+  // 해당 게시글 정보
+  const post = boards[post_id - 1];
+  res.status(200).json(post);
 };
 // 모듈화
 module.exports = {
