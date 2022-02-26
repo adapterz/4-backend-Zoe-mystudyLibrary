@@ -28,6 +28,7 @@ const confirm_terms_of_use = function (req, res) {
   );
 
   // return 값에 따른 분기처리
+  // 전부 체크 했을 때
   if (is_all_checked) {
     const sign_up_page = {
       ID: "아이디 입력",
@@ -38,7 +39,9 @@ const confirm_terms_of_use = function (req, res) {
       Phone_number: "전화번호 입력",
     };
     res.status(200).json(sign_up_page);
-  } else if (!is_all_checked) {
+  }
+  // 전부 체크하지 않은 경우
+  else if (!is_all_checked) {
     const sign_up_page = {
       checkbox1:
         "해당 사이트 이용약관, 개인정보 수집 및 이용에 모두 동의합니다.",
@@ -55,23 +58,33 @@ const confirm_terms_of_use = function (req, res) {
 };
 // 회원가입 요청
 const sign_up = function (req, res) {
-  const body = req.body;
+  const sign_up_data = req.body;
 
   // 회원가입 성공 여부/ 실패했다면 원인 num 값으로 return
   const can_sign_up = model_user.SignUp(
-    body.id.toString(),
-    body.pw.toString(),
-    body.confirm_pw.toString(),
-    body.name.toString(),
-    body.gender.toString(),
-    body.phone_num.toString()
+    sign_up_data.ID.toString(),
+    sign_up_data.pw.toString(),
+    sign_up_data.confirm_pw.toString(),
+    sign_up_data.name.toString(),
+    sign_up_data.gender.toString(),
+    sign_up_data.phone_num.toString()
   );
 
   // 리턴값에 따른 분기처리
+  // 회원가입 실패 시 (유효하지 않을 때) -> 텍스트 필드의 값 변경 해주기
   if (!can_sign_up) {
-    res.status(200).send("회원가입 실패");
+    const sign_up_page = {
+      ID: sign_up_data.ID.toString(),
+      Password: sign_up_data.Password.toString(),
+      confirm_pw: sign_up_data.confirm_pw.toString(),
+      name: sign_up_data.name.toString(),
+      Gender: sign_up_data.gender.toString(),
+      Phone_number: sign_up_data.Phone_number.toString(),
+    };
+    res.status(200).json(sign_up_page);
+    // 회원가입 성공 시 홈화면으로 이동
   } else if (can_sign_up) {
-    res.status(201).send("회원가입 성공");
+    res.status(201).redirect("/");
   }
 };
 
