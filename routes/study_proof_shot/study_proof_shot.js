@@ -12,7 +12,7 @@ router.get("/write", controller.get_write_page);
 // 글작성 완료시
 router.post("/write", controller.write_posting);
 // 게시글 수정창 열기
-router.get("/revise/:id", controller.revise);
+router.get("/revise/:id", controller.get_revise);
 // 게시물 수정
 router.patch("/revise/:id", controller.revise_posting);
 // 게시물 삭제
