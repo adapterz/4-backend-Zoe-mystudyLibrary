@@ -7,6 +7,7 @@
 // 예시 유저 정보
 const users = [
   {
+    user_num: 0,
     ID: "syjg1234",
     Password: "hassing_pw1",
     Name: "Zoe",
@@ -17,6 +18,7 @@ const users = [
     profile_shot: null,
   },
   {
+    user_num: 1,
     ID: "ye1919",
     Password: "hassing_pw2",
     Name: "Yeji",
@@ -27,6 +29,7 @@ const users = [
     profile_shot: null,
   },
   {
+    user_num: 2,
     ID: "hihi123",
     Password: "hassing_pw3",
     Name: "Leehi",
@@ -56,17 +59,17 @@ const new_user_data = {
 // 예시 글 목록
 const boards = [
   {
-    id: 3,
-    name: "닉네임3",
+    id: 1,
+    name: "닉네임1",
     category: "자유게시판",
-    title: "글제목3",
-    content: "글내용3",
-    tags: ["태그3-1", "태그3-2"],
+    title: "글제목1",
+    content: "글내용1",
+    tags: ["태그1-1", "태그1-2"],
     created: "2022-02-24",
     comments: [
-      { user_id: "댓글1" },
-      { user_id: "댓글2" },
-      { user_id: "댓글3" },
+      { user_id: "댓글1-1" },
+      { user_id: "댓글1-2" },
+      { user_id: "댓글1-3" },
     ],
   },
   {
@@ -78,23 +81,23 @@ const boards = [
     tags: ["태그2-1", "태그2-2"],
     created: "2022-02-24",
     comments: [
-      { user_id: "댓글1" },
-      { user_id: "댓글2" },
-      { user_id: "댓글3" },
+      { user_id: "댓글2-1" },
+      { user_id: "댓글2-2" },
+      { user_id: "댓글2-3" },
     ],
   },
   {
-    id: 1,
-    name: "닉네임1",
+    id: 3,
+    name: "닉네임3",
     category: "자유게시판",
-    title: "글제목1",
-    content: "글내용1",
-    tags: ["태그1-1", "태그1-2"],
+    title: "글제목3",
+    content: "글내용3",
+    tags: ["태그3-1", "태그3-2"],
     created: "2022-02-24",
     comments: [
-      { user_id: "댓글1" },
-      { user_id: "댓글2" },
-      { user_id: "댓글3" },
+      { user_id: "댓글3-1" },
+      { user_id: "댓글3-2" },
+      { user_id: "댓글3-3" },
     ],
   },
 ];
