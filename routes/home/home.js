@@ -3,8 +3,8 @@ const express = require("express");
 const router = express.Router();
 const controller = require("./controller_home");
 
-// 홈화면
-router.get("/", controller.get_home);
+// 최신글 5개 정보
+router.get("/", controller.getRecentPost);
 
 // 모듈화
 module.exports = router;
