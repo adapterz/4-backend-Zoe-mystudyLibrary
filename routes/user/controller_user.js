@@ -60,8 +60,12 @@ const reviseProfile = function (req, res) {
 
   // 입력된 새 프로필 정보 수정 요청
   const new_profile = req.body;
-
-  // 닉네임 2~8글자 사이인지 검사 (유효하지 않을시 상태코드 400)
+  // 유효성 검사
+  // 1. 기존에 있는 닉네임인지 검사
+  for (const temp_nick of users.nickName) {
+    if (temp_nick === new_profile.nickName) return res.status(400).json({ state: "기존에 존재하는 닉네임입니다." });
+  }
+  // 2. 닉네임 2~8글자 사이인지 검사 (유효하지 않을시 상태코드 400)
   if (new_profile.nickName.length < 2 || new_profile.nickName.length > 8) return res.status(400).json({ state: "닉네임은 2~8글자 사이로 입력해주세요" });
   // 프로필 수정 성공
   res.status(200).end();
