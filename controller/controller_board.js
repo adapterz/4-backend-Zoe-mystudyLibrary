@@ -12,7 +12,7 @@ const boards = [
     content: "글내용1",
     tags: ["태그1-1", "태그1-2"],
     created: "2022-02-24",
-    comments: [{ user_id: "댓글1-1" }, { user_id: "댓글1-2" }, { user_id: "댓글1-3" }],
+    comments: [{ user_id: "댓글1-1" }, { user_id: "댓글1-2" }, { user_id: "댓글1-3" }], // 좋아요, likeUser 항목 추가
   },
   {
     index: 2,
@@ -184,6 +184,41 @@ const deleteComment = function (req, res) {
   res.status(204).end();
 };
 
+// 좋아요 기능 -> 고민: 유저측에서 관리를 할지, 해당 게시물측에서 관리할지?
+// 게시물이 삭제될 경우에 유저 측의 정보를 따로 삭제해주는 기능을 구현해줘야하기 때문에 게시글 측에서 관리하기로 결정.
+// 예시 게시글 정보
+/*
+{
+category : "자유게시판",
+boardIndex : 134,
+likeUser : [{ nickName : "Zoe"}, { nickName : "yeji" }] //< 해당 게시글에 좋아요를 누른 유저 목록
+
+}
+ */
+const likePost = function (req, res) {
+  // 로그인돼있는 예시 회원정보
+  const user = {
+    nickName: "Zoe",
+  };
+  // 예시 해당 게시글 정보
+  const thisPost = {
+    category: "자유게시판",
+    boardIndex: 134,
+    likeUsers: [{ nickName: "Zoe" }, { nickName: "yeji" }], //< 해당 게시글에 좋아요를 누른 유저 목록
+    likeCnt: 123, //좋아요 횟수
+  };
+  // 유효성 검사
+  // 로그인 여부 검사
+  if (user.nickName === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 해당 게시글의 좋아요를 누른 적 있는지 확인
+  for (const likeUser of thisPost.likeUsers) {
+    if (user.nickName === likeUser.nickName) return res.status(400).json({ state: "이미 해당 게시글의 '좋아요'를 눌렀습니다" });
+  }
+  // 좋아요 1 증가.
+  ++thisPost.likeCnt;
+
+  res.status(200).end();
+};
 // TODO
 // 검색기능
 
@@ -195,4 +230,5 @@ module.exports = {
   deletePost: deletePost,
   writeComment: writeComment,
   deleteComment: deleteComment,
+  likePost: likePost,
 };
