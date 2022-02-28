@@ -1,5 +1,6 @@
 // 회원가입 화면의 라우터의 컨트롤러
 // 예시 유저 정보(기존에 존재하는 유저 데이터)
+const { validationResult } = require("express-validator");
 const users = [
   {
     userIndex: 1,
@@ -38,20 +39,29 @@ const users = [
 
 // 회원가입 약관확인
 const signUpGuide = function (req, res) {
-  // 약관동의 체크박스 2개(예시 body)
+  // 라우터에서 정의한 유효성 검사결과
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
+
+  // 약관동의 체크박스(예시 body)
   const example_body = {
     checkBox1: false,
     checkBox2: false,
+    checkBox3: false,
   };
 
   const is_agreed = req.body;
-  // 약관확인에서 두 개의 체크박스에 모두 체크를 했을 때
-  if (is_agreed.checkBox1 && is_agreed.checkBox2) return res.status(200).end();
+  // 약관확인에서 세 개의 체크박스에 모두 체크를 했을 때
+  if (is_agreed.checkBox1 && is_agreed.checkBox2 && is_agreed.checkBox3) return res.status(200).end();
   // 체크박스에 체크하지 않았을 때
   res.status(400).json({ state: "안내사항을 읽고 동의해주세요." });
 };
 // 회원가입 요청
 const signUp = function (req, res) {
+  // 라우터에서 정의한 유효성 검사결과
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
+
   // 예시 body
   const example_body = {
     id: "아이디",
@@ -64,7 +74,7 @@ const signUp = function (req, res) {
 
   // 회원가입 시 입력한 유저 정보
   const input_user = req.body;
-  // 유효성 검사
+  // 라우터에 정의된 것 외의 유효성 검사
   // 1. 기존에 존재하는 아이디 인지 검사
   for (const temp_id of users.ID) {
     if (temp_id === input_user.id) return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
@@ -72,10 +82,6 @@ const signUp = function (req, res) {
   // 2. 비밀번호 유효성 검사
   // 입력한 비밀번호와 비밀번호 확인이 다를 때
   if (input_user.pw !== input_user.confirmPw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
-  // 3. 하나 이상의 문자, 숫자, 특수문자 8 ~ 16자(비밀번호 정규식 사용)
-  let is_valid_pw = "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,16}$";
-  // 비밀번호가 조건을 만족하지 않을 때
-  if (!is_valid_pw.test(input_user.pw)) return res.status(400).json({ state: "비밀번호가 유효하지 않습니다." });
 
   // 회원가입 성공
   res.status(201).end();
