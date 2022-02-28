@@ -33,8 +33,6 @@ router.patch(
     .matches(/^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/), // 하나 이상의 문자(영문),숫자,특수문자가 포함되도록 하는 정규식(8~16)
   controller.revisePw,
 );
-// TODO
-// 내 관심도서관
 
 // 회원탈퇴 요청
 router.delete("/drop-out", controller.dropOut);
