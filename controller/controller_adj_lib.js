@@ -1,5 +1,6 @@
 // 내주변도서관 라우터의 컨트롤러
 // 예시 데이터 (전체 도서관)
+const { validationResult } = require("express-validator");
 const all_lib = [
   {
     libIndex: 1,
@@ -33,6 +34,9 @@ const allLib = function (req, res) {
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 함수(post)
 const localLib = function (req, res) {
+  // 라우터에서 정의한 유효성 검사결과
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
   //  요청 예시 데이터(body)
   /*
   const where_live = {
