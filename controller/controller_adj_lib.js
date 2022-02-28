@@ -106,7 +106,7 @@ const registerMyLib = function (req, res) {
   if (user.nickName === null) {
     return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   }
-  // 성공적으로 내 정보에 도서관 정보 추가
+  // 성공적으로 user정보의 myLib 키에 도서관 정보 추가
   res.status(200).end();
 };
 
