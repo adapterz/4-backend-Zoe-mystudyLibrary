@@ -47,13 +47,13 @@ const login = function (req, res) {
    */
 
   // 유저가 입력한 정보 가져오기
-  const login_input = req.body;
+  const input_user = req.body;
 
   // 입력한 아이디와 DB의 아이디들과 대조
   let is_existed = false;
   let user_index = -1;
   for (const index in users) {
-    if (login_input.id === users[index].id) {
+    if (input_user.id === users[index].id) {
       is_existed = true;
       user_index = index;
       break;
@@ -66,7 +66,7 @@ const login = function (req, res) {
   const salts = users[user_index].salt;
   const hash_pw = crypto
     .createHash("sha512")
-    .update(login_input.pw + salts)
+    .update(input_user.pw + salts)
     .digest("hex");
   // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
   if (hash_pw !== users[user_index].pw)
