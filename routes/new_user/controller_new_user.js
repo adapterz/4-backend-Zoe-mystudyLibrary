@@ -65,7 +65,7 @@ const signUp = function (req, res) {
   // 회원가입 시 입력한 유저 정보
   const input_user = req.body;
   // 유효성 검사
-  // 1. 기존에 존재하는 아이디 인가?
+  // 1. 기존에 존재하는 아이디 인지 검사
   for (const temp_id of users.ID) {
     if (temp_id === input_user.id) return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
   }
