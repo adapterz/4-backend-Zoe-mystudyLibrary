@@ -1,5 +1,4 @@
-// 삭제
-// 선택 글 삭제
+// 선택 게시글 삭제
 const deletePost = function (req, res) {
   // 체크박스에 체크된 게시물 바디로 보내면 삭제해주기
   // const checked_post = req.body;
@@ -25,9 +24,8 @@ const deleteComment = function (req, res) {
         commentIndex : 43,
       },
     ];
-  위의 댓글 삭제 요청
    */
-  // 성공적으로 삭제
+
   res.status(204).end();
 };
 // 후기 삭제
@@ -47,7 +45,6 @@ const deleteEpilogue = function (req, res) {
     ];
   위의 후기 삭제 요청
    */
-  // 성공적으로 삭제
   res.status(204).end();
 };
 
