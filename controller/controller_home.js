@@ -17,27 +17,22 @@ const getRecentPost = function (req, res) {
       post: [
         {
           title: "글제목1",
-          hits: "23",
           boardIndex: maxDataFreeBoard.maxIndex,
         },
         {
           title: "글제목2",
-          hits: "3만",
           boardIndex: maxDataFreeBoard.maxIndex - 1,
         },
         {
           title: "글제목3",
-          hits: "3천",
           boardIndex: maxDataFreeBoard.maxIndex - 2,
         },
         {
           title: "글제목4",
-          hits: "274",
           boardIndex: maxDataFreeBoard.maxIndex - 3,
         },
         {
           title: "글제목5",
-          hits: "30만",
           boardIndex: maxDataFreeBoard.maxIndex - 4,
         },
       ],
@@ -64,11 +59,6 @@ const getRecentPost = function (req, res) {
           title: "글제목4",
           hits: "274",
           boardIndex: maxDataProofShot.maxIndex - 3,
-        },
-        {
-          title: "글제목5",
-          hits: "30만",
-          boardIndex: maxDataProofShot.maxIndex - 4,
         },
       ],
     },
