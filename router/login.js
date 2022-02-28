@@ -3,9 +3,11 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controller/controller_login");
 
-// 요청 별 정의
+// 유효성 검사를 위한 모듈
+const { body } = require("express-validator");
+
 // 로그인 요청
-router.post("/", controller.login);
+router.post("/", body("id").isString().trim(), body("pw").isString().trim(), controller.login);
 
 // 모듈화
 module.exports = router;

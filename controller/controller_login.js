@@ -1,6 +1,7 @@
 // 로그인화면의 라우터의 컨트롤러
 // 예시 유저 정보
 const crypto = require("crypto");
+const { validationResult } = require("express-validator");
 const users = [
   {
     userIndex: 1,
@@ -39,6 +40,10 @@ const users = [
 
 // 로그인
 const login = function (req, res) {
+  // 라우터에서 정의한 유효성 검사결과
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
+
   /* 예시 정보
   body = {
   id: "syjg1234",
@@ -61,7 +66,7 @@ const login = function (req, res) {
   }
   // 유효성 검사
   // 1. 존재하는 아이디가 없을 때
-  if (!is_existed) return res.status(400).json({ state: "유효하지않음" });
+  if (!is_existed) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
   // 입력한 비밀번호 해싱
   const salts = users[user_index].salt;
   const hash_pw = crypto
@@ -69,8 +74,7 @@ const login = function (req, res) {
     .update(input_login.pw + salts)
     .digest("hex");
   // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
-  if (hash_pw !== users[user_index].pw)
-    return res.status(400).json({ state: "유효하지않음" });
+  if (hash_pw !== users[user_index].pw) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
 
   // 로그인 성공
   return res.status(200).json(users[user_index]);
