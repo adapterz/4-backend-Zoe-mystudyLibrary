@@ -1,5 +1,8 @@
 // 내주변도서관 라우터의 컨트롤러
 // 예시 데이터 (전체 도서관)
+const user = {
+  userIndex: 132132,
+};
 const { validationResult } = require("express-validator");
 const all_lib = [
   {
@@ -101,11 +104,9 @@ const registerMyLib = function (req, res) {
   lib_index : req.params.libIndex
   }
    */
-  const user = req.body;
   // 로그인이 안 돼있을 때
-  if (user.nickName === null) {
-    return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
-  }
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+
   // 성공적으로 user정보의 myLib 키에 도서관 정보 추가
   res.status(200).end();
 };
@@ -127,16 +128,18 @@ const registerComment = function (req, res) {
   favorite: 124,
   }
    */
-  const comment_data = req.body;
   // 로그인이 안 돼있을 때
-  if (comment_data.nickName === null) {
-    return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
-  }
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+
+  const comment_data = req.body;
   res.status(201).json(comment_data);
 };
 
 // 후기 삭제
 const deleteComment = function (req, res) {
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+
   res.status(204).end();
 };
 

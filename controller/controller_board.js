@@ -1,7 +1,11 @@
 // 자유게시판 라우터의 컨트롤러
 // 유효성 검사 모듈
 const { validationResult } = require("express-validator");
-
+// 로그인돼있는 예시 회원정보
+const user = {
+  nickName: "Zoe",
+  userIndex: 123123,
+};
 // 예시 글 목록
 const boards = [
   {
@@ -118,12 +122,8 @@ body: {
   })
 
  */
-  // 작성한 정보
-  const new_posting = req.body;
-  // 로그인이 안 돼있을 때
-  if (new_posting.nickName === null) {
-    return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
-  }
+  // 로그인 여부 검사
+  if (user.userIndex === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
 
   // 글자 수 제한 등은 html 로 가능
   res.status(201).end();
@@ -136,9 +136,10 @@ const revisePost = function (req, res) {
   if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
   // 수정된 정보
   const revised_posting = req.body;
+  // 로그인 여부 검사
+  if (user.userIndex === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
   /*
    body: {
-
     title:바뀐 게시물제목,
 
     content:바뀐 글내용,
@@ -173,14 +174,15 @@ const writeComment = function (req, res) {
     */
   const comment_data = req.body;
   // 로그인이 안 돼있을 때
-  if (comment_data.nickName === null) {
-    return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
-  }
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+
   res.status(201).json(comment_data);
 };
 
 // 댓글 삭제
 const deleteComment = function (req, res) {
+  // 로그인 여부 검사
+  if (user.userIndex === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
   res.status(204).end();
 };
 
@@ -196,10 +198,8 @@ likeUser : [{ nickName : "Zoe"}, { nickName : "yeji" }] //< 해당 게시글에 
 }
  */
 const likePost = function (req, res) {
-  // 로그인돼있는 예시 회원정보
-  const user = {
-    nickName: "Zoe",
-  };
+  // 로그인 여부 검사
+  if (user.userIndex === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
   // 예시 해당 게시글 정보
   const thisPost = {
     category: "자유게시판",
@@ -207,9 +207,6 @@ const likePost = function (req, res) {
     likeUsers: [{ nickName: "Zoe" }, { nickName: "yeji" }], //< 해당 게시글에 좋아요를 누른 유저 목록
     likeCnt: 123, //좋아요 횟수
   };
-  // 유효성 검사
-  // 로그인 여부 검사
-  if (user.nickName === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
   // 해당 유저가 해당 게시글의 좋아요를 누른 적 있는지 확인
   for (const likeUser of thisPost.likeUsers) {
     if (user.nickName === likeUser.nickName) return res.status(400).json({ state: "이미 해당 게시글의 '좋아요'를 눌렀습니다" });

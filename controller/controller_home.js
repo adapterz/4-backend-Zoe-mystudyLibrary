@@ -69,6 +69,13 @@ const getRecentPost = function (req, res) {
 
 // 내가 관심도서관으로 등록한 도서관 정보
 const myLibData = function (req, res) {
+  // 로그인돼있는 예시 회원정보
+  const user = {
+    nickName: "Zoe",
+    userIndex: 1312,
+  };
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   /*
   예시 user 정보
   {

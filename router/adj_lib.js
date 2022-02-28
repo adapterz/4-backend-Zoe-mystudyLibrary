@@ -15,13 +15,13 @@ router.post(
     .trim()
     .notEmpty()
     .isLength({ max: 10 })
-    .matches(/^[가-힣\n]+$/), // 한글만
+    .matches(/^[가-힣\n]+$/), // 한글, 띄어쓰기만
   body("districts")
     .isString.trim()
     .notEmpty()
     .isLength({ max: 10 })
     .matches(/^[가-힣\n]+$/),
-  controller.localLib,
+  controller.localLib
 );
 // 특정 도서관 자세히 보기
 router.get("/:lib-index", controller.particularLib);

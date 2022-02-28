@@ -62,6 +62,8 @@ const reviseProfile = function (req, res) {
     profileShot: "사진 url",
     nickName: "새닉네임",
   };
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
   // 입력된 새 프로필 정보 수정 요청
   const new_profile = req.body;
@@ -80,14 +82,15 @@ const revisePhoneNumber = function (req, res) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
 
-  /*
   // 예시 바디
   const example_phoneNumber = {
     phoneNumber: "01028401234",
+    name: "김예지",
+    userIndex: 1,
   };
-*/
-  // 새로운 연락처로 수정 요청
-  // const new_phone_number = req.body;
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
+
   // 연락처 수정 성공
   res.status(200).end();
 };
@@ -108,6 +111,8 @@ const revisePw = function (req, res) {
 */
   // 입력된 비밀번호 정보 가져오기
   const revise_pw = req.body;
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
 
   // 유효성 검사
   // 1. 유저 비밀번호와 oldPw 비교
@@ -132,6 +137,8 @@ const dropOut = function (req, res) {
   const example_body = {
     checkBox1: false,
   };
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
   // 회원탈퇴 안내조항에 체크 했는지
   const is_agreed = req.body;
   // 회원탈퇴 안내조항에 체크했을 때 성공적으로 회원탈퇴

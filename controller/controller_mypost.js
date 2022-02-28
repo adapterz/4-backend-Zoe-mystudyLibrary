@@ -1,12 +1,13 @@
 // 로그인화면의 라우터의 컨트롤러
+// 로그인돼있는 예시 회원정보
+const user = {
+  nickName: "Zoe",
+  userIndex: 21312,
+};
 // 내가 작성한 정보
 // 내가 작성한 포스팅 데이터
 const myPost = function (req, res) {
-  // 로그인돼있는 예시 회원정보
-  const user = {
-    nickName: "Zoe",
-  };
-  if (user.nickName === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 예시 데이터
   const my_post = [
     {
@@ -31,6 +32,8 @@ const myPost = function (req, res) {
 };
 // 내가 작성한 댓글 데이터
 const myComment = function (req, res) {
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 예시 데이터
   const my_comment = [
     {
@@ -55,6 +58,8 @@ const myComment = function (req, res) {
 };
 // 내가 작성한 도서관 이용 후기 데이터
 const myEpilogue = function (req, res) {
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 예시 데이터
   const my_epilogue = [
     {
@@ -78,16 +83,22 @@ const myEpilogue = function (req, res) {
 
 // 선택 게시글 삭제
 const deletePost = function (req, res) {
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 성공적으로 삭제
   res.status(204).end();
 };
 // 선택 댓글 삭제
 const deleteComment = function (req, res) {
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 성공적으로 삭제
   res.status(204).end();
 };
 // 도서관 후기 삭제
 const deleteEpilogue = function (req, res) {
+  // 로그인이 안 돼있을 때
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 성공적으로 삭제
   res.status(204).end();
 };
