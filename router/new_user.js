@@ -25,6 +25,7 @@ router.post(
     .notEmpty()
     .isLength({ max: 30 })
     .matches(/^[가-힣]+$/), // 한글만
+  body("성별").isString().notEmpty(),
   body("phoneNumber").matches(/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/), // 휴대전화 정규식
   controller.signUp,
 );
