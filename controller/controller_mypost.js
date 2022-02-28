@@ -2,7 +2,7 @@
 // 내가 작성한 정보
 // 내가 작성한 포스팅 데이터
 const myPost = function (req, res) {
-  // 닉네임을 연결고리로 데이터 찾아오기 ->예시 데이터
+  // 예시 데이터
   const my_post = [
     {
       boardIndex: 12312,
@@ -26,7 +26,7 @@ const myPost = function (req, res) {
 };
 // 내가 작성한 댓글 데이터
 const myComment = function (req, res) {
-  // 닉네임을 연결고리로 데이터 찾아오기 ->예시 데이터
+  // 예시 데이터
   const my_comment = [
     {
       boardIndex: 12312,
@@ -48,13 +48,12 @@ const myComment = function (req, res) {
 
   res.status(200).json(my_comment);
 };
-// 내가 작성한 후기 데이터
+// 내가 작성한 도서관 이용 후기 데이터
 const myEpilogue = function (req, res) {
-  // 닉네임을 연결고리로 데이터 찾아오기 ->예시 데이터
+  // 예시 데이터
   const my_epilogue = [
     {
       libName: "늘푸른도서관",
-      nickName: "Zoe",
       created: "2022-02-28",
       commentIndex: 15,
       comments: "후기내용입니다.",
@@ -62,7 +61,6 @@ const myEpilogue = function (req, res) {
     },
     {
       libName: "아주대도서관",
-      nickName: "yeji",
       created: "2022-02-28",
       commentIndex: 1,
       comments: "후기내용입니다.",
@@ -73,9 +71,28 @@ const myEpilogue = function (req, res) {
   res.status(200).json(my_epilogue);
 };
 
+// 선택 게시글 삭제
+const deletePost = function (req, res) {
+  // 성공적으로 삭제
+  res.status(204).end();
+};
+// 선택 댓글 삭제
+const deleteComment = function (req, res) {
+  // 성공적으로 삭제
+  res.status(204).end();
+};
+// 도서관 후기 삭제
+const deleteEpilogue = function (req, res) {
+  // 성공적으로 삭제
+  res.status(204).end();
+};
+
 // 모듈화
 module.exports = {
   myPost: myPost,
   myComment: myComment,
   myEpilogue: myEpilogue,
+  deletePost: deletePost,
+  deleteComment: deleteComment,
+  deleteEpilogue: deleteEpilogue,
 };
