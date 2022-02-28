@@ -18,7 +18,7 @@ router.post(
   body("title").isLength({ min: 2, max: 50 }).isString(),
   body("content").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }).isString(),
-  body("tags.*").isLength({ min: 2, max: 8 }).isString(),
+  body("tags.*").isLength({ min: 2, max: 8 }).isString().trim(),
   controller.writePost,
 );
 // 게시물 수정
@@ -50,7 +50,7 @@ router.post(
   body("title").isLength({ min: 2, max: 50 }).isString(),
   body("content").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }).isString(),
-  body("tags.*").isLength({ min: 2, max: 8 }).isString(),
+  body("tags.*").isLength({ min: 2, max: 8 }).isString().trim(),
   controller.writePost,
 );
 // 게시물 수정
@@ -59,7 +59,7 @@ router.patch(
   body("title").isLength({ min: 2, max: 50 }).isString(),
   body("content").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }).isString(),
-  body("tags.*").isLength({ min: 2, max: 8 }).isString(),
+  body("tags.*").isLength({ min: 2, max: 8 }).isString().trim(),
   controller.revisePost,
 );
 // 게시물 삭제
