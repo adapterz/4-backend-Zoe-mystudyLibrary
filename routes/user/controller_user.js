@@ -131,6 +131,9 @@ const dropOut = function (req, res) {
   res.status(400).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
 };
 
+// TODO
+// 내 관심도서관(adj_lib 코드 작성 후 구현)
+
 // 모듈화
 module.exports = {
   reviseProfile: reviseProfile,
