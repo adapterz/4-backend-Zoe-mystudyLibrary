@@ -2,6 +2,11 @@
 // 내가 작성한 정보
 // 내가 작성한 포스팅 데이터
 const myPost = function (req, res) {
+  // 로그인돼있는 예시 회원정보
+  const user = {
+    nickName: "Zoe",
+  };
+  if (user.nickName === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 예시 데이터
   const my_post = [
     {
