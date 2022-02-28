@@ -30,7 +30,7 @@ app.use("/", boards_router);
 app.use("/", home_router);
 app.use("/login", login_router);
 app.use("/new-user", new_user_router);
-app.use("/service-description", service_description_router);
+app.use("/description", service_description_router);
 app.use("/user", user_router);
 app.use("/my-post", my_post_router);
 
