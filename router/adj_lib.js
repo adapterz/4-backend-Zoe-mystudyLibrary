@@ -25,6 +25,12 @@ router.post(
 );
 // 특정 도서관 자세히 보기
 router.get("/:lib-index", controller.particularLib);
+// 내 정보의 '관심 도서관'에 특정도서관 데이터 추가
+router.patch("/:lib-index", controller.registerMyLib);
+// 특정 도서관 이용 후 후기등록
+router.post("/:lib-index", body("comments").isLength({ min: 2, max: 100 }).isString(), controller.registerComment);
+// 후기 삭제
+router.delete("/:lib-index", controller.deleteComment);
 
 // 모듈화
 module.exports = router;
