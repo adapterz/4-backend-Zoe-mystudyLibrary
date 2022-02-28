@@ -12,7 +12,7 @@ const boards = [
     content: "글내용1",
     tags: ["태그1-1", "태그1-2"],
     created: "2022-02-24",
-    comments: [{ user_id: "댓글1-1" }, { user_id: "댓글1-2" }, { user_id: "댓글1-3" }], // 좋아요, likeUser 항목 추가
+    comments: [{ user_id: "댓글1-1" }, { user_id: "댓글1-2" }, { user_id: "댓글1-3" }], // TODO DB 설계시 좋아요, likeUser 항목 추가, myLib 항목 추가
   },
   {
     index: 2,
