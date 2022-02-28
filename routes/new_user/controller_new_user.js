@@ -1,95 +1,93 @@
 // 회원가입 화면의 라우터의 컨트롤러
-// 비즈니스 로직 객체
-// 모델 객체
-const model_user = require("../../model/user");
+// 예시 유저 정보(기존에 존재하는 유저 데이터)
+const users = [
+  {
+    userIndex: 1,
+    id: "syjg1234",
+    pw: "hassing_pw1",
+    name: "Zoe",
+    gender: "Woman",
+    phoneNumber: "01028400631",
+    salt: "1234#",
+    nickName: null,
+    profileShot: null,
+  },
+  {
+    userIndex: 2,
+    id: "ye1919",
+    password: "hassing_pw2",
+    name: "Yeji",
+    gender: "Woman",
+    phoneNumber: "01128400631",
+    salt: "1234!",
+    nickName: null,
+    profileShot: null,
+  },
+  {
+    userIndex: 3,
+    id: "hihi123",
+    password: "hassing_pw3",
+    name: "Leehi",
+    gender: "Man",
+    phoneNumber: "01234567890",
+    salt: "12a13",
+    nickName: null,
+    profileShot: null,
+  },
+];
 
-// 해당 라우터에서 get 요청을 받았을 때(약관확인 창)
-const get_new_user = function (req, res) {
-  const sign_up_page = {
-    checkbox1: "해당 사이트 이용약관, 개인정보 수집 및 이용에 모두 동의합니다.",
-    checkbox2: "mystudyLibrary 이용약관 동의(필수)",
-    checkbox2_content: "여러분을 환영합니다",
-    checkbox3: "개인정보 수집 및 이용 동의(필수)",
-    checkbox3_content: "개인정보법에 따라 ~",
-  };
-  res.status(200).json(sign_up_page);
-};
 // 회원가입 약관확인
-const confirm_terms_of_use = function (req, res) {
-  const body = req.body;
-  // 프로퍼티 임시로 정의(나중에 데이터 가져올 떄 코드 다시 짜주기)
-  body.is_agree_terms_of_use = undefined;
-  body.is_agree_about_personal_information = undefined;
+const signUpGuide = function (req, res) {
+  // 약관동의 체크박스 2개(예시 body)
+  const example_body = {
+    checkBox1: false,
+    checkBox2: false,
+  };
 
-  // 약관동의 요소에 모두 체크했는지 확인하기
-  const is_all_checked = model_user.IsAllCheckedBeforeSignUp(
-    body.is_agree_terms_of_use,
-    body.is_agree_about_personal_information
-  );
-
-  // return 값에 따른 분기처리
-  // 전부 체크 했을 때
-  if (is_all_checked) {
-    const sign_up_page = {
-      ID: "아이디 입력",
-      Password: "비밀번호 입력",
-      confirm_pw: "비밀번호 확인",
-      name: "이름",
-      Gender: "성별선택",
-      Phone_number: "전화번호 입력",
-    };
-    res.status(200).json(sign_up_page);
-  }
-  // 전부 체크하지 않은 경우
-  else if (!is_all_checked) {
-    const sign_up_page = {
-      checkbox1:
-        "해당 사이트 이용약관, 개인정보 수집 및 이용에 모두 동의합니다.",
-      checkbox2: "mystudyLibrary 이용약관 동의(필수)",
-      checkbox2_content: "여러분을 환영합니다",
-      checkbox3: "개인정보 수집 및 이용 동의(필수)",
-      checkbox3_content: "개인정보법에 따라 ~",
-    };
-    const fail = {
-      state: "이용약관과 개인정보 수집 및 이용에 대한 안내 모두 동의해주세요",
-    };
-    res.status(200).json(sign_up_page + fail);
-  }
+  const isAgreed = req.body;
+  // 약관확인에서 두 개의 체크박스에 모두 체크를 했을 때
+  if (isAgreed.checkBox1 && isAgreed.checkBox2) return res.status(200).end();
+  // 체크박스에 체크하지 않았을 때
+  return res.status(400).json({ state: "안내사항을 읽고 동의해주세요." });
 };
 // 회원가입 요청
-const sign_up = function (req, res) {
-  const sign_up_data = req.body;
+const signUp = function (req, res) {
+  // 예시 body
+  const example_body = {
+    id: "아이디",
+    pw: "비번",
+    confirmPw: "비밀번호확인",
+    name: "이름",
+    gender: "성별",
+    phoneNumber: "폰 번호",
+  };
 
-  // 회원가입 성공 여부/ 실패했다면 원인 num 값으로 return
-  const can_sign_up = model_user.SignUp(
-    sign_up_data.ID.toString(),
-    sign_up_data.pw.toString(),
-    sign_up_data.confirm_pw.toString(),
-    sign_up_data.name.toString(),
-    sign_up_data.gender.toString(),
-    sign_up_data.phone_num.toString()
-  );
-
-  // 리턴값에 따른 분기처리
-  // 회원가입 실패 시 (유효하지 않을 때) -> 텍스트 필드의 값 변경 해주기
-  if (!can_sign_up) {
-    const sign_up_page = {
-      ID: sign_up_data.ID.toString(),
-      Password: sign_up_data.Password.toString(),
-      confirm_pw: sign_up_data.confirm_pw.toString(),
-      name: sign_up_data.name.toString(),
-      Gender: sign_up_data.gender.toString(),
-      Phone_number: sign_up_data.Phone_number.toString(),
-    };
-    res.status(200).json(sign_up_page);
-    // 회원가입 성공 시 홈화면으로 이동
-  } else if (can_sign_up) {
-    res.status(201).redirect("/");
+  // 회원가입 시 입력한 유저 정보
+  const input_user = req.body;
+  // 유효성 검사
+  // 1. 기존에 존재하는 아이디 인가?
+  for (const temp_id of users.ID) {
+    if (temp_id === input_user.id)
+      return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
   }
+  // 2. 비밀번호 유효성 검사
+  // 입력한 비밀번호와 비밀번호 확인이 다를 때
+  if (input_user.pw !== input_user.confirmPw)
+    return res
+      .status(400)
+      .json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
+  // 3. 하나 이상의 문자, 숫자, 특수문자 8 ~ 16자(비밀번호 정규식 사용)
+  let is_valid_pw =
+    "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,16}$";
+  // 비밀번호가 조건을 만족하지 않을 때
+  if (!is_valid_pw.test(input_user.pw))
+    return res.status(400).json({ state: "비밀번호가 유효하지 않습니다." });
+
+  // 회원가입 성공
+  res.status(201).end();
 };
 
 module.exports = {
-  get_new_user: get_new_user,
-  confirm_terms_of_use: confirm_terms_of_use,
-  sign_up: sign_up,
+  signUpGuide: signUpGuide,
+  signUp: signUp,
 };

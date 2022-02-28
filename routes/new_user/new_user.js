@@ -4,14 +4,11 @@ const router = express.Router();
 const controller = require("./controller_new_user");
 
 // 요청 별 정의
-// 기본화면
-router.get("/", controller.get_new_user);
-
 // 회원가입 약관확인
-router.post("/", controller.confirm_terms_of_use);
+router.post("/", controller.signUpGuide);
 
 // 회원가입 요청
-router.post("/sign_up", controller.sign_up);
+router.post("/sign_up", controller.signUp);
 
 // 모듈화
 module.exports = router;
