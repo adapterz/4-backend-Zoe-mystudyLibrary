@@ -15,12 +15,12 @@ router.post(
     .trim()
     .notEmpty()
     .isLength({ max: 10 })
-    .matches(/^[가-힣]+$/), // 한글만
+    .matches(/^[가-힣\n]+$/), // 한글만
   body("districts")
     .isString.trim()
     .notEmpty()
     .isLength({ max: 10 })
-    .matches(/^[가-힣]+$/),
+    .matches(/^[가-힣\n]+$/),
   controller.localLib,
 );
 // 특정 도서관 자세히 보기
@@ -28,7 +28,7 @@ router.get("/:lib-index", controller.particularLib);
 // 내 정보의 '관심 도서관'에 특정도서관 데이터 추가
 router.patch("/:lib-index", controller.registerMyLib);
 // 특정 도서관 이용 후 후기등록
-router.post("/:lib-index", body("comments").isLength({ min: 2, max: 100 }).isString(), controller.registerComment);
+router.post("/:lib-index", body("comments").isLength({ min: 2, max: 100 }).isString(), body("photo").isDataURI(), controller.registerComment);
 // 후기 삭제
 router.delete("/:lib-index", controller.deleteComment);
 
