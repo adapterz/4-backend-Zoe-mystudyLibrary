@@ -59,6 +59,7 @@ const login = function (req, res) {
       break;
     }
   }
+  // 유효성 검사
   // 1. 존재하는 아이디가 없을 때
   if (!is_existed) return res.status(400).json({ state: "유효하지않음" });
   // 입력한 비밀번호 해싱

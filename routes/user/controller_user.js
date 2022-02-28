@@ -3,27 +3,27 @@
 const model_user = require("../../model/user");
 // 예시 유저
 const user_data = {
-  ID: "syjg1234",
-  Password: "hassing_pw1",
-  Name: "Zoe",
-  Gender: "Woman",
-  Phone_number: "01028400631",
+  id: "syjg1234",
+  password: "hassing_pw1",
+  name: "Zoe",
+  gender: "Woman",
+  phoneNumber: "01028400631",
   salt: "1234#",
-  nickname: null,
-  profile_shot: null,
+  nickName: null,
+  profileShot: null,
 };
 // 해당 라우터에서 get 요청을 받았을 때(기본 화면)
 const get_user = function (req, res) {
   // 유저정보 받아오기
   const user_page = {
     "내 프로필": [
-      user_data.profile_shot,
-      { nickname: user_data.nickname },
+      user_data.profileShot,
+      { nickName: user_data.nickName },
       "수정 버튼",
     ],
     "연락처 및 회원 정보": [
       { name: user_data.name },
-      { Phone_number: user_data.Phone_number },
+      { phoneNumber: user_data.Phone_number },
     ],
     Password: "변경 버튼",
   };
@@ -32,7 +32,7 @@ const get_user = function (req, res) {
 // 내 프로필(get)
 const get_profile = function (req, res) {
   const profile_page = {
-    프로필사진: [user_data.profile_shot, "사진변경 버튼", "사진삭제 버튼"],
+    프로필사진: [user_data.profileShot, "사진변경 버튼", "사진삭제 버튼"],
     닉네임: ["닉네임 입력 텍스트 필드", "닉네임은 2~8글자 이하로 입력해주세요"],
   };
 
