@@ -17,10 +17,7 @@ router.delete("/free-board/:board-index", controller.deletePost);
 // 댓글 작성
 router.post("/free-board/:board-index/:comment-index", controller.writeComment);
 // 댓글 삭제
-router.delete(
-  "/free-board/:board-index/:comment-index",
-  controller.deleteComment
-);
+router.delete("/free-board/:board-index/:comment-index", controller.deleteComment);
 
 // 공부인증샷
 // 자유게시판
