@@ -66,7 +66,48 @@ const getRecentPost = function (req, res) {
 
   res.status(200).json(recentData);
 };
+
+// 내가 관심도서관으로 등록한 도서관 정보
+const myLibData = function (req, res) {
+  /*
+  예시 user 정보
+  {
+  nickName :"Zoe",
+  myLib : [{ libIndex : 14213}, {libIndex :3} ] // 등록된 libIndex의 도서관 정보 서버에서 응답해주기
+  }
+   */
+  // 예시 도서관 정보
+  const my_lib = [
+    {
+      libIndex: 14213,
+      libName: "늘푸른도서관",
+      libType: "작은도서관",
+      close: "토요일",
+      openHourWeekday: "09:00~21:00",
+      openHourSaturday: "00:00~00:00", // 열지 않음
+      openHourHoliday: "09:00~18:00",
+      grade: "3.7/5",
+      address: "광주광역시 남구 독립로 70-1",
+      phoneNumber: "0621234567",
+    },
+    {
+      libIndex: 3,
+      libName: "일가도서관",
+      libType: "공공도서관",
+      close: "매주 일요일 및 국가지정 공휴일",
+      openHourWeekday: "09:00~21:00",
+      openHourSaturday: "09:00~18:00",
+      openHourHoliday: "00:00~00:00", // 열지 않음
+      grade: "3.7/5",
+      address: "하남시 ~구 ~~로 ",
+      phoneNumber: "0621234567",
+    },
+  ];
+  res.status(200).json(my_lib);
+};
+
 // 모듈화
 module.exports = {
   getRecentPost: getRecentPost,
+  myLibData: myLibData,
 };
