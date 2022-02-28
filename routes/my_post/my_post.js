@@ -4,18 +4,19 @@ const router = express.Router();
 const controller = require("./controller_mypost");
 
 // 요청 별 정의
-// 내가 작성한 글
-router.get("/post", controller.my_post);
+// 내가 쓴 글 데이터 가져오기
+router.get("/post", controller.myPost);
+// 내가 쓴 댓글 데이터 가져오기
+router.get("/comments", controller.myComment);
+// 내가 쓴 후기 데이터 가져오기
+router.get("/epilogue", controller.myEpilogue);
+
 // 선택글 삭제
-router.delete("/post", controller.delete_my_post);
-// 내가 작성한 댓글
-router.get("/comments", controller.my_comment);
+router.delete("/post", controller.deletePost);
 // 선택댓글 삭제
-router.delete("/comments", controller.delete_my_post);
-// 내가 작성한 후기
-router.get("/epilogue", controller.my_epilogue);
+router.delete("/comments", controller.deleteComment);
 // 해당후기 삭제
-router.delete("/epilogue", controller.delete_my_epilogue);
+router.delete("/epilogue", controller.deleteEpilogue);
 
 // 모듈화
 module.exports = router;
