@@ -64,7 +64,7 @@ const getRecentPost = function (req, res) {
     },
   ];
 
-  res.status(200).send(recentData);
+  res.status(200).json(recentData);
 };
 // 모듈화
 module.exports = {

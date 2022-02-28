@@ -118,12 +118,12 @@ const revisePw = function (req, res) {
     .update(revise_pw.oldPw + salt)
     .digest("hex");
   // 유저의 비밀번호와 입력한 oldPw가 일치하지 않으면 유효하지 않음
-  if (hashed_input_pw !== user.pw) return res.send(400).json({ state: "비밀번호가 일치하지 않습니다." });
+  if (hashed_input_pw !== user.pw) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
   // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
-  if (revise_pw.newPw !== revise_pw.confirmPw) return res.send(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
+  if (revise_pw.newPw !== revise_pw.confirmPw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
 
   // 비밀번호 변경 성공
-  res.send(200).end();
+  res.status(200).end();
 };
 
 // 회원탈퇴 요청
