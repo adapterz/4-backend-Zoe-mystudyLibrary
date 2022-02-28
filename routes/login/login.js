@@ -4,9 +4,6 @@ const router = express.Router();
 const controller = require("./controller_login");
 
 // 요청 별 정의
-// 기본화면
-router.get("/", controller.get_login);
-
 // 로그인 요청
 router.post("/", controller.login);
 

@@ -1,48 +1,81 @@
 // 로그인화면의 라우터의 컨트롤러
-// 모델 객체
-const model_user = require("../../model/user");
-
-// 해당 라우터에서 get 요청을 받았을 때(기본화면)
-// 로그인 페이지
-const get_login = function (req, res) {
-  const login_page = {
-    ID: "아이디 입력",
-    Password: "비밀번호 입력",
-  };
-
-  res.status(200).json(login_page);
-};
+// 예시 유저 정보
+const crypto = require("crypto");
+const users = [
+  {
+    userIndex: 1,
+    id: "syjg1234",
+    pw: "hassing_pw1",
+    name: "Zoe",
+    gender: "Woman",
+    phoneNumber: "01028400631",
+    salt: "1234#",
+    nickName: null,
+    profileShot: null,
+  },
+  {
+    userIndex: 2,
+    id: "ye1919",
+    password: "hassing_pw2",
+    name: "Yeji",
+    gender: "Woman",
+    phoneNumber: "01128400631",
+    salt: "1234!",
+    nickName: null,
+    profileShot: null,
+  },
+  {
+    userIndex: 3,
+    id: "hihi123",
+    password: "hassing_pw3",
+    name: "Leehi",
+    gender: "Man",
+    phoneNumber: "01234567890",
+    salt: "12a13",
+    nickName: null,
+    profileShot: null,
+  },
+];
 
 // 로그인
 const login = function (req, res) {
-  // 로그인 입력 정보 가져오기
+  /* 예시 정보
+  body = {
+  id: "syjg1234",
+  pw: "st123456#"
+  }
+   */
+
+  // 유저가 입력한 정보 가져오기
   const login_input = req.body;
 
-  // 로그인 성공 여부
-  const can_login = model_user.Login(
-    login_input.ID.toString(),
-    login_input.Password.toString()
-  );
-  // 로그인 실패
-  if (!can_login) {
-    // 로그인 페이지
-    const login_page = {
-      ID: login_input.ID,
-      Password: login_input.Password,
-    };
-    // 실패
-    const fail = { state: "로그인 실패" };
+  // 입력한 아이디와 DB의 아이디들과 대조
+  let is_existed = false;
+  let user_index = -1;
+  for (const index in users) {
+    if (login_input.id === users[index].id) {
+      is_existed = true;
+      user_index = index;
+      break;
+    }
+  }
+  // 1. 존재하는 아이디가 없을 때
+  if (!is_existed) return res.status(400).json({ state: "유효하지않음" });
+  // 입력한 비밀번호 해싱
+  const salts = users[user_index].salt;
+  const hash_pw = crypto
+    .createHash("sha512")
+    .update(login_input.pw + salts)
+    .digest("hex");
+  // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
+  if (hash_pw !== users[user_index].pw)
+    return res.status(400).json({ state: "유효하지않음" });
 
-    res.status(200).send(login_page + fail);
-  }
-  // 로그인 후 홈화면으로 가기
-  else if (can_login) {
-    res.status(200).redirect("/");
-  }
+  // 로그인 성공
+  return res.status(200).json(users[user_index]);
 };
 
 // 모듈화
 module.exports = {
-  get_login: get_login,
   login: login,
 };
