@@ -72,7 +72,6 @@ router.post("/proof-shot/:board-index", body("comments").isLength({ min: 2, max:
 router.delete("/proof-shot/:board-index", controller.deleteComment);
 // 좋아요 기능
 router.patch("/proof-shot/:board-index", controller.likePost);
-// 검색 기능
 
 // TODO
 // 검색관련 기능
