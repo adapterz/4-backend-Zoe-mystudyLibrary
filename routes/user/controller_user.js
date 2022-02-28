@@ -1,7 +1,8 @@
 // 내 정보 라우터의 컨트롤러
-// 예시 유저
+// 예시 유저 ( 로그인 한 유저의 정보)
 const crypto = require("crypto");
 const user = {
+  userIndex: 1,
   id: "syjg1234",
   password: "hassing_pw1",
   name: "Zoe",
@@ -11,6 +12,44 @@ const user = {
   nickName: null,
   profileShot: null,
 };
+
+// 예시 유저 정보(기존에 존재하는 모든 유저 데이터)
+const users = [
+  {
+    userIndex: 1,
+    id: "syjg1234",
+    pw: "hassing_pw1",
+    name: "Zoe",
+    gender: "Woman",
+    phoneNumber: "01028400631",
+    salt: "1234#",
+    nickName: null,
+    profileShot: null,
+  },
+  {
+    userIndex: 2,
+    id: "ye1919",
+    password: "hassing_pw2",
+    name: "Yeji",
+    gender: "Woman",
+    phoneNumber: "01128400631",
+    salt: "1234!",
+    nickName: null,
+    profileShot: null,
+  },
+  {
+    userIndex: 3,
+    id: "hihi123",
+    password: "hassing_pw3",
+    name: "Leehi",
+    gender: "Man",
+    phoneNumber: "01234567890",
+    salt: "12a13",
+    nickName: null,
+    profileShot: null,
+  },
+];
+
 // 내 프로필 수정
 const reviseProfile = function (req, res) {
   // 예시 바디
