@@ -16,23 +16,23 @@ app.disable("x-powered-by");
 const port = 3000;
 
 // 경로별로 라우팅
-const adj_lib_router = require("./routes/adj_lib/adj_lib");
-const boards_router = require("./routes/boards/board");
-const home_router = require("./routes/home/home");
-const login_router = require("./routes/login/login");
-const new_user_router = require("./routes/new_user/new_user");
-const service_description_router = require("./routes/service_description/service_description");
-const user_router = require("./routes/user/user");
-const my_post_router = require("./routes/my_post/my_post");
+const adj_lib_router = require("./router/adj_lib");
+const boards_router = require("./router/board");
+const home_router = require("./router/home");
+const login_router = require("./router/login");
+const new_user_router = require("./router/new_user");
+const service_description_router = require("./router/service_description");
+const user_router = require("./router/user");
+const my_post_router = require("./router/my_post");
 
-app.use("/adj_lib", adj_lib_router);
+app.use("/adj-lib", adj_lib_router);
 app.use("/", boards_router);
 app.use("/", home_router);
 app.use("/login", login_router);
-app.use("/new_user", new_user_router);
-app.use("/service_description", service_description_router);
+app.use("/new-user", new_user_router);
+app.use("/service-description", service_description_router);
 app.use("/user", user_router);
-app.use("/my_post", my_post_router);
+app.use("/my-post", my_post_router);
 
 // 404 에러처리
 app.get("/not_found", function (req, res) {

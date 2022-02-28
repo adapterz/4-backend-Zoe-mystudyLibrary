@@ -1,7 +1,7 @@
 // 내주변도서관 눌렀을 때 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("./controller_adj_lib");
+const controller = require("../controller/controller_adj_lib");
 
 // 요청 별 정의
 router.get("/", controller.get_adj_lib);
