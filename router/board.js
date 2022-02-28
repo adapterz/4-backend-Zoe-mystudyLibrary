@@ -37,6 +37,8 @@ router.delete("/free-board/:board-index", controller.deletePost);
 router.post("/free-board/:board-index/:comment-index", body("comments").isLength({ min: 2, max: 500 }).isString(), controller.writeComment);
 // 댓글 삭제
 router.delete("/free-board/:board-index/:comment-index", controller.deleteComment);
+// 좋아요 기능
+router.patch("/free-board/:board-index", controller.likePost);
 
 // 공부인증샷
 // 자유게시판
@@ -69,10 +71,11 @@ router.post("/proof-shot/:board-index", body("comments").isLength({ min: 2, max:
 // 댓글 삭제
 router.delete("/proof-shot/:board-index", controller.deleteComment);
 // 좋아요 기능
-router.patch("proof-shot/:board-index", controller.likePost);
+router.patch("/proof-shot/:board-index", controller.likePost);
+// 검색 기능
 
 // TODO
-// 좋아요 관련 기능, 검색관련 기능
+// 검색관련 기능
 
 // 모듈화
 module.exports = router;
