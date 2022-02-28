@@ -16,12 +16,12 @@ router.post(
     .trim()
     .matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,20}$/), // 5 ~ 20글자 사이의 하나 이상의 문자와 하나의 숫자 정규식
   body("pw")
-    .isLength({ min: 8, max: 16 })
     .isString()
     .trim()
-    .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d@$.!%*#?&]/), // 8 ~ 16글자 사이의 하나 이상의 문자,숫자,특수문자가 포함되도록 하는 정규식
+    .matches(/^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/), // 8~16자리 하나 이상의 문자,숫자,특수문자가 포함되도록 하는 정규식
   body("name")
-    .isString.trim()
+    .isString()
+    .trim()
     .notEmpty()
     .isLength({ max: 30 })
     .matches(/^[가-힣]+$/), // 한글만
