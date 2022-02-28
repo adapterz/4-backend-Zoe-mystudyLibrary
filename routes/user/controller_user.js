@@ -1,8 +1,7 @@
 // 내 정보 라우터의 컨트롤러
-// 모델 객체
-const model_user = require("../../model/user");
 // 예시 유저
-const user_data = {
+const crypto = require("crypto");
+const user = {
   id: "syjg1234",
   password: "hassing_pw1",
   name: "Zoe",
@@ -12,169 +11,87 @@ const user_data = {
   nickName: null,
   profileShot: null,
 };
-// 해당 라우터에서 get 요청을 받았을 때(기본 화면)
-const get_user = function (req, res) {
-  // 유저정보 받아오기
-  const user_page = {
-    "내 프로필": [
-      user_data.profileShot,
-      { nickName: user_data.nickName },
-      "수정 버튼",
-    ],
-    "연락처 및 회원 정보": [
-      { name: user_data.name },
-      { phoneNumber: user_data.Phone_number },
-    ],
-    Password: "변경 버튼",
-  };
-  res.status(200).json(user_page);
-};
-// 내 프로필(get)
-const get_profile = function (req, res) {
-  const profile_page = {
-    프로필사진: [user_data.profileShot, "사진변경 버튼", "사진삭제 버튼"],
-    닉네임: ["닉네임 입력 텍스트 필드", "닉네임은 2~8글자 이하로 입력해주세요"],
+// 내 프로필 수정
+const reviseProfile = function (req, res) {
+  // 예시 바디
+  const example_profile = {
+    profileShot: "사진 url",
+    nickName: "새닉네임",
   };
 
-  res.status(200).json(profile_page);
+  // 입력된 새 프로필 정보 수정 요청
+  const new_profile = req.body;
+
+  // 닉네임 2~8글자 사이인지 검사 (유효하지 않을시 상태코드 400)
+  if (new_profile.nickName.length < 2 || new_profile.nickName.length > 8) return res.status(400).json({ state: "닉네임은 2~8글자 사이로 입력해주세요" });
+  // 프로필 수정 성공
+  res.status(200).end();
 };
 
-// 내 프로필 수정(patch)
-const patch_profile = function (req, res) {
-  // 기존 유저 정보 가져오기(DB 배우고 수정)
-  const user_data = null;
-
-  // 입력된 프로필 정보 가져오기
-  const new_user_data = req.body;
-
-  // 프로필 정보 변경
-  model_user.revise_profile(
-    new_user_data.profile_shot,
-    new_user_data.nickname,
-    user_data.id
-  );
-
-  // 내정보창으로 이동
-  res.status(200).redirect("/user");
-};
-
-// 연락처 및 회원 정보 창(get)
-const get_user_data = function (req, res) {
-  const user_info = {
-    name: user_data.name,
-    Phone_number: [
-      user_data.Phone_number,
-      { "변경할 휴대전화": { text_field: "번호 입력 텍스트 필드" } },
-    ],
-    Gender: user_data.Gender,
+// 회원정보 수정(연락처 수정)
+const revisePhoneNumber = function (req, res) {
+  // 예시 바디
+  const example_phoneNumber = {
+    phoneNumber: "01028401234",
   };
-  res.status(200).json(user_info);
-};
 
-// 연락처 및 회원 정보 창(patch)
-const patch_user_data = function (req, res) {
-  // 기존 유저 정보 가져오기(DB 배우고 수정)
-  const user_data = null;
-
-  // 입력된 정보 가져오기
-  const new_user_data = req.body;
-
-  // 번호 변경
-  model_user.revise_user_data(new_user_data.Phone_number, user_data.id);
-
-  // 내정보창으로이동
-  res.status(200).redirect("/user");
-};
-
-// 비밀번호 수정(get)
-const get_revise_pw = function (req, res) {
-  const revise_pw_page = {
-    비밀번호변경: [
-      {
-        text_field1: "현재 비밀번호 텍스트필드",
-      },
-      { text_field2: "새 비밀번호 텍스트 필드" },
-      { text_field3: "새 비밀번호 확인 텍스트 필드" },
-    ],
-    button1: "확인",
-    button2: "취소",
-  };
-  res.status(200).json(revise_pw_page);
+  // 새로운 연락처로 수정 요청
+  // const new_phone_number = req.body;
+  // 연락처 수정 성공
+  res.status(200).end();
 };
 
 // 비밀번호 수정(patch)
-// 고민: 자동입력방지 문자는 어떻게하지...?
-const patch_revise_pw = function (req, res) {
-  // 기존 유저 정보 가져오기(DB 배우고 수정)
-  const user_data = null;
+const revisePw = function (req, res) {
+  // 예시 바디
+  const example_body = {
+    oldPw: "oldPw123!",
+    newPw: "newPw123!",
+    confirmPw: "newPw123!",
+  };
 
   // 입력된 비밀번호 정보 가져오기
-  const new_user_data = req.body;
+  const revise_pw = req.body;
 
-  // 비밀번호 변경
-  model_user.revise_pw(
-    user_data.pw.toString(),
-    new_user_data.new_pw.toString(),
-    new_user_data.confirm_pw.toString(),
-    user_data.ID.toString()
-  );
+  // 유효성 검사
+  // 1. 유저 비밀번호와 oldPw 비교
+  // input oldPw 해싱
+  const salt = user.salt;
+  const hashed_input_pw = crypto
+    .createHash("sha512")
+    .update(revise_pw.oldPw + salt)
+    .digest("hex");
+  // 유저의 비밀번호와 입력한 oldPw가 일치하지 않으면 유효하지 않음
+  if (hashed_input_pw !== user.pw) return res.send(400).json({ state: "비밀번호가 일치하지 않습니다." });
+  // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
+  if (revise_pw.newPw !== revise_pw.confirmPw) return res.send(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
+  // 3. 새 비밀번호가 문자,숫자,특수문자가 1글자 이상 씩 포함되며 8~16자 사이인 조건을 만족하는지 확인
+  let is_valid_pw = "^(?=.*[A-Za-z])(?=.*d)(?=.*[@$!%*#?&])[A-Za-zd@$!%*#?&]{8,16}$";
+  // 비밀번호가 조건을 만족하지 않을 때
+  if (!is_valid_pw.test(revise_pw.pw)) return res.status(400).json({ state: "비밀번호가 유효하지 않습니다." });
 
-  // 내정보창으로 이동
-  res.send(200).redirect("/user");
+  // 비밀번호 변경 성공
+  res.send(200).end();
 };
 
-// 회원탈퇴창(get)
-const get_drop_out = function (req, res) {
-  const drop_out_page = {
-    탈퇴안내: "회원탈퇴를 신청하기 전에 안내사항을 꼭 확인해주세요",
-    null: [
-      "사용하고 계신 아이디는 탈퇴할 경우 재사용 및 복구가 불가능합니다",
-      "탈퇴 후 회원정보 및 개인형 서비스 이용기록은 모두 삭제됩니다.",
-      "탈퇴 후에도 게시판형 서비스에 등록한 게시물은 그대로 남아 있습니다",
-    ],
-    checkbox1: "안내사항을 모두 확인했으며, 이에 동의합니다.",
-    button1: "확인",
+// 회원탈퇴 요청
+const dropOut = function (req, res) {
+  // 예시 바디
+  const example_body = {
+    checkBox1: false,
   };
-  res.status(200).json(drop_out_page);
-};
-// 회원탈퇴요청
-const delete_drop_out = function (req, res) {
-  // 기존 유저 정보 가져오기(DB 배우고 수정)
-  // const user_data = null;
-
-  // 회원탈퇴안내 동의여부 (DB 배우고 나중에 수정)
-  const is_agree = null;
-
-  // 회원정보삭제
-  if (is_agree) {
-    //model_user.delete_user_data(user_data.id);
-    // 홈 화면으로 이동
-    res.status(204).redirect("/");
-  } else if (!is_agree) {
-    const drop_out_page = {
-      탈퇴안내: "회원탈퇴를 신청하기 전에 안내사항을 꼭 확인해주세요",
-      null: [
-        "사용하고 계신 아이디는 탈퇴할 경우 재사용 및 복구가 불가능합니다",
-        "탈퇴 후 회원정보 및 개인형 서비스 이용기록은 모두 삭제됩니다.",
-        "탈퇴 후에도 게시판형 서비스에 등록한 게시물은 그대로 남아 있습니다",
-      ],
-      checkbox1: "안내사항을 모두 확인했으며, 이에 동의합니다.",
-      button1: "확인",
-    };
-    const fail = { state: "안내사항을 확인한 뒤 동의 버튼에 체크해주세요." };
-    res.status(200).json(drop_out_page + fail);
-  }
+  // 회원탈퇴 안내조항에 체크 했는지
+  const is_agreed = req.body;
+  // 회원탈퇴 안내조항에 체크했을 때 성공적으로 회원탈퇴
+  if (is_agreed) return res.status(204).end();
+  // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
+  res.status(400).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
 };
 
 // 모듈화
 module.exports = {
-  get_user: get_user,
-  get_profile: get_profile,
-  patch_profile: patch_profile,
-  get_user_data: get_user_data,
-  patch_user_data: patch_user_data,
-  get_revise_pw: get_revise_pw,
-  patch_revise_pw: patch_revise_pw,
-  get_drop_out: get_drop_out,
-  delete_drop_out: delete_drop_out,
+  reviseProfile: reviseProfile,
+  revisePhoneNumber: revisePhoneNumber,
+  revisePw: revisePw,
+  dropOut: dropOut,
 };
