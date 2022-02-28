@@ -68,5 +68,9 @@ router.delete("/proof-shot/:board-index", controller.deletePost);
 router.post("/proof-shot/:board-index", body("comments").isLength({ min: 2, max: 500 }).isString(), controller.writeComment);
 // 댓글 삭제
 router.delete("/proof-shot/:board-index", controller.deleteComment);
+
+// TODO
+// 좋아요 관련 기능, 검색관련 기능
+
 // 모듈화
 module.exports = router;
