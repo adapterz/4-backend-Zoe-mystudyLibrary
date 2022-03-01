@@ -1,6 +1,6 @@
 // 회원가입 화면의 라우터의 컨트롤러
 // 예시 유저 정보(기존에 존재하는 유저 데이터)
-const users = [
+const users12 = [
   {
     userIndex: 1,
     id: "syjg1234",
@@ -67,7 +67,7 @@ const signUp = function (req, res) {
   const input_user = req.body;
   // 라우터에 정의된 것 외의 유효성 검사
   // 1. 기존에 존재하는 아이디 인지 검사
-  for (const temp_id of users.ID) {
+  for (const temp_id of users.id) {
     if (temp_id === input_user.id) return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
   }
   // 2. 비밀번호 유효성 검사
