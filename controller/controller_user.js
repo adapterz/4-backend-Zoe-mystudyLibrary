@@ -6,7 +6,7 @@ const user = {
   id: "syjg1234",
   password: "hassing_pw1",
   name: "Zoe",
-  gender: "Woman",
+  gender: "여",
   phoneNumber: "01028400631",
   salt: "1234#",
   nickName: null,
