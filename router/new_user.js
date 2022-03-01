@@ -23,10 +23,9 @@ router.post(
   body("name")
     .isString()
     .trim()
-    .notEmpty()
-    .isLength({ max: 30 })
+    .isLength({ min: 1, max: 30 })
     .matches(/^[가-힣]+$/), // 한글만
-  body("gender").isString().notEmpty(),
+  body("gender").isString().isLength({ min: 1 }),
   body("phoneNumber").matches(/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/), // 휴대전화 정규식
   check.is_validate,
   controller.signUp,
