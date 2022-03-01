@@ -16,7 +16,11 @@ const boards = [
     content: "글내용1",
     tags: ["태그1-1", "태그1-2"],
     created: "2022-02-24",
-    comments: [{ user_id: "댓글1-1" }, { user_id: "댓글1-2" }, { user_id: "댓글1-3" }], // TODO DB 설계시 좋아요, likeUser 항목 추가, myLib 항목 추가
+    comments: [
+      { nickName: "Zoe", contents: "댓글1-1" },
+      { nickName: "Zoe", contents: "댓글1-2" },
+      { nickName: "Zoe", contents: "댓글1-3" },
+    ], // TODO DB 설계시 좋아요, likeUser 항목 추가, myLib 항목 추가
   },
   {
     index: 2,
@@ -26,7 +30,11 @@ const boards = [
     content: "글내용2",
     tags: ["태그2-1", "태그2-2"],
     created: "2022-02-24",
-    comments: [{ user_id: "댓글2-1" }, { user_id: "댓글2-2" }, { user_id: "댓글2-3" }],
+    comments: [
+      { nickName: "Zoe", contents: "댓글1-1" },
+      { nickName: "Zoe", contents: "댓글1-2" },
+      { nickName: "Zoe", contents: "댓글1-3" },
+    ],
   },
   {
     index: 3,
@@ -36,7 +44,11 @@ const boards = [
     content: "글내용3",
     tags: ["태그3-1", "태그3-2"],
     created: "2022-02-24",
-    comments: [{ user_id: "댓글3-1" }, { user_id: "댓글3-2" }, { user_id: "댓글3-3" }],
+    comments: [
+      { nickName: "Zoe", contents: "댓글1-1" },
+      { nickName: "Zoe", contents: "댓글1-2" },
+      { nickName: "Zoe", contents: "댓글1-3" },
+    ],
   },
 ];
 
@@ -99,8 +111,8 @@ const detailBoard = function (req, res) {
 // 게시글 쓰기
 const writePost = function (req, res) {
   // 라우터에서 정의한 유효성 검사결과
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
+  //const errors = validationResult(req);
+  //if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
 
   /*
 예시 데이터

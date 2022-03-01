@@ -3,10 +3,11 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controller/controller_new_user");
 const { body } = require("express-validator");
+const check = require("../validation");
 
 // 요청 별 정의
 // 회원가입 약관확인
-router.post("/", body("checkBox1").isBoolean(), body("checkBox2").isBoolean(), body("checkBox3").isBoolean(), controller.signUpGuide);
+router.post("/", body("checkBox1").isBoolean(), body("checkBox2").isBoolean(), body("checkBox3").isBoolean(), check.is_validate, controller.signUpGuide);
 
 // 회원가입 요청
 router.post(
@@ -27,6 +28,7 @@ router.post(
     .matches(/^[가-힣]+$/), // 한글만
   body("gender").isString().notEmpty(),
   body("phoneNumber").matches(/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/), // 휴대전화 정규식
+  check.is_validate,
   controller.signUp,
 );
 

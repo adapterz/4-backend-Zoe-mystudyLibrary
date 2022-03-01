@@ -1,6 +1,5 @@
 // 회원가입 화면의 라우터의 컨트롤러
 // 예시 유저 정보(기존에 존재하는 유저 데이터)
-const { validationResult } = require("express-validator");
 const users = [
   {
     userIndex: 1,
@@ -39,10 +38,6 @@ const users = [
 
 // 회원가입 약관확인
 const signUpGuide = function (req, res) {
-  // 라우터에서 정의한 유효성 검사결과
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
-
   // 약관동의 체크박스(예시 body)
   const example_body = {
     checkBox1: false,
@@ -58,10 +53,6 @@ const signUpGuide = function (req, res) {
 };
 // 회원가입 요청
 const signUp = function (req, res) {
-  // 라우터에서 정의한 유효성 검사결과
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
-
   // 예시 body
   const example_body = {
     id: "아이디",

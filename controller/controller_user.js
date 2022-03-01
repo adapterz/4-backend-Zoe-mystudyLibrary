@@ -1,7 +1,6 @@
 // 내 정보 라우터의 컨트롤러
 // 예시 유저 ( 로그인 한 유저의 정보)
 const crypto = require("crypto");
-const { validationResult } = require("express-validator");
 const user = {
   userIndex: 1,
   id: "syjg1234",
@@ -53,10 +52,6 @@ const users = [
 
 // 내 프로필 수정
 const reviseProfile = function (req, res) {
-  // 라우터에서 정의한 유효성 검사결과
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
-
   // 예시 바디
   const example_profile = {
     profileShot: "사진 url",
@@ -78,10 +73,6 @@ const reviseProfile = function (req, res) {
 
 // 회원정보 수정(연락처 수정)
 const revisePhoneNumber = function (req, res) {
-  // 라우터에서 정의한 유효성 검사결과
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
-
   // 예시 바디
   const example_phoneNumber = {
     phoneNumber: "01028401234",
@@ -97,10 +88,6 @@ const revisePhoneNumber = function (req, res) {
 
 // 비밀번호 수정(patch)
 const revisePw = function (req, res) {
-  // 라우터에서 정의한 유효성 검사결과
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
-
   // 예시 바디
   /*
   const example_body = {
