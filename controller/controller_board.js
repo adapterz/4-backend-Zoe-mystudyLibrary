@@ -110,10 +110,6 @@ const detailBoard = function (req, res) {
 
 // 게시글 쓰기
 const writePost = function (req, res) {
-  // 라우터에서 정의한 유효성 검사결과
-  //const errors = validationResult(req);
-  //if (!errors.isEmpty()) return res.status(400).json({ state: "유효하지 않은 데이터입니다." });
-
   /*
 예시 데이터
 body: {
