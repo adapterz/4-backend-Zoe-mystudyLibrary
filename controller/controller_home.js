@@ -1,116 +1,46 @@
 // 홈화면의 라우터의 컨트롤러
-
-// 최신글 5개 불러오기
-const getRecentPost = function (req, res) {
-  // 예시 정보
-  const maxDataFreeBoard = {
-    category: "자유게시판",
-    maxIndex: 34, // < 자유게시판 카테고리에는 총 34개의 글이 있고 boardIndex가 30~34인 글을 유저에게 보여주면 되기 때문에 이 정보를 받아옴
-  };
-  const maxDataProofShot = {
-    category: "공부인증샷",
-    maxIndex: 100, // < 공부인증샷 카테고리에는 총 100개의 글이 있고 boardIndex가 96~100인 글을 유저에게 보여주면 되기 때문에 이 정보를 받아옴
-  };
-  const recentData = [
-    {
-      category: maxDataFreeBoard.category,
-      post: [
-        {
-          title: "글제목1",
-          boardIndex: maxDataFreeBoard.maxIndex,
-        },
-        {
-          title: "글제목2",
-          boardIndex: maxDataFreeBoard.maxIndex - 1,
-        },
-        {
-          title: "글제목3",
-          boardIndex: maxDataFreeBoard.maxIndex - 2,
-        },
-        {
-          title: "글제목4",
-          boardIndex: maxDataFreeBoard.maxIndex - 3,
-        },
-        {
-          title: "글제목5",
-          boardIndex: maxDataFreeBoard.maxIndex - 4,
-        },
-      ],
-    },
-    {
-      category: maxDataProofShot.category,
-      post: [
-        {
-          title: "글제목1",
-          hits: "23",
-          boardIndex: maxDataProofShot.maxIndex,
-        },
-        {
-          title: "글제목2",
-          hits: "3만",
-          boardIndex: maxDataProofShot.maxIndex - 1,
-        },
-        {
-          title: "글제목3",
-          hits: "3천",
-          boardIndex: maxDataProofShot.maxIndex - 2,
-        },
-        {
-          title: "글제목4",
-          hits: "274",
-          boardIndex: maxDataProofShot.maxIndex - 3,
-        },
-      ],
-    },
-  ];
-
-  res.status(200).json(recentData);
+// 로그인돼있는 예시 회원정보
+const db = require("../a_mymodule/db");
+const moment = require("../a_mymodule/date_time");
+const user = {
+  nickName: "Zoe",
+  userIndex: 1312,
 };
-
+// 최신글 정보가져오기
+const getRecentPost = function (req, res) {
+  // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
+  const query =
+    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = '자유게시판' order by boardIndex DESC limit 0,5;" +
+    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = '공부인증샷' order by boardIndex DESC limit 0,4;";
+  db.db_connect.query(query, function (err, results, fields) {
+    // 오류발생
+    if (err) {
+      console.log(("getRecentPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "getRecentPost 메서드 mysql 모듈사용 실패:" + err });
+    }
+    // 쿼리문 정상적으로 실행
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(200).json(results);
+  });
+};
+// TODO 로그인 기능/파싱 배우고 다시작성
 // 내가 관심도서관으로 등록한 도서관 정보
 const myLibData = function (req, res) {
-  // 로그인돼있는 예시 회원정보
-  const user = {
-    nickName: "Zoe",
-    userIndex: 1312,
-  };
   // 로그인이 안 돼있을 때
   if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
-  /*
-  예시 user 정보
-  {
-  nickName :"Zoe",
-  myLib : [{ libIndex : 14213}, {libIndex :3} ] // 등록된 libIndex의 도서관 정보 서버에서 응답해주기
-  }
-   */
-  // 예시 도서관 정보
-  const my_lib = [
-    {
-      libIndex: 14213,
-      libName: "늘푸른도서관",
-      libType: "작은도서관",
-      close: "토요일",
-      openHourWeekday: "09:00~21:00",
-      openHourSaturday: "00:00~00:00", // 열지 않음
-      openHourHoliday: "09:00~18:00",
-      grade: "3.7/5",
-      address: "광주광역시 남구 독립로 70-1",
-      phoneNumber: "0621234567",
-    },
-    {
-      libIndex: 3,
-      libName: "일가도서관",
-      libType: "공공도서관",
-      close: "매주 일요일 및 국가지정 공휴일",
-      openHourWeekday: "09:00~21:00",
-      openHourSaturday: "09:00~18:00",
-      openHourHoliday: "00:00~00:00", // 열지 않음
-      grade: "3.7/5",
-      address: "하남시 ~구 ~~로 ",
-      phoneNumber: "0621234567",
-    },
-  ];
-  res.status(200).json(my_lib);
+  // 해당 유저의 관심도서관 정보 가져오기
+  const query = "SELECT userLib FROM USER WHERE userIndex = ?";
+
+  db.db_connect.query(query, [user.userIndex], function (err, results, fields) {
+    // 오류발생
+    if (err) {
+      console.log(("myLibData 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "myLibData 메서드 mysql 모듈사용 실패:" + err });
+    }
+    // 정상적으로 쿼리문 실행
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(200).json(results);
+  });
 };
 
 // 모듈화
