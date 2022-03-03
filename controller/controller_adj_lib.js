@@ -84,7 +84,7 @@ const registerComment = function (req, res) {
   if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   // 후기 등록 쿼리문
   const query =
-    "INSERT INTO REVIEW(userIndex, libIndex,reviewContent,created) VALUES (user.userIndex, req.params.libIndex,req.body.reviewContent,moment().format('YYYY-MM-DD HH:mm:ss'))";
+    "INSERT INTO REVIEW(nickName, libIndex,reviewContent,created) VALUES (user.nickName, req.params.libIndex,req.body.reviewContent,moment().format('YYYY-MM-DD HH:mm:ss'))";
 
   db.db_connect.query(query, function (err, results, fields) {
     // 오류 발생
@@ -104,7 +104,7 @@ const deleteReview = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
-  const query = "DELETE FROM REVIEW WHERE userIndex=user.userIndex AND reviewIndex =req.query.reviewIndex";
+  const query = "DELETE FROM REVIEW WHERE nickName=user.nickName AND reviewIndex =req.query.reviewIndex";
   // 오류 발생
   db.db_connect.query(query, function (err, results, fields) {
     if (err) {
