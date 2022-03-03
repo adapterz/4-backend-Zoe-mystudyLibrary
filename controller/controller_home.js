@@ -10,9 +10,9 @@ const user = {
 const getRecentPost = function (req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
   const query =
-    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = '자유게시판' order by boardIndex DESC limit 0,5;" +
-    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = '공부인증샷' order by boardIndex DESC limit 0,4;";
-  db.db_connect.query(query, function (err, results, fields) {
+    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = ? order by boardIndex DESC limit 0,5;" +
+    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = ? order by boardIndex DESC limit 0,4;";
+  db.db_connect.query(query, ["자유게시판", "공부인증샷"], function (err, results, fields) {
     // 오류발생
     if (err) {
       console.log(("getRecentPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
