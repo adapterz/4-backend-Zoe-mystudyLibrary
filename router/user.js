@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controller/controller_user");
 //
 const { body } = require("express-validator");
-const check = require("../.mymodule/validation");
+const check = require("../a_mymodule/validation");
 
 // 내프로필 변경
 router.patch(
