@@ -1,8 +1,10 @@
 // 내주변도서관 라우터의 컨트롤러
 // db 모듈
-const db = require("../db");
+const db = require("../.mymodule/db");
 // 날짜/시간 관련 모듈
-const moment = require("../date_time");
+const moment = require("../.mymodule/date_time");
+// 로그 색상 모듈
+const colors = require("../.mymodule/colors");
 
 // 예시 데이터 (전체 도서관)
 const user = {
@@ -17,10 +19,10 @@ const allLib = function (req, res) {
 
   db.db_connect.query(query, function (err, results, fields) {
     if (err) {
-      console.log(("allLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      console.log(colors.error("allLib 메서드 mysql 모듈사용 실패:" + err));
       return res.status(500).send("allLib 메서드 mysql 모듈사용 실패:" + err);
     }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    console.log(colors.query("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query));
     return res.status(200).json(results);
   });
 };
@@ -33,10 +35,10 @@ const localLib = function (req, res) {
 
   db.db_connect.query(query, [req.body.nameOfCity, req.body.districts], function (err, results, fields) {
     if (err) {
-      console.log(("localLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      console.log(colors.error("localLib 메서드 mysql 모듈사용 실패:" + err));
       return res.status(500).send("localLib 메서드 mysql 모듈사용 실패:" + err);
     }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    console.log(colors.query("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query));
     return res.status(200).json(results);
   });
 };
@@ -47,12 +49,12 @@ const particularLib = function (req, res) {
     "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE libIndex = ?";
 
   // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, [req.query.libIndex], function (err, results, fields) {
+  db.db_connect.query(query, [req.params.libIndex], function (err, results, fields) {
     if (err) {
-      console.log(("particularLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      console.log(colors.error("particularLib 메서드 mysql 모듈사용 실패:" + err));
       return res.status(500).send("particularLib 메서드 mysql 모듈사용 실패:" + err);
     }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    console.log(colors.query("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query));
     return res.status(200).json(results);
   });
 };
