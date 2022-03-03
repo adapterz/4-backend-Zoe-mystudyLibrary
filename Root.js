@@ -16,10 +16,10 @@ app.disable("x-powered-by");
 require("dotenv").config();
 
 // console 로그 예쁘게 쓰기
-const colors = require("./.mymodule/colors");
+const colors = require("colors");
 
 // 날짜/시간 관련 모듈
-const moment = require("./.mymodule/date_time");
+const moment = require("./a_mymodule/date_time");
 
 // 경로별로 라우팅
 const adj_lib_router = require("./router/adj_lib");
@@ -46,5 +46,5 @@ app.get("/not_found", function (req, res) {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(colors.server_start("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")));
+  console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
 });
