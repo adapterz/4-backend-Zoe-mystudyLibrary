@@ -76,7 +76,12 @@ router.patch(
 // 게시물 삭제
 router.delete("/proof-shot/:board-index", controller.deletePost);
 // 댓글 작성
-router.post("/proof-shot/:board-index", body("comments").isLength({ min: 2, max: 500 }).isString(), check.is_validate, controller.writeComment);
+router.post(
+  "/proof-shot/:board-index",
+  body("comments").isLength({ min: 2, max: 500 }).isString(),
+  check.is_validate,
+  controller.writeComment,
+);
 // 댓글 삭제
 router.delete("/proof-shot/:board-index", controller.deleteComment);
 // 좋아요 기능
