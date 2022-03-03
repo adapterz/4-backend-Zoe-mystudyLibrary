@@ -27,7 +27,7 @@ const localLib = function (req, res) {
 
   db.db_connect.query(query_string, [req.body.nameOfCity, req.body.districts], function (err, results, fields) {
     if (err) return res.status(500).send("localLib mysql 모듈사용 실패:" + err);
-    else return res.status(200).json(results);
+    return res.status(200).json(results);
   });
 };
 
@@ -37,7 +37,7 @@ const particularLib = function (req, res) {
   res.status(200).json(req.query.libIndex);
 };
 
-// TODO
+// TODO 로그인 여부 체크 공부 후
 // 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
 const registerMyLib = function (req, res) {
   /*
@@ -51,28 +51,23 @@ const registerMyLib = function (req, res) {
   if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
   // 성공적으로 user정보의 myLib 키에 도서관 정보 추가
+
   res.status(200).end();
 };
 
+// TODO 로그인 배운 뒤, 날짜 스템프 찍는거 배운 뒤
 // 특정 도서관 이용 후 후기등록
 const registerComment = function (req, res) {
-  /*
-  body 예시
-  const comment_data = {
-  nickName:"Zoe",
-  created:"2022-02-28",
-  libName:"늘푸른도서관",
-  commentIndex: 3,
-  comment:"너무 조용하고 분위기 좋아요!!",
-  photo: "사진url",
-  favorite: 124,
-  }
-   */
   // 로그인이 안 돼있을 때
   if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
+  const query_string =
+    "INSERT INTO REVIEW(userIndex, libIndex,reviewContent,created) VALUES (userIndex, req.query.libIndex,req.body.commentIndex,created)";
 
-  const comment_data = req.body;
-  res.status(201).json(comment_data);
+  db.db_connect.query(query_string, function (err, results, fields) {
+    if (err) return res.status(500).send("registerComment mysql 모듈사용 실패:" + err);
+    return res.status(201).end();
+  });
 };
 
 // 후기 삭제

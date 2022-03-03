@@ -15,6 +15,14 @@ app.disable("x-powered-by");
 // dotenv 모듈
 require("dotenv").config();
 
+// console 로그 예쁘게 쓰기
+const colors = require("colors");
+
+// 날짜/시간 관련 모듈
+const moment = require("moment");
+require("moment-timezone");
+moment.tz.setDefault("Asia/Seoul");
+
 // 경로별로 라우팅
 const adj_lib_router = require("./router/adj_lib");
 const boards_router = require("./router/board");
@@ -40,5 +48,5 @@ app.get("/not_found", function (req, res) {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log("Test Lib Server");
+  console.log("Start Lib Server at".cyan.bold + moment().format(" YYYY-MM-DD HH:mm:ss").cyan.bold);
 });
