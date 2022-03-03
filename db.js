@@ -14,4 +14,5 @@ db_connect.connect(function (err) {
   else console.log("mysql이 성공적으로 연결됐습니다.");
 });
 
+// 모듈화
 module.exports = { db_connect: db_connect };
