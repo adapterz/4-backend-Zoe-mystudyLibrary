@@ -26,22 +26,24 @@ router.post(
   check.is_validate,
   controller.writePost,
 );
-// 게시물 수정
-// 유효성 검사
+// TODO 수정하기 버튼 눌렀을 때 불러올것
+// 기존 게시글 정보 write 창에 불러올 때
+router.get("/:category/write/:boardIndex", controller.getRevise);
+// 게시글 수정 요청
 router.patch(
-  "/free-board/write",
+  "/:category/write/:boardIndex",
   body("title").isLength({ min: 2, max: 50 }).isString(),
   body("content").isLength({ min: 2, max: 5000 }).isString(),
-  body("tags").isArray({ max: 5 }).isString(),
+  body("tags").isArray({ max: 5 }),
   body("tags.*").isLength({ min: 2, max: 8 }).isString().trim(),
   check.is_validate,
   controller.revisePost,
 );
 // 게시물 삭제
-router.delete("/free-board/:board-index", controller.deletePost);
+router.delete("/:category/:boardIndex", controller.deletePost);
 // 댓글 작성
 router.post(
-  "/free-board/:board-index/:comment-index",
+  "/:category/:boardIndex",
   body("comments").isLength({ min: 2, max: 500 }).isString(),
   check.is_validate,
   controller.writeComment,
