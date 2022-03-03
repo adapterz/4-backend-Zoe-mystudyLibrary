@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controller/controller_adj_lib");
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");
-const check = require("../.mymodule/validation.js");
+const check = require("../a_mymodule/validation.js");
 
 // 전체도서관 정보
 router.get("/", controller.allLib);
@@ -37,7 +37,7 @@ router.post(
   controller.registerComment,
 );
 // 후기 삭제
-router.delete("/:libIndex", controller.deleteComment);
+router.delete("/:libIndex", controller.deleteReview);
 
 // 모듈화
 module.exports = router;
