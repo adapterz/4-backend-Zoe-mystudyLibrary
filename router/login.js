@@ -5,7 +5,7 @@ const controller = require("../controller/controller_login");
 
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");
-const check = require("../.mymodule/validation");
+const check = require("../a_mymodule/validation");
 
 // 로그인 요청
 router.post("/", body("id").isString().trim(), body("pw").isString().trim(), check.is_validate, controller.login);
