@@ -8,7 +8,7 @@ const check = require("../validation.js");
 
 // 전체도서관 정보
 router.get("/", controller.allLib);
-// 내 지역의 도서관 정보(시도명, 시군구명 body로 보내기)
+// 내 지역의 도서관 정보(시도명, 시군구명 body 로 보내기)
 router.post(
   "/",
   body("nameOfCity")
