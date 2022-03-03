@@ -1,97 +1,43 @@
 // 내주변도서관 라우터의 컨트롤러
+// db 모듈
+const db = require("../db");
 
 // 예시 데이터 (전체 도서관)
 const user = {
   userIndex: 132132,
 };
-const all_lib = [
-  {
-    libIndex: 1,
-    libName: "늘푸른도서관",
-    libType: "작은도서관",
-    close: "토요일",
-    openHourWeekday: "09:00~21:00",
-    openHourSaturday: "00:00~00:00", // 열지 않음
-    openHourHoliday: "09:00~18:00",
-    grade: "3.7/5",
-    address: "광주광역시 남구 독립로 70-1",
-    phoneNumber: "0621234567",
-    comments: [{ commentIndex: "후기1" }, { commentIndex: "후기2" }],
-    //TODO 시도명/시군구명
-  },
-  {
-    libIndex: 2,
-    libName: "하남시일가도서관",
-    libType: "공공도서관",
-    close: "매주 일요일 및 국가지정 공휴일",
-    openHourWeekday: "09:00~21:00",
-    openHourSaturday: "09:00~18:00",
-    openHourHoliday: "00:00~00:00", // 열지 않음
-    grade: "3.7/5",
-    address: "하남시 ~구 ~~로 ",
-    phoneNumber: "0621234567",
-    comments: [{ commentIndex: "후기1" }, { commentIndex: "후기2" }],
-  },
-];
-// 전체 정보 (get)
+
+// 전체 도서관 정보 (get)
 const allLib = function (req, res) {
-  res.status(200).json(all_lib);
+  // 전체 도서관 정보 가져오는 쿼리문
+  const query_string =
+    "SELECT libIndex,libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY";
+
+  db.db_connect.query(query_string, function (err, results, fields) {
+    if (err) return res.status(500).send("allLib mysql 모듈사용 실패:" + err);
+    else return res.status(200).json(results);
+  });
 };
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 함수(post)
 const localLib = function (req, res) {
-  //  요청 예시 데이터(body)
-  /*
-  const where_live = {
-    nameOfCity: "광주광역시", //시도명
-    districts: "서구", //시군구명
-  };
-*/
-  const where_live = req.body;
-  // 응답 예시 데이터(body)- 일부 데이터
-  const local_lib = [
-    {
-      libIndex: 1,
-      libName: "늘푸른도서관",
-      libType: "작은도서관",
-      close: "토요일",
-      openHourWeekday: "09:00~21:00",
-      openHourSaturday: "00:00~00:00", // 열지 않음
-      openHourHoliday: "09:00~18:00",
-      grade: "3.7/5",
-      address: "광주광역시 남구 독립로 70-1",
-      phoneNumber: "0621234567",
-      nameOfCity: where_live.nameOfCity,
-      districts: where_live.districts,
-      comments: [{ commentIndex: "후기1" }, { commentIndex: "후기2" }],
-    },
-    {
-      libIndex: 2,
-      libName: "일가도서관",
-      libType: "공공도서관",
-      close: "매주 일요일 및 국가지정 공휴일",
-      openHourWeekday: "09:00~21:00",
-      openHourSaturday: "09:00~18:00",
-      openHourHoliday: "00:00~00:00", // 열지 않음
-      grade: "3.7/5",
-      address: "하남시 ~구 ~~로 ",
-      phoneNumber: "0621234567",
-      nameOfCity: where_live.nameOfCity,
-      districts: where_live.districts,
-      comments: [{ commentIndex: "후기1" }, { commentIndex: "후기2" }],
-    },
-  ];
+  // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
+  const query_string =
+    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE nameOfCity =? AND districts =?";
 
-  res.status(200).json(local_lib);
+  db.db_connect.query(query_string, [req.body.nameOfCity, req.body.districts], function (err, results, fields) {
+    if (err) return res.status(500).send("localLib mysql 모듈사용 실패:" + err);
+    else return res.status(200).json(results);
+  });
 };
 
 // 특정 도서관 자세히 보기
 const particularLib = function (req, res) {
-  const lib_index = req.params.libIndex;
-
   // 해당 인덱스의 도서관 정보 응답
-  res.status(200).json(all_lib[lib_index - 1]);
+  res.status(200).json(req.query.libIndex);
 };
+
+// TODO
 // 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
 const registerMyLib = function (req, res) {
   /*
