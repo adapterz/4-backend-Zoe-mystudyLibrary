@@ -19,9 +19,7 @@ require("dotenv").config();
 require("colors");
 
 // 날짜/시간 관련 모듈
-const moment = require("moment");
-require("moment-timezone");
-moment.tz.setDefault("Asia/Seoul");
+const moment = require("./date_time");
 
 // 경로별로 라우팅
 const adj_lib_router = require("./router/adj_lib");

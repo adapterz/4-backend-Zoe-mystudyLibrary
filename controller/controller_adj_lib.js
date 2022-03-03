@@ -1,6 +1,8 @@
 // 내주변도서관 라우터의 컨트롤러
 // db 모듈
 const db = require("../db");
+// 날짜/시간 관련 모듈
+const moment = require("../date_time");
 
 // 예시 데이터 (전체 도서관)
 const user = {
@@ -66,6 +68,7 @@ const registerComment = function (req, res) {
 
   db.db_connect.query(query_string, function (err, results, fields) {
     if (err) return res.status(500).send("registerComment mysql 모듈사용 실패:" + err);
+    console.log(req.ipquery_string.cyan.bold);
     return res.status(201).end();
   });
 };
