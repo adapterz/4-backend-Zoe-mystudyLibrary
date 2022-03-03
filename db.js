@@ -7,15 +7,11 @@ const db_info = {
   password: "qwe1234!",
   database: "myStudyLib",
 };
+// DB 커넥션 생성 및 DB 접속
+const db_connect = mysql.createConnection(db_info);
+db_connect.connect(function (err) {
+  if (err) console.error("mysql error:" + err);
+  else console.log("mysql이 성공적으로 연결됐습니다.");
+});
 
-module.exports = {
-  init: function () {
-    return mysql.createConnection(db_info);
-  },
-  connect: function (conn) {
-    conn.connect(function (err) {
-      if (err) console.error("mysql connection error : " + err);
-      else console.log("mysql 이 성공적으로 연결됐습니다.");
-    });
-  },
-};
+module.exports = { db_connect: db_connect };

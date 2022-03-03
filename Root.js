@@ -12,11 +12,6 @@ const helmet = require("helmet");
 app.use(helmet());
 app.disable("x-powered-by");
 
-// DB
-let db_module = require("./db");
-const db_connect = db_module.init();
-db_module.connect(db_connect);
-
 // 포트번호 지정
 const port = 3000;
 
