@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controller/controller_adj_lib");
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");
-const check = require("../validation.js");
+const check = require("../.mymodule/validation.js");
 
 // 전체도서관 정보
 router.get("/", controller.allLib);
@@ -25,19 +25,19 @@ router.post(
   controller.localLib,
 );
 // 특정 도서관 자세히 보기
-router.get("/:lib-index", controller.particularLib);
+router.get("/:libIndex", controller.particularLib);
 // 내 정보의 '관심 도서관'에 특정도서관 데이터 추가
-router.patch("/:lib-index", controller.registerMyLib);
+router.patch("/:libIndex", controller.registerMyLib);
 // 특정 도서관 이용 후 후기등록
 router.post(
-  "/:lib-index",
+  "/:libIndex",
   body("comments").isLength({ min: 2, max: 100 }).isString(),
   body("photo").isDataURI(),
   check.is_validate,
   controller.registerComment,
 );
 // 후기 삭제
-router.delete("/:lib-index", controller.deleteComment);
+router.delete("/:libIndex", controller.deleteComment);
 
 // 모듈화
 module.exports = router;

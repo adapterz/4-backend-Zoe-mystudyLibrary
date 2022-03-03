@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controller/controller_new_user");
 const { body } = require("express-validator");
-const check = require("../validation");
+const check = require("../.mymodule/validation");
 
 // 요청 별 정의
 // 회원가입 약관확인

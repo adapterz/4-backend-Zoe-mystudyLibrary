@@ -5,7 +5,7 @@ const controller = require("../controller/controller_board");
 
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");
-const check = require("../validation");
+const check = require("../.mymodule/validation");
 
 // 자유게시판
 // 전체 게시물 목록보기
@@ -41,7 +41,12 @@ router.patch(
 // 게시물 삭제
 router.delete("/free-board/:board-index", controller.deletePost);
 // 댓글 작성
-router.post("/free-board/:board-index/:comment-index", body("comments").isLength({ min: 2, max: 500 }).isString(), check.is_validate, controller.writeComment);
+router.post(
+  "/free-board/:board-index/:comment-index",
+  body("comments").isLength({ min: 2, max: 500 }).isString(),
+  check.is_validate,
+  controller.writeComment,
+);
 // 댓글 삭제
 router.delete("/free-board/:board-index/:comment-index", controller.deleteComment);
 // 좋아요 기능
