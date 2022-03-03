@@ -12,8 +12,8 @@ const helmet = require("helmet");
 app.use(helmet());
 app.disable("x-powered-by");
 
-// 포트번호 지정
-const port = 3000;
+// dotenv 모듈
+require("dotenv").config();
 
 // 경로별로 라우팅
 const adj_lib_router = require("./router/adj_lib");
@@ -39,6 +39,6 @@ app.get("/not_found", function (req, res) {
   res.status(404).send("not founded page");
 });
 
-app.listen(port, () => {
+app.listen(process.env.PORT, () => {
   console.log("Test Lib Server");
 });
