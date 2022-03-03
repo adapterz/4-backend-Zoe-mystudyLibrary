@@ -16,7 +16,7 @@ app.disable("x-powered-by");
 require("dotenv").config();
 
 // console 로그 예쁘게 쓰기
-const colors = require("colors");
+require("colors");
 
 // 날짜/시간 관련 모듈
 const moment = require("moment");
