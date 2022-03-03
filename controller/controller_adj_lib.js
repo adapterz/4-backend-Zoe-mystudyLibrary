@@ -16,6 +16,7 @@ const all_lib = [
     address: "광주광역시 남구 독립로 70-1",
     phoneNumber: "0621234567",
     comments: [{ commentIndex: "후기1" }, { commentIndex: "후기2" }],
+    //TODO 시도명/시군구명
   },
   {
     libIndex: 2,

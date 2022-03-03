@@ -14,13 +14,13 @@ const boards = [
     category: "자유게시판",
     title: "글제목1",
     content: "글내용1",
-    tags: ["태그1-1", "태그1-2"],
+    tags: [{ content: "태그1-1" }],
     created: "2022-02-24",
     comments: [
       { nickName: "Zoe", contents: "댓글1-1" },
       { nickName: "Zoe", contents: "댓글1-2" },
       { nickName: "Zoe", contents: "댓글1-3" },
-    ], // TODO DB 설계시 좋아요, likeUser 항목 추가, myLib 항목 추가
+    ], // TODO DB 설계시 좋아요, likeUser 항목, hits 추가
   },
   {
     index: 2,

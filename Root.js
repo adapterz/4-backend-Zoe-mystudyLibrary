@@ -12,6 +12,21 @@ const helmet = require("helmet");
 app.use(helmet());
 app.disable("x-powered-by");
 
+// DB 연결을 위한 모듈 설치 및 DB connection 정보 설정
+const mysql = require("mysql");
+const db_connect = {
+  host: "localhost",
+  post: "3306",
+  user: "root",
+  password: "qwe1234!",
+  database: "myStudyLib",
+};
+
+// DB 커넥션 생성, 쿼리 테스트 진행, DB 접속 종료
+
+const db_connection = mysql.createConnection(db_connect); // DB 커넥션 생성
+db_connection.connect(); // DB 접속
+
 // 포트번호 지정
 const port = 3000;
 
