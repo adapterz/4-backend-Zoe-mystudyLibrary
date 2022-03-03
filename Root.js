@@ -5,7 +5,7 @@ const app = express();
 // req.body 사용에 필요한 'body-parser' 미들웨어
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extends: true }));
+app.use(bodyParser.urlencoded({ extends: false }));
 
 // 컨텐츠 보안 정책에 따른 'helmet' 미들웨어 사용
 const helmet = require("helmet");
