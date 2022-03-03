@@ -56,7 +56,7 @@ const writePost = function (req, res) {
   // 작성 내용
   const write_post = req.body;
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
+  if (user.id === null) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
 
   // 태그 배열 한 문자열에 다 넣어주기
   let tag_string = "";
@@ -67,13 +67,13 @@ const writePost = function (req, res) {
   // 게시글 작성 쿼리문
   // 자유게시판 글 작성시 쿼리문
   if (req.params.category === "free-bulletin") {
-    query = "INSERT INTO BOARDS(category,userIndex,nickName,postTitle,postContent,created,tags) VALUES (?,?,?,?,?,?,?)";
+    query = "INSERT INTO BOARDS(category,id,nickName,postTitle,postContent,created,tags) VALUES (?,?,?,?,?,?,?)";
     // 쿼리문 실행
     db.db_connect.query(
       query,
       [
         "자유게시판",
-        user.userIndex,
+        user.id,
         user.nickName,
         write_post.postTitle,
         write_post.postContent,
@@ -94,14 +94,14 @@ const writePost = function (req, res) {
     // 공부인증샷 글 작성시 쿼리문
   } else if (req.params.category === "proof-shot") {
     query =
-      "INSERT INTO BOARDS(category,userIndex,nickName,postTitle,postContent,created,tags) VALUES ('공부인증샷',user.userIndex,user.nickName,write_post.postTitle,write.postContent,moment().format('YYYY-MM-DD HH:mm:ss'), tag_string)";
+      "INSERT INTO BOARDS(category,id,nickName,postTitle,postContent,created,tags) VALUES ('공부인증샷',user.id,user.nickName,write_post.postTitle,write.postContent,moment().format('YYYY-MM-DD HH:mm:ss'), tag_string)";
   }
 };
 
 // 수정시 기존 게시글 정보 불러오기
 const getRevise = function (req, res) {
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  if (user.id === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
   // 해당 인덱스의 게시글 가져오기
   const query = "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,like FROM BOARDS WHERE boardIndex = ?";
 
@@ -121,7 +121,7 @@ const getRevise = function (req, res) {
 // 게시글 수정요청
 const revisePost = function (req, res) {
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  if (user.id === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
   // 수정한 내용
   const revised_post = req.body;
   // 태그 배열 한 문자열에 다 넣어주기
@@ -133,7 +133,7 @@ const revisePost = function (req, res) {
   const query =
     "UPDATE BOARDS SET postTitle = revised_post.postTitle,postContent=revised_post.postContent,tags =tag_string WHERE userIndex = ? AND boardIndex = ?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.userIndex, req.params.boardIndex], function (err, results, fields) {
+  db.db_connect.query(query, [user.id, req.params.boardIndex], function (err, results, fields) {
     // 오류 발생
     if (err) {
       console.log(("revisedPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -149,11 +149,11 @@ const revisePost = function (req, res) {
 // 게시글 삭제하기
 const deletePost = function (req, res) {
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 삭제하기 위해서는 로그인을 해야합니다." });
+  if (user.id === null) return res.status(401).json({ state: "글을 삭제하기 위해서는 로그인을 해야합니다." });
   // 해당 인덱스 게시글 삭제
-  const query = "DELETE FROM BOARDS WHERE userIndex=? AND boardIndex =?";
+  const query = "DELETE FROM BOARDS WHERE id=? AND boardIndex =?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.userIndex, req.params.boardIndex], function (err, results, fields) {
+  db.db_connect.query(query, [user.id, req.params.boardIndex], function (err, results, fields) {
     // 오류 발생
     if (err) {
       console.log(("deletePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -169,17 +169,17 @@ const deletePost = function (req, res) {
 // 댓글 작성
 const writeComment = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   // 댓글 내용
   const comment = req.body;
 
   // 댓글 등록 쿼리문
-  const query = "INSERT INTO COMMENTS(nickName,boardIndex,commentContent,category,created) VALUES (?,?,?,?)";
+  const query = "INSERT INTO COMMENTS(nickName,boardIndex,commentContent,category,created) VALUES (?,?,?,?,?)";
 
   // 쿼리문 실행
   db.db_connect.query(
     query,
-    [user.nickName, req.params.boardIndex, comment.reviewContent, moment().format("YYYY-MM-DD HH:mm:ss")],
+    [user.nickName, req.params.boardIndex, comment.commentContent, req.params.category, moment().format("YYYY-MM-DD HH:mm:ss")],
     function (err, results, fields) {
       // 오류 발생
       if (err) {
@@ -197,7 +197,7 @@ const writeComment = function (req, res) {
 // 댓글 삭제
 const deleteComment = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
   const query = "DELETE FROM COMMENTS WHERE nickName=? AND commentIndex =?";
   // 오류 발생
@@ -226,7 +226,7 @@ likeUser : [{ nickName : "Zoe"}, { nickName : "yeji" }] //< 해당 게시글에 
 // TODO 파싱배우고 나중에
 const likePost = function (req, res) {
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
+  if (user.id === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
   // 예시 해당 게시글 정보
   const thisPost = {
     category: "자유게시판",

@@ -27,11 +27,11 @@ const getRecentPost = function (req, res) {
 // 내가 관심도서관으로 등록한 도서관 정보
 const myLibData = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 해당 유저의 관심도서관 정보 가져오기
-  const query = "SELECT userLib FROM USER WHERE userIndex = ?";
+  const query = "SELECT userLib FROM USER WHERE id = ?";
 
-  db.db_connect.query(query, [user.userIndex], function (err, results, fields) {
+  db.db_connect.query(query, [user.id], function (err, results, fields) {
     // 오류발생
     if (err) {
       console.log(("myLibData 메서드 mysql 모듈사용 실패:" + err).red.bold);
