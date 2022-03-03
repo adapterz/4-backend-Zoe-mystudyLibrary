@@ -65,9 +65,9 @@ const registerMyLib = function (req, res) {
   if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
   // 해당 유저의 userLib 컬럼에 관심있는 도서관의 libIndex 추가하기, 추후 ;로 파싱
-  const query = "UPDATE USER SET userLib userLib=concat(userLib,req.params.libIndex+';') WHERE userIndex = user.userIndex";
+  const query = "UPDATE USER SET userLib userLib=concat(userLib,req.params.libIndex+';') WHERE userIndex = ?";
   // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, function (err, results, fields) {
+  db.db_connect.query(query, [user.userIndex], function (err, results, fields) {
     if (err) {
       console.log(("registerLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).send({ state: "registerLib 메서드 mysql 모듈사용 실패:" + err });
@@ -83,19 +83,22 @@ const registerComment = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   // 후기 등록 쿼리문
-  const query =
-    "INSERT INTO REVIEW(nickName, libIndex,reviewContent,created) VALUES (user.nickName, req.params.libIndex,req.body.reviewContent,moment().format('YYYY-MM-DD HH:mm:ss'))";
+  const query = "INSERT INTO REVIEW(nickName, libIndex,reviewContent,created) VALUES (?,?,?,?)";
 
-  db.db_connect.query(query, function (err, results, fields) {
-    // 오류 발생
-    if (err) {
-      console.log(("registerComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).send({ state: "registerComment 메서드 mysql 모듈사용 실패:" + err });
-    }
-    // 정상적으로 쿼리문 실행(후기 등록)
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(201).end();
-  });
+  db.db_connect.query(
+    query,
+    [user.nickName, req.params.libIndex, req.body.reviewContent, moment().format("YYYY-MM-DD HH:mm:ss")],
+    function (err, results, fields) {
+      // 오류 발생
+      if (err) {
+        console.log(("registerComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).send({ state: "registerComment 메서드 mysql 모듈사용 실패:" + err });
+      }
+      // 정상적으로 쿼리문 실행(후기 등록)
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+      return res.status(201).end();
+    },
+  );
 };
 
 // TODO 로그인 배운 뒤 다시 작성
@@ -104,9 +107,9 @@ const deleteReview = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
-  const query = "DELETE FROM REVIEW WHERE nickName=user.nickName AND reviewIndex =req.query.reviewIndex";
+  const query = "DELETE FROM REVIEW WHERE nickName=? AND reviewIndex =?";
   // 오류 발생
-  db.db_connect.query(query, function (err, results, fields) {
+  db.db_connect.query(query, [user.nickName, req.query.reviewIndex], function (err, results, fields) {
     if (err) {
       console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).send({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });
