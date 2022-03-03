@@ -12,31 +12,49 @@ const user = {
 // 전체 도서관 정보 (get)
 const allLib = function (req, res) {
   // 전체 도서관 정보 가져오는 쿼리문
-  const query_string =
+  const query =
     "SELECT libIndex,libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY";
 
-  db.db_connect.query(query_string, function (err, results, fields) {
-    if (err) return res.status(500).send("allLib mysql 모듈사용 실패:" + err);
-    else return res.status(200).json(results);
+  db.db_connect.query(query, function (err, results, fields) {
+    if (err) {
+      console.log(("allLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).send("allLib 메서드 mysql 모듈사용 실패:" + err);
+    }
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(200).json(results);
   });
 };
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 함수(post)
 const localLib = function (req, res) {
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
-  const query_string =
+  const query =
     "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE nameOfCity =? AND districts =?";
 
-  db.db_connect.query(query_string, [req.body.nameOfCity, req.body.districts], function (err, results, fields) {
-    if (err) return res.status(500).send("localLib mysql 모듈사용 실패:" + err);
+  db.db_connect.query(query, [req.body.nameOfCity, req.body.districts], function (err, results, fields) {
+    if (err) {
+      console.log(("localLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).send("localLib 메서드 mysql 모듈사용 실패:" + err);
+    }
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
     return res.status(200).json(results);
   });
 };
 
 // 특정 도서관 자세히 보기
 const particularLib = function (req, res) {
+  const query =
+    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE libIndex = ?";
+
   // 해당 인덱스의 도서관 정보 응답
-  res.status(200).json(req.query.libIndex);
+  db.db_connect.query(query, [req.query.libIndex], function (err, results, fields) {
+    if (err) {
+      console.log(("particularLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).send("particularLib 메서드 mysql 모듈사용 실패:" + err);
+    }
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(200).json(results);
+  });
 };
 
 // TODO 로그인 여부 체크 공부 후
