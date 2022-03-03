@@ -7,7 +7,14 @@ const check = require("../validation");
 
 // 요청 별 정의
 // 회원가입 약관확인
-router.post("/", body("checkBox1").isBoolean(), body("checkBox2").isBoolean(), body("checkBox3").isBoolean(), check.is_validate, controller.signUpGuide);
+router.post(
+  "/",
+  body("checkBox1").isBoolean(),
+  body("checkBox2").isBoolean(),
+  body("checkBox3").isBoolean(),
+  check.is_validate,
+  controller.signUpGuide,
+);
 
 // 회원가입 요청
 router.post(
