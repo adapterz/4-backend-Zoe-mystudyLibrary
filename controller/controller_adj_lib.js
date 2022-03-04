@@ -6,7 +6,9 @@ const moment = require("../a_mymodule/date_time");
 
 // 예시 데이터 (전체 도서관)
 const user = {
+  //id: "asd",
   userIndex: 132132,
+  nickName: "Zoe",
 };
 
 // 전체 도서관 정보 (get)
@@ -80,6 +82,7 @@ const registerMyLib = function (req, res) {
 // TODO 로그인 배운 뒤 다시 작성
 // 특정 도서관 이용 후 후기등록
 const registerComment = function (req, res) {
+  console.log("0");
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   // 후기 등록 쿼리문
