@@ -16,7 +16,7 @@ router.delete("/post", controller.deletePost);
 // 목록 중 선택 댓글 삭제
 router.delete("/comments", controller.deleteComment);
 // 목록 중 도서관 후기 삭제
-router.delete("/lib-epilogue", controller.deleteEpilogue);
+router.delete("/lib-epilogue", controller.deleteReview);
 
 // 모듈화
 module.exports = router;
