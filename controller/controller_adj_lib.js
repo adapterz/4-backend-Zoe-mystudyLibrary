@@ -67,7 +67,7 @@ const registerMyLib = function (req, res) {
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   const parse_libIndex = req.params.libIndex + ";";
   // 해당 유저의 userLib 컬럼에 관심있는 도서관의 libIndex 추가하기, 추후 ;로 파싱
-  const query = "UPDATE USER SET userLib userLib=concat(userLib,parse_libIndex) WHERE id = ?";
+  const query = "UPDATE USER SET userLib =concat(userLib,parse_libIndex) WHERE id = ?";
   // 해당 인덱스의 도서관 정보 응답
   db.db_connect.query(query, [user.id], function (err) {
     if (err) {
@@ -111,10 +111,9 @@ const deleteReview = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
-  const query = "DELETE FROM REVIEW WHERE nickName=? AND reviewIndex =?";
-
+  const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ?";
   // 오류 발생
-  db.db_connect.query(query, [user.nickName, req.query.reviewIndex], function (err) {
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.reviewIndex], function (err) {
     if (err) {
       console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });

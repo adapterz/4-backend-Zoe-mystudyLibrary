@@ -67,9 +67,9 @@ const deletePost = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 해당 인덱스 게시글 삭제
-  const query = "DELETE FROM BOARDS WHERE id=? AND boardIndex =?";
+  const query = "UPDATE BOARDS SET deleteDate = ? WHERE boardIndex = ?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id, req.query.boardIndex], function (err) {
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.boardIndex], function (err) {
     // 오류 발생
     if (err) {
       console.log(("deletePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -85,9 +85,9 @@ const deleteComment = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 댓글 삭제 쿼리문
-  const query = "DELETE FROM COMMENTS WHERE nickName=? AND commentIndex =?";
+  const query = "UPDATE COMMENTS SET deleteDate = ? WHERE commentIndex = ?";
 
-  db.db_connect.query(query, [user.nickName, req.query.commentIndex], function (err) {
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.commentIndex], function (err) {
     // 오류 발생
     if (err) {
       console.log(("deleteComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -102,10 +102,10 @@ const deleteComment = function (req, res) {
 const deleteReview = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
-  const query = "DELETE FROM REVIEW WHERE nickName=? AND reviewIndex =?";
+  const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ?";
 
   // 오류 발생
-  db.db_connect.query(query, [user.nickName, req.query.reviewIndex], function (err) {
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.reviewIndex], function (err) {
     if (err) {
       console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });

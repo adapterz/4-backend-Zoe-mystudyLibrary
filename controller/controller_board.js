@@ -159,9 +159,9 @@ const deletePost = function (req, res) {
   // 로그인 여부 검사
   if (user.id === null) return res.status(401).json({ state: "글을 삭제하기 위해서는 로그인을 해야합니다." });
   // 해당 인덱스 게시글 삭제
-  const query = "DELETE FROM BOARDS WHERE id=? AND boardIndex =?";
+  const query = "UPDATE BOARDS SET deleteDate = ? WHERE boardIndex = ?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id, req.params.boardIndex], function (err) {
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.params.boardIndex], function (err) {
     // 오류 발생
     if (err) {
       console.log(("deletePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -207,8 +207,8 @@ const deleteComment = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
-  const query = "DELETE FROM COMMENTS WHERE nickName=? AND commentIndex =?";
-  db.db_connect.query(query, [user.nickName, req.query.commentIndex], function (err) {
+  const query = "UPDATE BOARDS SET deleteDate = ? WHERE commentIndex = ?";
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.commentIndex], function (err) {
     // 오류 발생
     if (err) {
       console.log(("deleteComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
