@@ -30,9 +30,9 @@ router.get("/:libIndex", controller.particularLib);
 router.patch("/:libIndex", controller.registerMyLib);
 // 특정 도서관 이용 후 후기등록
 router.post(
-  "/:libIndex",
-  body("comments").isLength({ min: 2, max: 100 }).isString(),
-  body("photo").isDataURI(),
+  "/:libIndex/review",
+  body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
+  body("grade").isLength({ min: 3, max: 7 }).isString(),
   check.is_validate,
   controller.registerComment,
 );
