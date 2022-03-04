@@ -34,6 +34,11 @@ router.post(
     .matches(/^[가-힣]+$/), // 한글만
   body("gender").isString().isLength({ min: 1 }),
   body("phoneNumber").matches(/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/), // 휴대전화 정규식
+  body("nickName")
+    .isString()
+    .trim()
+    .isLength({ min: 2, max: 8 })
+    .matches(/^[가-힣|a-z|A-Z|0-9]+$/), // 한글, 숫자, 영어만 입력 가능한 정규 표현식
   check.is_validate,
   controller.signUp,
 );
