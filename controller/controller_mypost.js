@@ -20,7 +20,10 @@ const myPost = function (req, res) {
       return res.status(500).json({ state: "myPost 메서드 자유게시판 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    // TODO 차후에 데이터가 없을 때 응답값 따로 분기처리 해주기
+    // 데이터가 없을 때 보여줄 페이지
+    if (results[0] === undefined) return res.status(200).json({ state: "등록된 글이 없습니다." });
+
+    // 성공적으로 데이터 전달
     return res.status(200).json(results);
   });
 };
@@ -28,17 +31,20 @@ const myPost = function (req, res) {
 const myComment = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
-  // TODO join 공부 한 뒤 다시 작성
-  // 해당 유저가 작성한 댓글 정보 가져오기
-  const query = "SELECT commentIndex commentContent,created,category WHERE id = ?;" + "SELECT postTitle FROM BOARDS WHERE boardIndex = ?;";
+  // 해당 유저가 작성한 후기 정보 가져오기
+  const query =
+    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.created,COMMENT.category,BOARDS.postTitle FROM COMMENT INNER JOIN BOARDS ON COMMENT.boardIndex =BOARDS.boardIndex WHERE COMMENT.nickName = ?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id, req.query.boardIndex], function (err, results) {
+  db.db_connect.query(query, [user.nickName], function (err, results) {
     if (err) {
       console.log(("myComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "myComment 메서드 자유게시판 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    // TODO 차후에 데이터가 없을 때 응답값 따로 분기처리 해주기
+    // 데이터가 없을 때 보여줄 페이지
+    if (results[0] === undefined) return res.status(200).json({ state: "등록된 댓글이 없습니다." });
+
+    // 성공적으로 데이터 전달
     return res.status(200).json(results);
   });
 };
@@ -46,17 +52,20 @@ const myComment = function (req, res) {
 const myEpilogue = function (req, res) {
   // 로그인이 안 돼있을 때
   if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
-  // TODO JOIN 공부한 뒤 다시 작성
   // 해당 유저가 작성한 후기 정보 가져오기
-  const query = "SELECT reviewIndex, reviewContent,created, WHERE id = ?;" + "SELECT libName FROM LIBRARY WHERE libIndex = ?;";
+  const query =
+    "SELECT REVIEW.reviewIndex,REVIEW.reviewContent,REVIEW.created,REVIEW.grade,LIBRARY.libName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libIndex = LIBRARY.libIndex WHERE REVIEW.nickName = ?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id, req.query.libIndex], function (err, results) {
+  db.db_connect.query(query, [user.nickName], function (err, results) {
     if (err) {
       console.log(("myEpilogue 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "myEpilogue 메서드 자유게시판 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    // TODO 차후에 데이터가 없을 때 응답값 따로 분기처리 해주기
+    // 데이터가 없을 때 보여줄 페이지
+    if (results[0] === undefined) return res.status(200).json({ state: "등록된 후기가 없습니다." });
+
+    // 성공적으로 데이터 전달
     return res.status(200).json(results);
   });
 };
