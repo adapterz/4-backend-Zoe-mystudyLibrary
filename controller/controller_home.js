@@ -12,7 +12,7 @@ const getRecentPost = function (req, res) {
   const query =
     "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = ? order by boardIndex DESC limit 0,5;" +
     "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = ? order by boardIndex DESC limit 0,4;";
-  db.db_connect.query(query, ["자유게시판", "공부인증샷"], function (err, results, fields) {
+  db.db_connect.query(query, ["자유게시판", "공부인증샷"], function (err, results) {
     // 오류발생
     if (err) {
       console.log(("getRecentPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -31,7 +31,7 @@ const myLibData = function (req, res) {
   // 해당 유저의 관심도서관 정보 가져오기
   const query = "SELECT userLib FROM USER WHERE id = ?";
 
-  db.db_connect.query(query, [user.id], function (err, results, fields) {
+  db.db_connect.query(query, [user.id], function (err, results) {
     // 오류발생
     if (err) {
       console.log(("myLibData 메서드 mysql 모듈사용 실패:" + err).red.bold);
