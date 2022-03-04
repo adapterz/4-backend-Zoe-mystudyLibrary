@@ -1,5 +1,9 @@
 // 회원가입 화면의 라우터의 컨트롤러
 // 예시 유저 정보(기존에 존재하는 유저 데이터)
+const db = require("../a_mymodule/db");
+const moment = require("../a_mymodule/date_time");
+const crypto = require("crypto");
+const { hash_pw } = require("../service/user");
 const users12 = [
   {
     userIndex: 1,
@@ -36,6 +40,7 @@ const users12 = [
   },
 ];
 
+// TODO 프론트 때 할 듯?
 // 회원가입 약관확인
 const signUpGuide = function (req, res) {
   // 약관동의 체크박스(예시 body)
@@ -51,31 +56,50 @@ const signUpGuide = function (req, res) {
   // 체크박스에 체크하지 않았을 때
   res.status(400).json({ state: "안내사항을 읽고 동의해주세요." });
 };
+
 // 회원가입 요청
 const signUp = function (req, res) {
-  // 예시 body
-  const example_body = {
-    id: "아이디",
-    pw: "비번",
-    confirmPw: "비밀번호확인",
-    name: "이름",
-    gender: "성별",
-    phoneNumber: "폰 번호",
-  };
-
   // 회원가입 시 입력한 유저 정보
   const input_user = req.body;
-  // 라우터에 정의된 것 외의 유효성 검사
-  // 1. 기존에 존재하는 아이디 인지 검사
-  for (const temp_id of users.id) {
-    if (temp_id === input_user.id) return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
-  }
+  // 기존에 아이디가 있나 확인할 쿼리문
+  let query = "SELECT id FROM USER WHERE id = ?";
+  // 쿼리문 실행
+  db.db_connect.query(query, function (err, results) {
+    if (err) {
+      console.log(("signUp 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "signUp 메서드 mysql 모듈사용 실패:" + err });
+    }
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+
+    // 1. 기존에 존재하는 아이디가 있을 때
+    if (results[0].id === input_user) return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
+  });
   // 2. 비밀번호 유효성 검사
   // 입력한 비밀번호와 비밀번호 확인이 다를 때
   if (input_user.pw !== input_user.confirmPw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
 
-  // 회원가입 성공
-  res.status(201).end();
+  query = "INSERT INTO BOARDS(id,pw,name,gender,phoneNumber,salt,nickName) VALUES (?,?,?,?,?,?,?)";
+  // 암호화
+  // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
+  const salts = crypto.randomBytes(128).toString("base64");
+  // 해싱된 암호
+  const hashed_pw = crypto
+    .createHash("sha512")
+    .update(input_user.pw + salts)
+    .digest("hex");
+  // 쿼리문 실행
+  db.db_connect.query(
+    query,
+    [input_user.id, hashed_pw, input_user.name, input_user.gender, input_user.phoneNumber, salts, input_user.nickName],
+    function (err) {
+      if (err) {
+        console.log(("signUp 메서드 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).json({ state: "signUp 메서드 mysql 모듈사용 실패:" + err });
+      }
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+      return res.status(201).end();
+    },
+  );
 };
 
 module.exports = {
