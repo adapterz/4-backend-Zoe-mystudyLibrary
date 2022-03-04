@@ -3,43 +3,6 @@
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const crypto = require("crypto");
-const { hash_pw } = require("../service/user");
-const users12 = [
-  {
-    userIndex: 1,
-    id: "syjg1234",
-    pw: "hassing_pw1",
-    name: "Zoe",
-    gender: "Woman",
-    phoneNumber: "01028400631",
-    salt: "1234#",
-    nickName: null,
-    profileShot: null,
-  },
-  {
-    userIndex: 2,
-    id: "ye1919",
-    password: "hassing_pw2",
-    name: "Yeji",
-    gender: "Woman",
-    phoneNumber: "01128400631",
-    salt: "1234!",
-    nickName: null,
-    profileShot: null,
-  },
-  {
-    userIndex: 3,
-    id: "hihi123",
-    password: "hassing_pw3",
-    name: "Leehi",
-    gender: "Man",
-    phoneNumber: "01234567890",
-    salt: "12a13",
-    nickName: null,
-    profileShot: null,
-  },
-];
-
 // TODO 프론트 때 할 듯?
 // 회원가입 약관확인
 const signUpGuide = function (req, res) {
