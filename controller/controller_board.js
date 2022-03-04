@@ -84,7 +84,7 @@ const writePost = function (req, res) {
         // 오류 발생
         if (err) {
           console.log(("writePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
-          return res.status(500).send({ state: "writePost 메서드 mysql 모듈사용 실패:" + err });
+          return res.status(500).json({ state: "writePost 메서드 mysql 모듈사용 실패:" + err });
         }
         // 정상적으로 쿼리문 실행(게시글 등록)
         console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
@@ -110,7 +110,7 @@ const getRevise = function (req, res) {
     // 오류 발생
     if (err) {
       console.log(("getRevise 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).send({ state: "getRevise 메서드 mysql 모듈사용 실패:" + err });
+      return res.status(500).json({ state: "getRevise 메서드 mysql 모듈사용 실패:" + err });
     }
     // 정상적으로 쿼리문 실행(기존 게시글 정보 가져오기)
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
@@ -137,7 +137,7 @@ const revisePost = function (req, res) {
     // 오류 발생
     if (err) {
       console.log(("revisedPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).send({ state: "revisePost 메서드 mysql 모듈사용 실패:" + err });
+      return res.status(500).json({ state: "revisePost 메서드 mysql 모듈사용 실패:" + err });
     }
     // 정상적으로 쿼리문 실행(기존 게시글 정보 가져오기)
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
@@ -157,7 +157,7 @@ const deletePost = function (req, res) {
     // 오류 발생
     if (err) {
       console.log(("deletePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).send({ state: "deletePost 메서드 mysql 모듈사용 실패:" + err });
+      return res.status(500).json({ state: "deletePost 메서드 mysql 모듈사용 실패:" + err });
     }
     // 정상적으로 쿼리문 실행(기존 게시글 정보 가져오기)
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
@@ -184,7 +184,7 @@ const writeComment = function (req, res) {
       // 오류 발생
       if (err) {
         console.log(("writeComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-        return res.status(500).send({ state: "writeComment 메서드 mysql 모듈사용 실패:" + err });
+        return res.status(500).json({ state: "writeComment 메서드 mysql 모듈사용 실패:" + err });
       }
       // 정상적으로 쿼리문 실행(후기 등록)
       console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
@@ -204,7 +204,7 @@ const deleteComment = function (req, res) {
   db.db_connect.query(query, [user.nickName, req.query.commentIndex], function (err, results, fields) {
     if (err) {
       console.log(("deleteComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).send({ state: "deleteComment 메서드 mysql 모듈사용 실패:" + err });
+      return res.status(500).json({ state: "deleteComment 메서드 mysql 모듈사용 실패:" + err });
     }
     // 정상적으로 쿼리문 실행(후기 삭제)
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
