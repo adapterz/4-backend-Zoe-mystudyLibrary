@@ -17,7 +17,7 @@ const allLib = function (req, res) {
   const query =
     "SELECT libIndex,libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY";
 
-  db.db_connect.query(query, function (err, results, fields) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("allLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "allLib 메서드 mysql 모듈사용 실패:" + err });
@@ -33,7 +33,7 @@ const localLib = function (req, res) {
   const query =
     "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE nameOfCity =? AND districts =?";
 
-  db.db_connect.query(query, [req.body.nameOfCity, req.body.districts], function (err, results, fields) {
+  db.db_connect.query(query, [req.body.nameOfCity, req.body.districts], function (err, results) {
     if (err) {
       console.log(("localLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "localLib 메서드 mysql 모듈사용 실패:" + err });
@@ -50,7 +50,7 @@ const particularLib = function (req, res) {
     "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE libIndex = ?";
 
   // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, [req.params.libIndex], function (err, results, fields) {
+  db.db_connect.query(query, [req.params.libIndex], function (err, results) {
     if (err) {
       console.log(("particularLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "particularLib 메서드 mysql 모듈사용 실패:" + err });
@@ -69,12 +69,13 @@ const registerMyLib = function (req, res) {
   // 해당 유저의 userLib 컬럼에 관심있는 도서관의 libIndex 추가하기, 추후 ;로 파싱
   const query = "UPDATE USER SET userLib userLib=concat(userLib,parse_libIndex) WHERE id = ?";
   // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, [user.id], function (err, results, fields) {
+  db.db_connect.query(query, [user.id], function (err) {
     if (err) {
       console.log(("registerLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "registerLib 메서드 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+
     return res.status(200).end();
   });
 };
@@ -87,11 +88,10 @@ const registerComment = function (req, res) {
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   // 후기 등록 쿼리문
   const query = "INSERT INTO REVIEW(nickName, libIndex,reviewContent,grade,created) VALUES (?,?,?,?,?)";
-
   db.db_connect.query(
     query,
-    [user.nickName, req.params.libIndex, req.body.reviewContent, req.body.grade, moment().format("YYYY-MM-DD HH:mm:ss")],
-    function (err, results, fields) {
+    [user.nickName, req.params.libIndex, req.body.reviewContent, req.body.grade, moment().format("YYYY-MM-DD HH:mm:ss").toString()],
+    function (err) {
       // 오류 발생
       if (err) {
         console.log(("registerComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -99,6 +99,7 @@ const registerComment = function (req, res) {
       }
       // 정상적으로 쿼리문 실행(후기 등록)
       console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+
       return res.status(201).end();
     },
   );
@@ -111,8 +112,9 @@ const deleteReview = function (req, res) {
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
   const query = "DELETE FROM REVIEW WHERE nickName=? AND reviewIndex =?";
+
   // 오류 발생
-  db.db_connect.query(query, [user.nickName, req.query.reviewIndex], function (err, results, fields) {
+  db.db_connect.query(query, [user.nickName, req.query.reviewIndex], function (err) {
     if (err) {
       console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });
