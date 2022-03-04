@@ -10,30 +10,38 @@ const user = {
 };
 // 전체 게시물 보기
 const entireBoard = function (req, res) {
-  let query;
   // 자유게시판 카테고리 게시글 정보 모두 가져오기
   if (req.params.category === "free-bulletin") {
-    query = "SELECT boardIndex,nickName,postTitle,created,hits,like FROM BOARDS WHERE category = " + mysql.escape("자유게시판");
+    const query = "SELECT boardIndex,nickName,postTitle,created,hits,favorite FROM BOARDS WHERE category = ?";
+    // 쿼리문 실행
+    db.db_connect.query(query, ["자유게시판"], function (err, results) {
+      if (err) {
+        console.log(("entireBoard 메서드 자유게시판 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).json({ state: "entireBoard 메서드 자유게시판 mysql 모듈사용 실패:" + err });
+      }
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+      return res.status(200).json(results);
+    });
   } // 공부인증샷 카테고리 게시글 정보 모두 가져오기
   else if (req.params.category === "proof-shot") {
-    query = "SELECT boardIndex,nickName,postTitle,created,hits,like FROM BOARDS WHERE category = " + mysql.escape("공부인증샷");
+    const query = "SELECT boardIndex,nickName,postTitle,created,hits,favorite FROM BOARDS WHERE category = ?";
+    // 쿼리문 실행
+    db.db_connect.query(query, ["공부인증샷"], function (err, results) {
+      if (err) {
+        console.log(("entireBoard 메서드 공부인증샷 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).json({ state: "entireBoard 메서드 공부인증샷 mysql 모듈사용 실패:" + err });
+      }
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+      return res.status(200).json(results);
+    });
   }
-  // 쿼리문 실행
-  db.db_connect.query(query, function (err, results, fields) {
-    if (err) {
-      console.log(("entireBoard 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "entireBoard 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(200).json(results);
-  });
 };
 
 // 게시물 상세보기
 const detailBoard = function (req, res) {
   // 해당 인덱스의 게시글 가져오기
   const query =
-    "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,like FROM BOARDS WHERE boardIndex =" +
+    "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,favorite FROM BOARDS WHERE boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
     "SELECT nickName,commentIndex,commentContent,created FROM COMMENTS WHERE boardIndex =" +
@@ -103,7 +111,7 @@ const getRevise = function (req, res) {
   // 로그인 여부 검사
   if (user.id === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
   // 해당 인덱스의 게시글 가져오기
-  const query = "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,like FROM BOARDS WHERE boardIndex = ?";
+  const query = "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,favorite FROM BOARDS WHERE boardIndex = ?";
 
   // 쿼리문 실행
   db.db_connect.query(query, [req.params.boardIndex], function (err, results, fields) {
