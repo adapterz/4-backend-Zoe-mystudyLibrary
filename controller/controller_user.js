@@ -155,7 +155,6 @@ const dropOut = function (req, res) {
   });
 };
 
-// TODO
 // 내 관심도서관(adj_lib 코드 작성 후 구현)
 const myLib = function (req, res) {
   // 로그인이 안 돼있을 때
@@ -196,7 +195,6 @@ const myLib = function (req, res) {
     return res.status(200).json(results);
   });
 };
-// TODO 회원탈퇴를 제외한 DELETE문 Update문 deleteDate = 날짜/시간 쿼리문으로 변경
 
 // 모듈화
 module.exports = {
