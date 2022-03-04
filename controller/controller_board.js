@@ -48,7 +48,7 @@ const detailBoard = function (req, res) {
     mysql.escape(req.params.boardIndex) +
     ";";
   // 쿼리문 실행
-  db.db_connect.query(query, function (err, results, fields) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("detailBoard 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "detailBoard 메서드 mysql 모듈사용 실패:" + err });
@@ -88,7 +88,7 @@ const writePost = function (req, res) {
         moment().format("YYYY-MM-DD HH:mm:ss"),
         tag_string,
       ],
-      function (err, results, fields) {
+      function (err) {
         // 오류 발생
         if (err) {
           console.log(("writePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -114,7 +114,7 @@ const getRevise = function (req, res) {
   const query = "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,favorite FROM BOARDS WHERE boardIndex = ?";
 
   // 쿼리문 실행
-  db.db_connect.query(query, [req.params.boardIndex], function (err, results, fields) {
+  db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
     // 오류 발생
     if (err) {
       console.log(("getRevise 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -141,7 +141,7 @@ const revisePost = function (req, res) {
   const query =
     "UPDATE BOARDS SET postTitle = revised_post.postTitle,postContent=revised_post.postContent,tags =tag_string WHERE userIndex = ? AND boardIndex = ?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id, req.params.boardIndex], function (err, results, fields) {
+  db.db_connect.query(query, [user.id, req.params.boardIndex], function (err) {
     // 오류 발생
     if (err) {
       console.log(("revisedPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -161,7 +161,7 @@ const deletePost = function (req, res) {
   // 해당 인덱스 게시글 삭제
   const query = "DELETE FROM BOARDS WHERE id=? AND boardIndex =?";
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id, req.params.boardIndex], function (err, results, fields) {
+  db.db_connect.query(query, [user.id, req.params.boardIndex], function (err) {
     // 오류 발생
     if (err) {
       console.log(("deletePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -188,7 +188,7 @@ const writeComment = function (req, res) {
   db.db_connect.query(
     query,
     [user.nickName, req.params.boardIndex, comment.commentContent, req.params.category, moment().format("YYYY-MM-DD HH:mm:ss")],
-    function (err, results, fields) {
+    function (err) {
       // 오류 발생
       if (err) {
         console.log(("writeComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -208,8 +208,8 @@ const deleteComment = function (req, res) {
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
   const query = "DELETE FROM COMMENTS WHERE nickName=? AND commentIndex =?";
-  // 오류 발생
-  db.db_connect.query(query, [user.nickName, req.query.commentIndex], function (err, results, fields) {
+  db.db_connect.query(query, [user.nickName, req.query.commentIndex], function (err) {
+    // 오류 발생
     if (err) {
       console.log(("deleteComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "deleteComment 메서드 mysql 모듈사용 실패:" + err });
