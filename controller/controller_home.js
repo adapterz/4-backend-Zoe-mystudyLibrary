@@ -32,7 +32,7 @@ const myLib = function (req, res) {
   if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
   // 내 관심도서관 문자열 가져오기 ex. myLib = 늘푸른도서관index(숫자);123123;3634523;3432; <이런형태
   let myLib_string;
-  let query = "SELECT myLib FROM USER WHERE id=? ";
+  let query = "SELECT userLib FROM USER WHERE id=? ";
   // 쿼리문 실행
   db.db_connect.query(query, [user.id], function (err, results) {
     if (err) {
@@ -40,8 +40,9 @@ const myLib = function (req, res) {
       return res.status(500).json({ state: "myLib 메서드 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    myLib_string = results;
+    // myLib_string = results;
   });
+
   let myLib_split = myLib_string.split(";");
   // WHERE 조건문에 파싱한 libIndex 조건들 추가해주기
   query =
