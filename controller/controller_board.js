@@ -42,7 +42,7 @@ const entireBoard = function (req, res) {
 const detailBoard = function (req, res) {
   // 해당 인덱스의 게시글 가져오기, 조회수 1증가
   const query =
-    "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,favorite FROM BOARDS WHERE boardIndex =" +
+    "SELECT nickName,postTitle,postContent,created,tags,hits,favoriteUser,favorite FROM BOARDS WHERE boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
     "SELECT nickName,commentIndex,commentContent,created FROM COMMENTS WHERE boardIndex =" +
@@ -79,7 +79,7 @@ const writePost = function (req, res) {
   // 게시글 작성 쿼리문
   // 자유게시판 글 작성시 쿼리문
   if (req.params.category === "free-bulletin") {
-    query = "INSERT INTO BOARDS(category,id,nickName,postTitle,postContent,created,tags,hits,likeUser) VALUES (?,?,?,?,?,?,?,?,?)";
+    query = "INSERT INTO BOARDS(category,id,nickName,postTitle,postContent,created,tags,hits,favoriteUser) VALUES (?,?,?,?,?,?,?,?,?)";
     // 쿼리문 실행
     db.db_connect.query(
       query,
@@ -92,7 +92,7 @@ const writePost = function (req, res) {
         moment().format("YYYY-MM-DD HH:mm:ss"),
         tag_string,
         0,
-        "",
+        ";",
       ],
       function (err) {
         // 오류 발생
@@ -140,7 +140,7 @@ const getRevise = function (req, res) {
   // 로그인 여부 검사
   if (user.id === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
   // 해당 인덱스의 게시글 가져오기
-  const query = "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,favorite FROM BOARDS WHERE boardIndex = ?";
+  const query = "SELECT nickName,postTitle,postContent,created,tags,hits,favoriteUser,favorite FROM BOARDS WHERE boardIndex = ?";
 
   // 쿼리문 실행
   db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
@@ -277,9 +277,9 @@ const likePost = function (req, res) {
     likeCnt: 123, //좋아요 횟수
   };
   // 좋아요 누른 사람 목록 문자열 가져오기 ex. yeji1234;yeji2345; < 아이디 단위로 쪼개기
-  let likeUser_string;
-  let favorite;
-  let query = "SELECT favorite,likeUser FROM BOARDS WHERE boardIndex=? ";
+  let favoriteUser_string;
+  //let favorite;
+  let query = "SELECT favoriteUser FROM BOARDS WHERE boardIndex=? ";
   // 쿼리문 실행
   db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
     if (err) {
@@ -288,22 +288,20 @@ const likePost = function (req, res) {
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
 
-    likeUser_string = results[0].likeUser;
-    favorite = results[0].favorite;
+    favoriteUser_string = results[0].favoriteUser;
+    console.log(favoriteUser_string);
+    console.log(typeof favoriteUser_string);
+
+    // 게시글을 좋아하는 사람 목록에 해당 유저의 아이디가 있는 경우
+    const temp_id = ";" + user.id + ";";
+    console.log(temp_id);
+    if (favoriteUser_string.indexOf(temp_id).toString() !== -1) return res.status(200).json({ state: "좋아요를 이미 눌렀습니다." });
   });
 
-  console.log(likeUser_string);
-  if (favorite !== 0) {
-    // 좋아요 누른 사람 문자열 쪼개기
-    let likeUser_split = likeUser_string.split(";");
-    // 좋아요 누른 사람 목록에 해당 유저가 있는지 체크
-    const is_pushed_like = likeUser_split.includes(user.id);
-    if (is_pushed_like) return res.status(200).json({ state: "좋아요를 이미 눌렀습니다." });
-  }
   // 해당 게시글에 좋아요를 한번도 누르지 않은 유저의 경우 좋아요 1 증가, 좋아요 누른 사람 목록에 해당 유저 추가
-  query = " Update BOARDS SET favorite = favorite + 1, likeUser = concat(likeUser,user.id) WHERE boardIndex = ? ";
+  query = " Update BOARDS SET favorite = favorite + 1, favoriteUser = concat(favoriteUser,?,?) WHERE boardIndex = ? ";
   // 쿼리문 실행
-  db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
+  db.db_connect.query(query, [user.id, ";", req.params.boardIndex], function (err, results) {
     if (err) {
       console.log(("likePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "likePost 메서드 mysql 모듈사용 실패:" + err });

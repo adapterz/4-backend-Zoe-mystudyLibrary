@@ -51,7 +51,7 @@ const signUp = function (req, res) {
   // 쿼리문 실행
   db.db_connect.query(
     query,
-    [req.body.id, hashed_pw, req.body.name, req.body.gender, req.body.phoneNumber, salts, req.body.nickName, ""],
+    [req.body.id, hashed_pw, req.body.name, req.body.gender, req.body.phoneNumber, salts, req.body.nickName, ";"],
     function (err) {
       if (err) {
         console.log(("signUp 메서드 mysql 모듈사용 실패:" + err).red.bold);
