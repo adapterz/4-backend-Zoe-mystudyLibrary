@@ -37,7 +37,7 @@ router.post(
   controller.registerComment,
 );
 // 후기 삭제
-router.delete("/:libIndex", controller.deleteReview);
+router.delete("/:libIndex/:reviewIndex", controller.deleteReview);
 
 // 모듈화
 module.exports = router;
