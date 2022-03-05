@@ -8,7 +8,7 @@ const check = require("../a_mymodule/validation");
 // 요청 별 정의
 // 회원가입 약관확인
 router.post(
-  "/",
+  "/guide",
   body("checkBox1").isBoolean(),
   body("checkBox2").isBoolean(),
   body("checkBox3").isBoolean(),
@@ -18,7 +18,7 @@ router.post(
 
 // 회원가입 요청
 router.post(
-  "/sign-up",
+  "/",
   body("id")
     .isString()
     .trim()
@@ -32,7 +32,6 @@ router.post(
     .trim()
     .isLength({ min: 1, max: 30 })
     .matches(/^[가-힣]+$/), // 한글만
-  body("gender").isString().isLength({ min: 1 }),
   body("phoneNumber").matches(/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/), // 휴대전화 정규식
   body("nickName")
     .isString()
