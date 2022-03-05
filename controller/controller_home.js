@@ -4,6 +4,7 @@ const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const mysql = require("mysql");
 const user = {
+  id: "Zoe",
   nickName: "Zoe",
   userIndex: 1312,
 };
