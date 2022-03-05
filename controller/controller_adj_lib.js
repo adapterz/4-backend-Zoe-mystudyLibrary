@@ -32,7 +32,7 @@ const allLib = function (req, res) {
 const localLib = function (req, res) {
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
   const query =
-    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE nameOfCity =? AND districts =?";
+    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts FROM LIBRARY WHERE nameOfCity =? AND districts =?";
 
   db.db_connect.query(query, [req.body.nameOfCity, req.body.districts], function (err, results) {
     if (err) {
