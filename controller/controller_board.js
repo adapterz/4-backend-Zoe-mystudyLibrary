@@ -231,7 +231,7 @@ likeUser : [{ nickName : "Zoe"}, { nickName : "yeji" }] //< 해당 게시글에 
 
 }
  */
-// TODO 파싱배우고 나중에
+// TODO 로그인기능 배우고 추가
 const likePost = function (req, res) {
   // 로그인 여부 검사
   if (user.id === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
@@ -242,14 +242,36 @@ const likePost = function (req, res) {
     likeUsers: [{ nickName: "Zoe" }, { nickName: "yeji" }], //< 해당 게시글에 좋아요를 누른 유저 목록
     likeCnt: 123, //좋아요 횟수
   };
-  // 해당 유저가 해당 게시글의 좋아요를 누른 적 있는지 확인
-  for (const likeUser of thisPost.likeUsers) {
-    if (user.nickName === likeUser.nickName) return res.status(400).json({ state: "이미 해당 게시글의 '좋아요'를 눌렀습니다" });
-  }
-  // 좋아요 1 증가.
-  ++thisPost.likeCnt;
+  // 좋아요 누른 사람 목록 문자열 가져오기 ex. yeji1234;yeji2345; < 아이디 단위로 쪼개기
+  let likeUser_string;
+  let query = "SELECT likeUser FROM BOARDS WHERE boardIndex=? ";
+  // 쿼리문 실행
+  db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
+    if (err) {
+      console.log(("likePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "likePost 메서드 mysql 모듈사용 실패:" + err });
+    }
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    likeUser_string = results;
+  });
+  // 좋아요 누른 사람 문자열 쪼개기
+  let likeUser_split = likeUser_string.split(";");
+  // 좋아요 누른 사람 목록에 해당 유저가 있는지 체크
+  const is_pushed_like = likeUser_split.includes(user.id);
+  if (is_pushed_like) return res.status(200).json({ state: "좋아요를 이미 눌렀습니다." });
 
-  res.status(200).end();
+  // 해당 게시글에 좋아요를 한번도 누르지 않은 유저의 경우 좋아요 1 증가, 좋아요 누른 사람 목록에 해당 유저 추가
+  query = " Update BOARDS SET like = like + 1, likeUser = concat(likeUser,user.id) WHERE boardIndex = ? ";
+  // 쿼리문 실행
+  db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
+    if (err) {
+      console.log(("likePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "likePost 메서드 mysql 모듈사용 실패:" + err });
+    }
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    // 정상적으로 좋아요 수 1증가
+    return res.status(200).end();
+  });
 };
 // TODO
 // 검색기능
