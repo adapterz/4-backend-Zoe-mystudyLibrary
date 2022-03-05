@@ -22,12 +22,10 @@ const signUpGuide = function (req, res) {
 
 // 회원가입 요청
 const signUp = function (req, res) {
-  // 회원가입 시 입력한 유저 정보
-  const input_user = req.body;
   // 기존에 아이디가 있나 확인할 쿼리문
   let query = "SELECT id FROM USER WHERE id = ?";
   // 쿼리문 실행
-  db.db_connect.query(query, function (err, results) {
+  db.db_connect.query(query, [req.body.id], function (err, results) {
     if (err) {
       console.log(("signUp 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "signUp 메서드 mysql 모듈사용 실패:" + err });
@@ -35,11 +33,11 @@ const signUp = function (req, res) {
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
 
     // 1. 기존에 존재하는 아이디가 있을 때
-    if (results[0].id === input_user) return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
+    if (results[0].id === req.body.id) return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
   });
   // 2. 비밀번호 유효성 검사
   // 입력한 비밀번호와 비밀번호 확인이 다를 때
-  if (input_user.pw !== input_user.confirmPw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
+  if (req.body.confirmPw !== req.body.pw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
 
   query = "INSERT INTO BOARDS(id,pw,name,gender,phoneNumber,salt,nickName,userLib) VALUES (?,?,?,?,?,?,?,?)";
   // 암호화
@@ -48,12 +46,12 @@ const signUp = function (req, res) {
   // 해싱된 암호
   const hashed_pw = crypto
     .createHash("sha512")
-    .update(input_user.pw + salts)
+    .update(req.body.pw + salts)
     .digest("hex");
   // 쿼리문 실행
   db.db_connect.query(
     query,
-    [input_user.id, hashed_pw, input_user.name, input_user.gender, input_user.phoneNumber, salts, input_user.nickName, ""],
+    [req.body.id, hashed_pw, req.body.name, req.body.gender, req.body.phoneNumber, salts, req.body.nickName, ""],
     function (err) {
       if (err) {
         console.log(("signUp 메서드 mysql 모듈사용 실패:" + err).red.bold);
