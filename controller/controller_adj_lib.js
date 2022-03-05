@@ -48,7 +48,7 @@ const localLib = function (req, res) {
 const particularLib = function (req, res) {
   // 특정 libIndex의 도서관 정보 자세히 보기
   const query =
-    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY WHERE libIndex = ?";
+    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts FROM LIBRARY WHERE libIndex = ?";
 
   // 해당 인덱스의 도서관 정보 응답
   db.db_connect.query(query, [req.params.libIndex], function (err, results) {
