@@ -11,8 +11,8 @@ const user = {
 const getRecentPost = function (req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
   const query =
-    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = ? order by boardIndex DESC limit 0,5;" +
-    "SELECT postTitle,nickName,hits,like FROM BOARDS WHERE category = ? order by boardIndex DESC limit 0,4;";
+    "SELECT postTitle,nickName,hits,favorite FROM BOARDS WHERE category = ? order by boardIndex DESC limit 5;" +
+    "SELECT postTitle,nickName,hits,favorite FROM BOARDS WHERE category = ? order by boardIndex DESC limit 4;";
   db.db_connect.query(query, ["자유게시판", "공부인증샷"], function (err, results) {
     // 오류발생
     if (err) {
