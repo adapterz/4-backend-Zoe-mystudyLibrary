@@ -41,7 +41,7 @@ const signUp = function (req, res) {
   // 입력한 비밀번호와 비밀번호 확인이 다를 때
   if (input_user.pw !== input_user.confirmPw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
 
-  query = "INSERT INTO BOARDS(id,pw,name,gender,phoneNumber,salt,nickName) VALUES (?,?,?,?,?,?,?)";
+  query = "INSERT INTO BOARDS(id,pw,name,gender,phoneNumber,salt,nickName,userLib) VALUES (?,?,?,?,?,?,?,?)";
   // 암호화
   // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
   const salts = crypto.randomBytes(128).toString("base64");
@@ -53,7 +53,7 @@ const signUp = function (req, res) {
   // 쿼리문 실행
   db.db_connect.query(
     query,
-    [input_user.id, hashed_pw, input_user.name, input_user.gender, input_user.phoneNumber, salts, input_user.nickName],
+    [input_user.id, hashed_pw, input_user.name, input_user.gender, input_user.phoneNumber, salts, input_user.nickName, ""],
     function (err) {
       if (err) {
         console.log(("signUp 메서드 mysql 모듈사용 실패:" + err).red.bold);
