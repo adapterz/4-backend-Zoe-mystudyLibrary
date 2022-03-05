@@ -39,12 +39,15 @@ const entireBoard = function (req, res) {
 
 // 게시물 상세보기
 const detailBoard = function (req, res) {
-  // 해당 인덱스의 게시글 가져오기
+  // 해당 인덱스의 게시글 가져오기, 조회수 1증가
   const query =
     "SELECT nickName,postTitle,postContent,created,tags,hits,likeUser,favorite FROM BOARDS WHERE boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
     "SELECT nickName,commentIndex,commentContent,created FROM COMMENTS WHERE boardIndex =" +
+    mysql.escape(req.params.boardIndex) +
+    ";" +
+    "UPDATE BOARDS SET hits = hits + 1 WHERE boardIndex = " +
     mysql.escape(req.params.boardIndex) +
     ";";
   // 쿼리문 실행
