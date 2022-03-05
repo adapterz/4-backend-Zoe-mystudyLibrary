@@ -5,6 +5,7 @@ const moment = require("../a_mymodule/date_time");
 const mysql = require("mysql");
 // 로그인돼있는 예시 회원정보
 const user = {
+  id: "Zoe",
   nickName: "Zoe",
   userIndex: 123123,
 };
