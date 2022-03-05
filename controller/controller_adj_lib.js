@@ -6,7 +6,7 @@ const moment = require("../a_mymodule/date_time");
 
 // 예시 데이터 (전체 도서관)
 const user = {
-  //id: "asd",
+  id: "Zoe",
   userIndex: 132132,
   nickName: "Zoe",
 };
