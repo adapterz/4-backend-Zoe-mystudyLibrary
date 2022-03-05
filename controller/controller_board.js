@@ -278,7 +278,8 @@ const likePost = function (req, res) {
   };
   // 좋아요 누른 사람 목록 문자열 가져오기 ex. yeji1234;yeji2345; < 아이디 단위로 쪼개기
   let likeUser_string;
-  let query = "SELECT likeUser FROM BOARDS WHERE boardIndex=? ";
+  let favorite;
+  let query = "SELECT favorite,likeUser FROM BOARDS WHERE boardIndex=? ";
   // 쿼리문 실행
   db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
     if (err) {
@@ -286,17 +287,21 @@ const likePost = function (req, res) {
       return res.status(500).json({ state: "likePost 메서드 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    likeUser_string = results.likeUser;
-  });
-  console.log(likeUser_string);
-  // 좋아요 누른 사람 문자열 쪼개기
-  let likeUser_split = likeUser_string.split(";");
-  // 좋아요 누른 사람 목록에 해당 유저가 있는지 체크
-  const is_pushed_like = likeUser_split.includes(user.id);
-  if (is_pushed_like) return res.status(200).json({ state: "좋아요를 이미 눌렀습니다." });
 
+    likeUser_string = results[0].likeUser;
+    favorite = results[0].favorite;
+  });
+
+  console.log(likeUser_string);
+  if (favorite !== 0) {
+    // 좋아요 누른 사람 문자열 쪼개기
+    let likeUser_split = likeUser_string.split(";");
+    // 좋아요 누른 사람 목록에 해당 유저가 있는지 체크
+    const is_pushed_like = likeUser_split.includes(user.id);
+    if (is_pushed_like) return res.status(200).json({ state: "좋아요를 이미 눌렀습니다." });
+  }
   // 해당 게시글에 좋아요를 한번도 누르지 않은 유저의 경우 좋아요 1 증가, 좋아요 누른 사람 목록에 해당 유저 추가
-  query = " Update BOARDS SET like = like + 1, likeUser = concat(likeUser,user.id) WHERE boardIndex = ? ";
+  query = " Update BOARDS SET favorite = favorite + 1, likeUser = concat(likeUser,user.id) WHERE boardIndex = ? ";
   // 쿼리문 실행
   db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
     if (err) {
