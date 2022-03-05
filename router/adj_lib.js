@@ -32,7 +32,7 @@ router.patch("/:libIndex", controller.registerMyLib);
 router.post(
   "/:libIndex/review",
   body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
-  body("grade").isLength({ min: 3, max: 7 }).isString(),
+  body("grade").isFloat({ min: 1, max: 5 }),
   check.is_validate,
   controller.registerComment,
 );
