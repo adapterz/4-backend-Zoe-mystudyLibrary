@@ -113,7 +113,7 @@ const deleteReview = function (req, res) {
 
   const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ?";
   // 오류 발생
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.reviewIndex], function (err) {
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.params.reviewIndex], function (err) {
     if (err) {
       console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });
