@@ -32,10 +32,14 @@ router.get("/:category/write/:boardIndex", controller.getRevise);
 // 게시글 수정 요청
 router.patch(
   "/:category/write/:boardIndex",
-  body("title").isLength({ min: 2, max: 50 }).isString(),
-  body("content").isLength({ min: 2, max: 5000 }).isString(),
+  body("postTitle").isLength({ min: 2, max: 50 }).isString(),
+  body("postContent").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }),
-  body("tags.*").isLength({ min: 2, max: 8 }).isString().trim(),
+  body("tags.*.content")
+    .isLength({ min: 2, max: 8 })
+    .trim()
+    .isString()
+    .matches(/^[가-힣]+$/),
   check.is_validate,
   controller.revisePost,
 );
@@ -44,14 +48,14 @@ router.delete("/:category/:boardIndex", controller.deletePost);
 // 댓글 작성
 router.post(
   "/:category/:boardIndex",
-  body("comments").isLength({ min: 2, max: 500 }).isString(),
+  body("commentContent").isLength({ min: 2, max: 500 }).isString(),
   check.is_validate,
   controller.writeComment,
 );
 // 댓글 삭제
-router.delete("/:category/:boardIndex", controller.deleteComment);
+router.delete("/:category/:boardIndex/comment/:commentIndex", controller.deleteComment);
 // 좋아요 기능
-router.patch("/:category/:boardIndex", controller.likePost);
+router.patch("/:category/:boardIndex/like", controller.likePost);
 
 // TODO
 // 검색관련 기능
