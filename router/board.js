@@ -15,8 +15,8 @@ router.get("/:category/:boardIndex", controller.detailBoard);
 // 유효성 검사 포함
 router.post(
   "/:category/write",
-  body("title").isLength({ min: 2, max: 50 }).isString(),
-  body("content").isLength({ min: 2, max: 5000 }).isString(),
+  body("postTitle").isLength({ min: 2, max: 50 }).isString(),
+  body("postContent").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }),
   body("tags.*.content")
     .isLength({ min: 2, max: 8 })
