@@ -13,9 +13,10 @@ const user = {
 
 // 전체 도서관 정보 (get)
 const allLib = function (req, res) {
-  // 전체 도서관 정보 가져오는 쿼리문
+  // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 review 평점 평균 가져오는 쿼리문
   const query =
-    "SELECT libIndex,libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,grade,address,libContact,nameOfCity,districts FROM LIBRARY";
+    "SELECT libIndex,libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts FROM LIBRARY;" +
+    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
 
   db.db_connect.query(query, function (err, results) {
     if (err) {
