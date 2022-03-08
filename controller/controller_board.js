@@ -33,7 +33,7 @@ const entireBoard = function (req, res) {
 const detailBoard = function (req, res) {
   // 해당 인덱스의 게시글/태그 가져오기, 조회수 1증가
   const query =
-    "SELECT boardIndex,postTitle,postContent,created,hits,favorite,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = USER.userIndex WHERE deleteDate IS NULL AND boardIndex =" +
+    "SELECT boardIndex,postTitle,postContent,created,hits,favorite,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = USER.userIndex WHERE BOARDS.deleteDate IS NULL AND boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
     "SELECT tag FROM tagTable WHERE boardIndex =" +
