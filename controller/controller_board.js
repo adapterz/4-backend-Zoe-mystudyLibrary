@@ -11,41 +11,32 @@ const user = {
 };
 // 전체 게시물 보기
 const entireBoard = function (req, res) {
-  // 자유게시판 카테고리 게시글 정보 모두 가져오기
-  if (req.params.category === "free-bulletin") {
-    const query = "SELECT boardIndex,nickName,postTitle,created,hits,favorite FROM BOARDS WHERE category = ?";
-    // 쿼리문 실행
-    db.db_connect.query(query, ["자유게시판"], function (err, results) {
-      if (err) {
-        console.log(("entireBoard 메서드 자유게시판 mysql 모듈사용 실패:" + err).red.bold);
-        return res.status(500).json({ state: "entireBoard 메서드 자유게시판 mysql 모듈사용 실패:" + err });
-      }
-      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-      return res.status(200).json(results);
-    });
-  } // 공부인증샷 카테고리 게시글 정보 모두 가져오기
-  else if (req.params.category === "proof-shot") {
-    const query = "SELECT boardIndex,nickName,postTitle,created,hits,favorite FROM BOARDS WHERE category = ?";
-    // 쿼리문 실행
-    db.db_connect.query(query, ["공부인증샷"], function (err, results) {
-      if (err) {
-        console.log(("entireBoard 메서드 공부인증샷 mysql 모듈사용 실패:" + err).red.bold);
-        return res.status(500).json({ state: "entireBoard 메서드 공부인증샷 mysql 모듈사용 실패:" + err });
-      }
-      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-      return res.status(200).json(results);
-    });
-  }
+  // 게시글 정보 모두 가져오기
+  let req_category;
+  if (req.params.category === "free-bulletin") req_category = "자유게시판";
+  if (req.params.category === "proof-shot") req_category = "공부인증샷";
+  const query =
+    "SELECT boardIndex,postTitle,created,hits,favorite,category,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = User.userIndex WHERE category =" +
+    mysql.escape(req_category);
+  // 쿼리문 실행
+  db.db_connect.query(query, function (err, results) {
+    if (err) {
+      console.log(("entireBoard 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "entireBoard 메서드 mysql 모듈사용 실패:" + err });
+    }
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(200).json(results);
+  });
 };
 
 // 게시물 상세보기
 const detailBoard = function (req, res) {
-  // 해당 인덱스의 게시글 가져오기, 조회수 1증가
+  // 해당 인덱스의 게시글/태그 가져오기, 조회수 1증가
   const query =
-    "SELECT nickName,postTitle,postContent,created,tags,hits,favoriteUser,favorite FROM BOARDS WHERE boardIndex =" +
+    "SELECT boardIndex,postTitle,postContent,created,hits,favorite,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = USER.userIndex WHERE boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
-    "SELECT nickName,commentIndex,commentContent,created FROM COMMENTS WHERE boardIndex =" +
+    "SELECT tag FROM tagTable WHERE boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
     "UPDATE BOARDS SET hits = hits + 1 WHERE boardIndex = " +
@@ -68,71 +59,42 @@ const writePost = function (req, res) {
   // 작성 내용
   const write_post = req.body;
   // 로그인 여부 검사
-  if (user.id === null) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
 
-  // 태그 배열 한 문자열에 다 넣어주기
-  let tag_string = "";
-  for (const tag of write_post.tags) {
-    tag_string += tag;
-  }
   let query;
   // 게시글 작성 쿼리문
-  // 자유게시판 글 작성시 쿼리문
-  if (req.params.category === "free-bulletin") {
-    query = "INSERT INTO BOARDS(category,id,nickName,postTitle,postContent,created,tags,hits,favoriteUser) VALUES (?,?,?,?,?,?,?,?,?)";
-    // 쿼리문 실행
-    db.db_connect.query(
-      query,
-      [
-        "자유게시판",
-        user.id,
-        user.nickName,
-        write_post.postTitle,
-        write_post.postContent,
-        moment().format("YYYY-MM-DD HH:mm:ss"),
-        tag_string,
-        0,
-        ";",
-      ],
-      function (err) {
-        // 오류 발생
-        if (err) {
-          console.log(("writePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
-          return res.status(500).json({ state: "writePost 메서드 mysql 모듈사용 실패:" + err });
-        }
-        // 정상적으로 쿼리문 실행(게시글 등록)
-        console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-        return res.status(201).end();
-      },
-    );
-    // 공부인증샷 글 작성시 쿼리문
-  } else if (req.params.category === "proof-shot") {
-    query = "INSERT INTO BOARDS(category,id,nickName,postTitle,postContent,created,tags,hits) VALUES (?,?,?,?,?,?,?,?)";
-    // 쿼리문 실행
-    db.db_connect.query(
-      query,
-      [
-        "공부인증샷",
-        user.id,
-        user.nickName,
-        write_post.postTitle,
-        write_post.postContent,
-        moment().format("YYYY-MM-DD HH:mm:ss"),
-        tag_string,
-        0,
-      ],
-      function (err) {
-        // 오류 발생
-        if (err) {
-          console.log(("writePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
-          return res.status(500).json({ state: "writePost 메서드 mysql 모듈사용 실패:" + err });
-        }
-        // 정상적으로 쿼리문 실행(게시글 등록)
-        console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-        return res.status(201).end();
-      },
-    );
+  let req_category;
+  if (req.params.category === "free-bulletin") req_category = "자유게시판";
+  if (req.params.category === "proof-shot") req_category = "공부인증샷";
+  query =
+    "INSERT INTO BOARDS(category,userIndex,postTitle,postContent,created,hits,favorite) VALUES (" +
+    mysql.escape(req_category) +
+    "," +
+    mysql.escape(user.userIndex) +
+    "," +
+    mysql.escape(write_post.postTitle) +
+    "," +
+    mysql.escape(write_post.postContent) +
+    "," +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    ",0,0);";
+
+  // 태그 쿼리문 추가
+  for (const temp_tag of write_post.tags) {
+    query +=
+      "INSERT INTO tagTable(boardIndex,tag) VALUES (" + mysql.escape(req.params.boardIndex) + "," + mysql.escape(temp_tag.content) + ");";
   }
+  // 쿼리문 실행
+  db.db_connect.query(query, function (err) {
+    // 오류 발생
+    if (err) {
+      console.log(("writePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "writePost 메서드 mysql 모듈사용 실패:" + err });
+    }
+    // 정상적으로 쿼리문 실행(게시글 등록)
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(201).end();
+  });
 };
 
 // 수정시 기존 게시글 정보 불러오기
