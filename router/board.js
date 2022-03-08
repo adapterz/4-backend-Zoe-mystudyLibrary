@@ -52,6 +52,8 @@ router.post(
   check.is_validate,
   controller.writeComment,
 );
+
+// TODO RESTApi 공부
 // 댓글 삭제
 router.delete("/:category/:boardIndex/comment/:commentIndex", controller.deleteComment);
 // 좋아요 기능

@@ -28,6 +28,7 @@ const allLib = function (req, res) {
   });
 };
 
+// TODO 변수명: 리소스 단위로 적기 기획이 바꼈을 때도 적용시킬 수 있도록(범용성있게 작성) 테이블 컬럼들도 마찬가지
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 함수(post)
 const localLib = function (req, res) {
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
