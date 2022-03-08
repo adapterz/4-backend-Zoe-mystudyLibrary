@@ -16,7 +16,7 @@ const entireBoard = function (req, res) {
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   if (req.params.category === "proof-shot") req_category = "공부인증샷";
   const query =
-    "SELECT boardIndex,postTitle,created,hits,favorite,category,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = User.userIndex WHERE category =" +
+    "SELECT boardIndex,postTitle,created,hits,favorite,category,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = User.userIndex WHERE BOARDS.deleteDate IS NULL AND category =" +
     mysql.escape(req_category);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
@@ -33,7 +33,7 @@ const entireBoard = function (req, res) {
 const detailBoard = function (req, res) {
   // 해당 인덱스의 게시글/태그 가져오기, 조회수 1증가
   const query =
-    "SELECT boardIndex,postTitle,postContent,created,hits,favorite,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = USER.userIndex WHERE boardIndex =" +
+    "SELECT boardIndex,postTitle,postContent,created,hits,favorite,nickName FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex = USER.userIndex WHERE deleteDate IS NULL AND boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
     "SELECT tag FROM tagTable WHERE boardIndex =" +
@@ -97,15 +97,18 @@ const writePost = function (req, res) {
   });
 };
 
-// 수정시 기존 게시글 정보 불러오기
-const getRevise = function (req, res) {
+// 글 새로 작성시 그냥 return/ 수정시 기존 게시글 정보 불러오기
+const getWrite = function (req, res) {
   // 로그인 여부 검사
-  if (user.id === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  // 글 새로 작성
+  if (req.query.boardIndex === "") return res.status(200).end();
+  // 기존의 글 수정하는 경우
   // 해당 인덱스의 게시글 가져오기
-  const query = "SELECT nickName,postTitle,postContent,created,tags,hits,favoriteUser,favorite FROM BOARDS WHERE boardIndex = ?";
+  const query = "SELECT postTitle,postContent,created,hits,favorite FROM BOARDS WHERE boardIndex = " + mysql.escape(req.query.boardIndex);
 
   // 쿼리문 실행
-  db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     // 오류 발생
     if (err) {
       console.log(("getRevise 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -120,42 +123,51 @@ const getRevise = function (req, res) {
 // 게시글 수정요청
 const revisePost = function (req, res) {
   // 로그인 여부 검사
-  if (user.id === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
   // 수정한 내용
   const revised_post = req.body;
-  // 태그 배열 한 문자열에 다 넣어주기
-  let tag_string = "";
-  for (const tag of revised_post.tags) {
-    tag_string += tag;
-  }
   // 게시글 수정 쿼리문
-  const query = "UPDATE BOARDS SET postTitle = ?,postContent=?,tags =? WHERE id = ? AND boardIndex = ?";
+  let query =
+    "UPDATE BOARDS SET postTitle = " +
+    mysql.escape(revised_post.postTitle) +
+    ",postContent=" +
+    mysql.escape(revised_post.postContent) +
+    "WHERE boardIndex = " +
+    mysql.escape(req.query.boardIndex) +
+    ";";
+  // 기존 태그 삭제
+  query += "DELETE FROM tagTable WHERE boardIndex = " + mysql.escape(req.query.boardIndex) + ";";
+  // 새로운 태그 추가
+  for (const temp_tag of revised_post.tags) {
+    query +=
+      "INSERT INTO tagTable(boardIndex,tag) VALUES (" + mysql.escape(req.query.boardIndex) + "," + mysql.escape(temp_tag.content) + ");";
+  }
   // 쿼리문 실행
-  db.db_connect.query(
-    query,
-    [revised_post.postTitle, revised_post.postContent, tag_string, user.id, req.params.boardIndex],
-    function (err) {
-      // 오류 발생
-      if (err) {
-        console.log(("revisedPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
-        return res.status(500).json({ state: "revisePost 메서드 mysql 모듈사용 실패:" + err });
-      }
-      // 정상적으로 쿼리문 실행(기존 게시글 정보 가져오기)
-      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-      return res.status(200).end();
-    },
-  );
+  db.db_connect.query(query, function (err) {
+    // 오류 발생
+    if (err) {
+      console.log(("revisedPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "revisePost 메서드 mysql 모듈사용 실패:" + err });
+    }
+    // 정상적으로 쿼리문 실행(기존 게시글 정보 가져오기)
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(200).end();
+  });
 };
 
 // TODO 로그인 배운 후 다시 작성
 // 게시글 삭제하기
 const deletePost = function (req, res) {
   // 로그인 여부 검사
-  if (user.id === null) return res.status(401).json({ state: "글을 삭제하기 위해서는 로그인을 해야합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "글을 삭제하기 위해서는 로그인을 해야합니다." });
   // 해당 인덱스 게시글 삭제
-  const query = "UPDATE BOARDS SET deleteDate = ? WHERE boardIndex = ?";
+  const query =
+    "UPDATE BOARDS SET deleteDate = " +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    " WHERE boardIndex = " +
+    mysql.escape(req.params.boardIndex);
   // 쿼리문 실행
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.params.boardIndex], function (err) {
+  db.db_connect.query(query, function (err) {
     // 오류 발생
     if (err) {
       console.log(("deletePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -171,40 +183,50 @@ const deletePost = function (req, res) {
 // 댓글 작성
 const writeComment = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   // 댓글 내용
   const comment = req.body;
 
   // 댓글 등록 쿼리문
-  const query = "INSERT INTO COMMENTS(nickName,boardIndex,commentContent,category,created) VALUES (?,?,?,?,?)";
+  const query =
+    "INSERT INTO COMMENTS(boardIndex,userIndex,commentContent,created) VALUES (" +
+    mysql.escape(req.params.boardIndex) +
+    "," +
+    mysql.escape(user.userIndex) +
+    "," +
+    mysql.escape(comment.content) +
+    "," +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss"));
   let category;
   if (req.params.category === "free-bulletin") category = "자유게시판";
   if (req.params.category === "proof-shot") category = "공부인증샷";
   // 쿼리문 실행
-  db.db_connect.query(
-    query,
-    [user.nickName, req.params.boardIndex, comment.commentContent, category, moment().format("YYYY-MM-DD HH:mm:ss")],
-    function (err) {
-      // 오류 발생
-      if (err) {
-        console.log(("writeComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-        return res.status(500).json({ state: "writeComment 메서드 mysql 모듈사용 실패:" + err });
-      }
-      // 정상적으로 쿼리문 실행(후기 등록)
-      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-      return res.status(201).end();
-    },
-  );
+  db.db_connect.query(query, function (err) {
+    // 오류 발생
+    if (err) {
+      console.log(("writeComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "writeComment 메서드 mysql 모듈사용 실패:" + err });
+    }
+    // 정상적으로 쿼리문 실행(후기 등록)
+    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return res.status(201).end();
+  });
 };
 
 // TODO 로그인 배운 뒤 다시 작성
 // 댓글 삭제
 const deleteComment = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
-  const query = "UPDATE COMMENTS SET deleteDate = ? WHERE commentIndex = ?";
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.params.commentIndex], function (err) {
+  // 댓글 삭제 쿼리문
+  const query =
+    "UPDATE COMMENTS SET deleteDate =" +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    " WHERE commentIndex =" +
+    mysql.escape(req.query.commentIndex);
+
+  db.db_connect.query(query, function (err) {
     // 오류 발생
     if (err) {
       console.log(("deleteComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -230,47 +252,40 @@ likeUser : [{ nickName : "Zoe"}, { nickName : "yeji" }] //< 해당 게시글에 
 // TODO 로그인기능 배우고 추가/다시하기
 const likePost = function (req, res) {
   // 로그인 여부 검사
-  if (user.id === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
-  // 예시 해당 게시글 정보
-  const thisPost = {
-    category: "자유게시판",
-    boardIndex: 134,
-    likeUsers: [{ nickName: "Zoe" }, { nickName: "yeji" }], //< 해당 게시글에 좋아요를 누른 유저 목록
-    likeCnt: 123, //좋아요 횟수
-  };
-  // 좋아요 누른 사람 목록 문자열 가져오기 ex. yeji1234;yeji2345; < 아이디 단위로 쪼개기
-  let favoriteUser_string;
-  //let favorite;
-  let query = "SELECT favoriteUser FROM BOARDS WHERE boardIndex=? ";
+  if (user.userIndex === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
+
+  let query =
+    "SELECT userIndex FROM favoritePost WHERE boardIndex=" +
+    mysql.escape(req.params.boardIndex) +
+    "AND userIndex = " +
+    mysql.escape(user.userIndex);
+
   // 쿼리문 실행
-  db.db_connect.query(query, [req.params.boardIndex], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("likePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "likePost 메서드 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    // 좋아요를 이미 누른 경우
+    if (results[0] !== undefined) return res.status(200).json({ state: "좋아요를 이미 눌렀습니다." });
 
-    favoriteUser_string = results[0].favoriteUser;
-    console.log(favoriteUser_string);
-    console.log(typeof favoriteUser_string);
-
-    // 게시글을 좋아하는 사람 목록에 해당 유저의 아이디가 있는 경우
-    const temp_id = ";" + user.id + ";";
-    console.log(temp_id);
-    if (favoriteUser_string.indexOf(temp_id).toString() !== -1) return res.status(200).json({ state: "좋아요를 이미 눌렀습니다." });
-  });
-
-  // 해당 게시글에 좋아요를 한번도 누르지 않은 유저의 경우 좋아요 1 증가, 좋아요 누른 사람 목록에 해당 유저 추가
-  query = " Update BOARDS SET favorite = favorite + 1, favoriteUser = concat(favoriteUser,?,?) WHERE boardIndex = ? ";
-  // 쿼리문 실행
-  db.db_connect.query(query, [user.id, ";", req.params.boardIndex], function (err, results) {
-    if (err) {
-      console.log(("likePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "likePost 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    // 정상적으로 좋아요 수 1증가
-    return res.status(200).end();
+    // 해당 게시글에 좋아요를 한번도 누르지 않은 유저의 경우 좋아요 1 증가, 좋아요 누른 사람 목록에 해당 유저 추가
+    query =
+      " Update BOARDS SET favorite = favorite + 1 WHERE boardIndex = " +
+      mysql.escape(req.params.boardIndex) +
+      ";" +
+      "INSERT INTO favoritePost(boardIndex,userIndex) VALUES(?,?)";
+    // 쿼리문 실행
+    db.db_connect.query(query, [req.params.boardIndex, user.userIndex], function (err, results) {
+      if (err) {
+        console.log(("likePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).json({ state: "likePost 메서드 mysql 모듈사용 실패:" + err });
+      }
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+      // 정상적으로 좋아요 수 1증가
+      return res.status(200).end();
+    });
   });
 };
 // TODO
@@ -280,7 +295,7 @@ module.exports = {
   entireBoard: entireBoard,
   detailBoard: detailBoard,
   writePost: writePost,
-  getRevise: getRevise,
+  getWrite: getWrite,
   revisePost: revisePost,
   deletePost: deletePost,
   writeComment: writeComment,

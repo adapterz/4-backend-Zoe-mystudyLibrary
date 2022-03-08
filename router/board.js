@@ -8,13 +8,13 @@ const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
 
 // 전체 게시물 목록보기
-router.get("/:category", controller.entireBoard);
+router.get("/search/:category", controller.entireBoard);
 // 각 게시물 상세보기
-router.get("/:category/:boardIndex", controller.detailBoard);
+router.get("/search/:boardIndex", controller.detailBoard);
 // 글작성 완료시
 // 유효성 검사 포함
 router.post(
-  "/:category/write",
+  "/write/:category",
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
   body("postContent").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }),
@@ -26,12 +26,11 @@ router.post(
   check.is_validate,
   controller.writePost,
 );
-// TODO 수정하기 버튼 눌렀을 때 불러올것
-// 기존 게시글 정보 write 창에 불러올 때
-router.get("/:category/write/:boardIndex", controller.getRevise);
+// 글 작성창
+router.get("/write/:category", controller.getWrite);
 // 게시글 수정 요청
 router.patch(
-  "/:category/write/:boardIndex",
+  "/write/:category",
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
   body("postContent").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }),
@@ -44,10 +43,10 @@ router.patch(
   controller.revisePost,
 );
 // 게시물 삭제
-router.delete("/:category/:boardIndex", controller.deletePost);
+router.delete("/search/:boardIndex", controller.deletePost);
 // 댓글 작성
 router.post(
-  "/:category/:boardIndex",
+  "/search/:boardIndex",
   body("commentContent").isLength({ min: 2, max: 500 }).isString(),
   check.is_validate,
   controller.writeComment,
@@ -55,9 +54,9 @@ router.post(
 
 // TODO RESTApi 공부
 // 댓글 삭제
-router.delete("/:category/:boardIndex/comment/:commentIndex", controller.deleteComment);
+router.delete("/search/:boardIndex", controller.deleteComment);
 // 좋아요 기능
-router.patch("/:category/:boardIndex/like", controller.likePost);
+router.patch("/search/:boardIndex", controller.likePost);
 
 // TODO
 // 검색관련 기능
