@@ -31,7 +31,7 @@ const service_description_router = require("./router/service_description");
 const user_router = require("./router/user");
 const my_post_router = require("./router/my_post");
 
-app.use("/adj-lib", adj_lib_router);
+app.use("/library", adj_lib_router);
 app.use("/", boards_router);
 app.use("/", home_router);
 app.use("/login", login_router);

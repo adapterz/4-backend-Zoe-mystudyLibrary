@@ -30,14 +30,14 @@ router.get("/:libIndex", controller.particularLib);
 router.patch("/:libIndex", controller.registerMyLib);
 // 특정 도서관 이용 후 후기등록
 router.post(
-  "/:libIndex/review",
+  "/:libIndex",
   body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
   body("grade").isFloat({ min: 1, max: 5 }),
   check.is_validate,
   controller.registerComment,
 );
 // 후기 삭제
-router.delete("/:libIndex/review/:reviewIndex", controller.deleteReview);
+router.delete("/:libIndex", controller.deleteReview);
 
 // 모듈화
 module.exports = router;
