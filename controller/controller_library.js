@@ -3,6 +3,7 @@
 const db = require("../a_mymodule/db");
 // 날짜/시간 관련 모듈
 const moment = require("../a_mymodule/date_time");
+const mysql = require("mysql");
 
 // 예시 데이터 (전체 도서관)
 const user = {
@@ -15,7 +16,7 @@ const user = {
 const allLib = function (req, res) {
   // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 review 평점 평균 가져오는 쿼리문
   const query =
-    "SELECT libIndex,libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts FROM LIBRARY;" +
+    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL;" +
     "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
 
   db.db_connect.query(query, function (err, results) {
@@ -28,14 +29,18 @@ const allLib = function (req, res) {
   });
 };
 
-// TODO 변수명: 리소스 단위로 적기 기획이 바꼈을 때도 적용시킬 수 있도록(범용성있게 작성) 테이블 컬럼들도 마찬가지
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 함수(post)
 const localLib = function (req, res) {
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
   const query =
-    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts FROM LIBRARY WHERE nameOfCity =? AND districts =?";
+    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL nameOfCity =" +
+    mysql.escape(req.body.nameOfCity) +
+    " AND districts =" +
+    mysql.escape(req.body.districts) +
+    ";" +
+    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
 
-  db.db_connect.query(query, [req.body.nameOfCity, req.body.districts], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("localLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "localLib 메서드 mysql 모듈사용 실패:" + err });
@@ -49,10 +54,13 @@ const localLib = function (req, res) {
 const particularLib = function (req, res) {
   // 특정 libIndex의 도서관 정보 자세히 보기
   const query =
-    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts FROM LIBRARY WHERE libIndex = ?";
+    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts,reviewContent,created,grade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libIndex=REVIEW.libIndex WHERE LIBRARY.deleteDate IS NULL AND REVIEW.deleteDate IS NULL AND libIndex = " +
+    mysql.escape(req.params.libIndex) +
+    ";" +
+    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
 
   // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, [req.params.libIndex], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("particularLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "particularLib 메서드 mysql 모듈사용 실패:" + err });
@@ -66,12 +74,11 @@ const particularLib = function (req, res) {
 // 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
 const registerMyLib = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
-  const parse_libIndex = req.params.libIndex + ";";
-  // 해당 유저의 userLib 컬럼에 관심있는 도서관의 libIndex 추가하기, 추후 ;로 파싱
-  const query = "UPDATE USER SET userLib =concat(userLib,?) WHERE id = ?";
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  // userLib 테이블에 해당 유저인덱스에 관심도서관 인덱스 추가
+  const query = "INSERT INTO userLib(userIndex,userLib) VALUES (?,?) ";
   // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, [parse_libIndex, user.id], function (err) {
+  db.db_connect.query(query, [user.userIndex, req.params.libIndex], function (err) {
     if (err) {
       console.log(("registerLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "registerLib 메서드 mysql 모듈사용 실패:" + err });
@@ -86,12 +93,12 @@ const registerMyLib = function (req, res) {
 // 특정 도서관 이용 후 후기등록
 const registerComment = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
   // 후기 등록 쿼리문
-  const query = "INSERT INTO REVIEW(nickName, libIndex,reviewContent,grade,created) VALUES (?,?,?,?,?)";
+  const query = "INSERT INTO REVIEW(libIndex,userIndex,reviewContent,created,grade) VALUES (?,?,?,?,?)";
   db.db_connect.query(
     query,
-    [user.nickName, req.params.libIndex, req.body.reviewContent, req.body.grade, moment().format("YYYY-MM-DD HH:mm:ss").toString()],
+    [req.params.libIndex, user.userIndex, req.body.reviewContent, moment().format("YYYY-MM-DD HH:mm:ss"), req.body.grade],
     function (err) {
       // 오류 발생
       if (err) {
@@ -110,11 +117,11 @@ const registerComment = function (req, res) {
 // 후기 삭제
 const deleteReview = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
 
   const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ?";
   // 오류 발생
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.params.reviewIndex], function (err) {
+  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.reviewIndex], function (err) {
     if (err) {
       console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });

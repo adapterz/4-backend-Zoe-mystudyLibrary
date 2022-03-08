@@ -39,18 +39,20 @@ const detailBoard = function (req, res) {
     "SELECT tag FROM tagTable WHERE boardIndex =" +
     mysql.escape(req.params.boardIndex) +
     ";" +
+    "SELECT commentContent, created FROM COMMENTS WHERE deleteDate IS NULL AND boardIndex =" +
+    mysql.escape(req.params.boardIndex) +
     "UPDATE BOARDS SET hits = hits + 1 WHERE boardIndex = " +
     mysql.escape(req.params.boardIndex) +
-    ";";
-  // 쿼리문 실행
-  db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("detailBoard 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "detailBoard 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(200).json(results);
-  });
+    ";" +
+    // 쿼리문 실행
+    db.db_connect.query(query, function (err, results) {
+      if (err) {
+        console.log(("detailBoard 메서드 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).json({ state: "detailBoard 메서드 mysql 모듈사용 실패:" + err });
+      }
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+      return res.status(200).json(results);
+    });
 };
 
 // TODO 로그인 배운 뒤 다시 작성
