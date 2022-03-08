@@ -3,6 +3,7 @@
 const crypto = require("crypto");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
+const mysql = require("mysql");
 const user = {
   id: "Zoe",
   nickName: "Zoe",
@@ -13,9 +14,9 @@ const user = {
 const login = function (req, res) {
   // 유저가 입력한 정보 가져오기
   const input_login = req.body;
-  const query = "SELECT id,pw,name,gender,phoneNumber,salt,nickName,profileShot,userLib FROM USER WHERE id = ?";
+  const query = "SELECT id,pw,name,gender,phoneNumber,salt,nickName,profileShot FROM USER WHERE id = " + mysql.escape(user.id);
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("login 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "login 메서드 mysql 모듈사용 실패:" + err });
