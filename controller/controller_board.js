@@ -62,6 +62,7 @@ const writePost = function (req, res) {
   if (user.userIndex === null) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
 
   let query;
+  let tag_query = "";
   // 게시글 작성 쿼리문
   let req_category;
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
@@ -78,14 +79,8 @@ const writePost = function (req, res) {
     "," +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     ",0,0);";
-
-  // 태그 쿼리문 추가
-  for (const temp_tag of write_post.tags) {
-    query +=
-      "INSERT INTO tagTable(boardIndex,tag) VALUES (" + mysql.escape(req.params.boardIndex) + "," + mysql.escape(temp_tag.content) + ");";
-  }
   // 쿼리문 실행
-  db.db_connect.query(query, function (err) {
+  db.db_connect.query(query, function (err, results) {
     // 오류 발생
     if (err) {
       console.log(("writePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -93,7 +88,24 @@ const writePost = function (req, res) {
     }
     // 정상적으로 쿼리문 실행(게시글 등록)
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(201).end();
+    // 태그 쿼리문 추가
+    for (const temp_tag of write_post.tags) {
+      tag_query +=
+        "INSERT INTO tagTable(boardIndex,tag) VALUES (" + mysql.escape(results.insertId) + "," + mysql.escape(temp_tag.content) + ");";
+    }
+    // 태그가 없다면 종료
+    if (tag_query === "") return res.status(201).end();
+    // 태그가 있다면 DB에 태그 정보 추가
+    db.db_connect.query(tag_query, function (err) {
+      // 오류 발생
+      if (err) {
+        console.log(("writePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).json({ state: "writePost 메서드 mysql 모듈사용 실패:" + err });
+      }
+      // 정상적으로 쿼리문 실행(태그)
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + tag_query).blue.bold);
+      return res.status(201).end();
+    });
   });
 };
 
@@ -105,7 +117,9 @@ const getWrite = function (req, res) {
   if (req.query.boardIndex === "") return res.status(200).end();
   // 기존의 글 수정하는 경우
   // 해당 인덱스의 게시글 가져오기
-  const query = "SELECT postTitle,postContent,created,hits,favorite FROM BOARDS WHERE boardIndex = " + mysql.escape(req.query.boardIndex);
+  const query =
+    "SELECT postTitle,postContent,created,hits,favorite FROM BOARDS WHERE deleteDate IS NULL AND boardIndex = " +
+    mysql.escape(req.query.boardIndex);
 
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
@@ -137,13 +151,10 @@ const revisePost = function (req, res) {
     ";";
   // 기존 태그 삭제
   query += "DELETE FROM tagTable WHERE boardIndex = " + mysql.escape(req.query.boardIndex) + ";";
-  // 새로운 태그 추가
-  for (const temp_tag of revised_post.tags) {
-    query +=
-      "INSERT INTO tagTable(boardIndex,tag) VALUES (" + mysql.escape(req.query.boardIndex) + "," + mysql.escape(temp_tag.content) + ");";
-  }
+  let tag_query = "";
+
   // 쿼리문 실행
-  db.db_connect.query(query, function (err) {
+  db.db_connect.query(query, function (err, results) {
     // 오류 발생
     if (err) {
       console.log(("revisedPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -151,7 +162,24 @@ const revisePost = function (req, res) {
     }
     // 정상적으로 쿼리문 실행(기존 게시글 정보 가져오기)
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(200).end();
+    // 태그 쿼리문 추가
+    for (const temp_tag of revised_post.tags) {
+      tag_query +=
+        "INSERT INTO tagTable(boardIndex,tag) VALUES (" + mysql.escape(req.query.boardIndex) + "," + mysql.escape(temp_tag.content) + ");";
+    }
+    // 태그가 없다면 종료
+    if (tag_query === "") return res.status(200).end();
+    // 태그가 있다면 DB에 태그 정보 추가
+    db.db_connect.query(tag_query, function (err) {
+      // 오류 발생
+      if (err) {
+        console.log(("revisedPost 메서드 mysql 모듈사용 실패:" + err).red.bold);
+        return res.status(500).json({ state: "revisedPost 메서드 mysql 모듈사용 실패:" + err });
+      }
+      // 정상적으로 쿼리문 실행(태그)
+      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + tag_query).blue.bold);
+      return res.status(200).end();
+    });
   });
 };
 
@@ -165,7 +193,16 @@ const deletePost = function (req, res) {
     "UPDATE BOARDS SET deleteDate = " +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     " WHERE boardIndex = " +
-    mysql.escape(req.params.boardIndex);
+    mysql.escape(req.params.boardIndex) +
+    ";" +
+    "UPDATE tagTable SET deleteDate =" +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    "WHERE boardIndex=" +
+    mysql.escape(req.params.boardIndex) +
+    ";" +
+    "UPDATE favoritePost SET deleteDate = " +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    ";";
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
     // 오류 발생
@@ -196,10 +233,8 @@ const writeComment = function (req, res) {
     "," +
     mysql.escape(comment.content) +
     "," +
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss"));
-  let category;
-  if (req.params.category === "free-bulletin") category = "자유게시판";
-  if (req.params.category === "proof-shot") category = "공부인증샷";
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    ")";
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
     // 오류 발생
