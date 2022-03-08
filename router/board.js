@@ -45,12 +45,7 @@ router.patch(
 // 게시물 삭제
 router.delete("/search/:boardIndex", controller.deletePost);
 // 댓글 작성
-router.post(
-  "/search/:boardIndex",
-  body("commentContent").isLength({ min: 2, max: 500 }).isString(),
-  check.is_validate,
-  controller.writeComment,
-);
+router.post("/search/:boardIndex", body("content").isLength({ min: 2, max: 500 }).isString(), check.is_validate, controller.writeComment);
 
 // TODO RESTApi 공부
 // 댓글 삭제
