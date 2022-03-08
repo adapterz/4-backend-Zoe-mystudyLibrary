@@ -22,7 +22,7 @@ const colors = require("colors");
 const moment = require("./a_mymodule/date_time");
 
 // 경로별로 라우팅
-const adj_lib_router = require("./router/adj_lib");
+const adj_lib_router = require("./router/library");
 const boards_router = require("./router/board");
 const home_router = require("./router/home");
 const login_router = require("./router/login");
