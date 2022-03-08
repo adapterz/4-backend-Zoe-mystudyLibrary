@@ -1,8 +1,11 @@
 // 로그인화면의 라우터의 컨트롤러
+// mysql 모듈
+const mysql = require("mysql");
 // 로그인돼있는 예시 회원정보
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const user = {
+  userIndex: 123123,
   nickName: "Zoe",
   id: "yeji1919",
 };
@@ -10,11 +13,13 @@ const user = {
 // 내가 작성한 포스팅 데이터
 // 이 페이지 전체 TODO 로그인 기능 배운 뒤 다시 작성
 const myPost = function (req, res) {
-  if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 해당 유저가 작성한 게시글 정보 가져오기
-  const query = "SELECT boardIndex,category,postTitle,created,hits,favorite FROM BOARDS WHERE id = ?";
+  const query =
+    "SELECT boardIndex,postTitle,created,hits,favorite,category FROM BOARDS WHERE deleteDate IS NULL AND userIndex = " +
+    mysql.escape(user.userIndex);
   // 쿼리문 실행
-  db.db_connect.query(query, [user.id], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("myPost 메서드 자유게시판 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "myPost 메서드 자유게시판 mysql 모듈사용 실패:" + err });
@@ -30,12 +35,13 @@ const myPost = function (req, res) {
 // 내가 작성한 댓글 데이터
 const myComment = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 해당 유저가 작성한 후기 정보 가져오기
   const query =
-    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.created,COMMENT.category,BOARDS.postTitle FROM COMMENT INNER JOIN BOARDS ON COMMENT.boardIndex =BOARDS.boardIndex WHERE COMMENT.nickName = ?";
+    "SELECT COMMENTS.commentIndex,COMMENTS.commentContent,COMMENTS.created,BOARDS.postTitle FROM COMMENTS INNER JOIN BOARDS ON COMMENT.boardIndex =BOARDS.boardIndex WHERE BOARDS.deleteDate IS NULL AND COMMENTS.deleteDate IS NULL AND COMMENTS.userIndex=" +
+    mysql.escape(user.userIndex);
   // 쿼리문 실행
-  db.db_connect.query(query, [user.nickName], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("myComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "myComment 메서드 자유게시판 mysql 모듈사용 실패:" + err });
@@ -49,17 +55,18 @@ const myComment = function (req, res) {
   });
 };
 // 내가 작성한 도서관 이용 후기 데이터
-const myEpilogue = function (req, res) {
+const myReview = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 해당 유저가 작성한 후기 정보 가져오기
   const query =
-    "SELECT REVIEW.reviewIndex,REVIEW.reviewContent,REVIEW.created,REVIEW.grade,LIBRARY.libName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libIndex = LIBRARY.libIndex WHERE REVIEW.nickName = ?";
+    "SELECT REVIEW.reviewContent,REVIEW.created,REVIEW.grade,LIBRARY.libName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libIndex = LIBRARY.libIndex WHERE REVIEW.deleteDate IS NULL AND LIBRARY.deleteDate IS NULL AND REVIEW.userIndex=" +
+    mysql.escape(user.userIndex);
   // 쿼리문 실행
-  db.db_connect.query(query, [user.nickName], function (err, results) {
+  db.db_connect.query(query, function (err, results) {
     if (err) {
-      console.log(("myEpilogue 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "myEpilogue 메서드 자유게시판 mysql 모듈사용 실패:" + err });
+      console.log(("myReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return res.status(500).json({ state: "myReview 메서드 자유게시판 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
     // 데이터가 없을 때 보여줄 페이지
@@ -74,11 +81,15 @@ const myEpilogue = function (req, res) {
 // 선택 게시글 삭제
 const deletePost = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 해당 인덱스 게시글 삭제
-  const query = "UPDATE BOARDS SET deleteDate = ? WHERE boardIndex = ?";
+  const query =
+    "UPDATE BOARDS SET deleteDate = " +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    " WHERE boardIndex = " +
+    mysql.escape(req.query.boardIndex);
   // 쿼리문 실행
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.boardIndex], function (err) {
+  db.db_connect.query(query, function (err) {
     // 오류 발생
     if (err) {
       console.log(("deletePost 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -92,11 +103,15 @@ const deletePost = function (req, res) {
 // 선택 댓글 삭제
 const deleteComment = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
   // 댓글 삭제 쿼리문
-  const query = "UPDATE COMMENTS SET deleteDate = ? WHERE commentIndex = ?";
+  const query =
+    "UPDATE COMMENTS SET deleteDate = " +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    " WHERE commentIndex = " +
+    mysql.escape(req.query.commentIndex);
 
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.commentIndex], function (err) {
+  db.db_connect.query(query, function (err) {
     // 오류 발생
     if (err) {
       console.log(("deleteComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
@@ -110,11 +125,15 @@ const deleteComment = function (req, res) {
 // 도서관 후기 삭제
 const deleteReview = function (req, res) {
   // 로그인이 안 돼있을 때
-  if (user.id === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
-  const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ?";
+  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  const query =
+    "UPDATE REVIEW SET deleteDate=" +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    "  WHERE reviewIndex = " +
+    mysql.escape(req.query.reviewIndex);
 
   // 오류 발생
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.reviewIndex], function (err) {
+  db.db_connect.query(query, function (err) {
     if (err) {
       console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });
@@ -129,7 +148,7 @@ const deleteReview = function (req, res) {
 module.exports = {
   myPost: myPost,
   myComment: myComment,
-  myEpilogue: myEpilogue,
+  myReview: myReview,
   deletePost: deletePost,
   deleteComment: deleteComment,
   deleteReview: deleteReview,
