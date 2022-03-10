@@ -15,7 +15,7 @@ const user = {
 const login = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 기존에 로그인 돼있을 때
-  if (login_cookie) return res.status(200).json({ state: "이미 로그인했습니다." });
+  if (login_cookie) return res.status(409).json({ state: "이미 로그인했습니다." });
   // 유저가 입력한 정보 가져오기
   const input_login = req.body;
   const query = "SELECT id,pw,name,gender,phoneNumber,salt,nickName,profileShot FROM USER WHERE id = " + mysql.escape(req.body.id);
@@ -28,7 +28,7 @@ const login = function (req, res) {
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
 
     // 1. 존재하는 아이디가 없을 때
-    if (results[0] === undefined) return res.status(400).json({ state: "존재하는 id가 없습니다." });
+    if (results[0] === undefined) return res.status(404).json({ state: "존재하는 id가 없습니다." });
     const salts = results[0].salt;
     // 입력한 비밀번호 해싱
     const hash_pw = crypto
@@ -41,7 +41,7 @@ const login = function (req, res) {
     // 로그인 성공
     req.session.logined = true;
     req.session.user_id = input_login.id;
-    res.cookie("user", results, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
+    res.cookie("user", results, { expires: new Date(Date.now() + 1000 * 60 * 60), secure: true, signed: true });
     return res.status(200).json({ id: req.session.user_id });
   });
 };
