@@ -25,7 +25,7 @@ const signUpGuide = function (req, res) {
 // 회원가입 요청
 const signUp = function (req, res) {
   // 기존에 아이디가 있나 확인할 쿼리문
-  let query = "SELECT id,nickName FROM USER WHERE id = " + mysql.escape(req.body.id) + "OR nickName = " + mysql.escape(req.body.nickName);
+  const query = "SELECT id,nickName FROM USER WHERE id = " + mysql.escape(req.body.id) + "OR nickName = " + mysql.escape(req.body.nickName);
   // 쿼리문 실행
   db.db_connect.query(query, [req.body.id], function (err, results) {
     if (err) {
@@ -33,13 +33,14 @@ const signUp = function (req, res) {
       return res.status(500).json({ state: "signUp 메서드 mysql 모듈사용 실패:" + err });
     }
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-
-    // 1. 기존에 존재하는 아이디가 있을 때
-    if (results[0].id === req.body.id || results[1].id === req.body.id)
-      return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
-    // 2. 기존에 존재하는 닉네임이 있을 때
-    if (results[0].nickName === req.body.nickName || results[1].nickName === req.body.nickName)
-      return res.status(400).json({ state: "기존에 존재하는 닉네임입니다." });
+    if (results[0] !== undefined) {
+      // 1. 기존에 존재하는 아이디가 있을 때
+      if (results[0].id === req.body.id || results[1].id === req.body.id)
+        return res.status(400).json({ state: "기존에 존재하는 아이디입니다." });
+      // 2. 기존에 존재하는 닉네임이 있을 때
+      if (results[0].nickName === req.body.nickName || results[1].nickName === req.body.nickName)
+        return res.status(400).json({ state: "기존에 존재하는 닉네임입니다." });
+    }
     // 3. 비밀번호 유효성 검사
     // 입력한 비밀번호와 비밀번호 확인이 다를 때
     if (req.body.confirmPw !== req.body.pw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
@@ -53,8 +54,8 @@ const signUp = function (req, res) {
       .createHash("sha512")
       .update(req.body.pw + salts)
       .digest("hex");
-    query =
-      "INSERT INTO BOARDS(id,pw,name,gender,phoneNumber,salt,nickName) VALUES (" +
+    const new_query =
+      "INSERT INTO USER(id,pw,name,gender,phoneNumber,salt,nickName) VALUES (" +
       mysql.escape(req.body.id) +
       "," +
       mysql.escape(hashed_pw) +
@@ -71,7 +72,7 @@ const signUp = function (req, res) {
       ")";
 
     // 쿼리문 실행
-    db.db_connect.query(query, function (err) {
+    db.db_connect.query(new_query, function (err) {
       if (err) {
         console.log(("signUp 메서드 mysql 모듈사용 실패:" + err).red.bold);
         return res.status(500).json({ state: "signUp 메서드 mysql 모듈사용 실패:" + err });
