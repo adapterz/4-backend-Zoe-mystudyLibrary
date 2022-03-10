@@ -32,15 +32,24 @@ const login = function (req, res) {
     if (!bcrypt.compare(req.body.pw, results[0].pw)) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
 
     // 로그인 성공
-    req.session.logined = true;
-    req.session.user_id = input_login.id;
-    res.cookie("user", results, { expires: new Date(Date.now() + 1000 * 60 * 60), secure: true, signed: true });
-    return res.status(200).json({ id: req.session.user_id });
+    req.session.login = true;
+    req.session.userIndex = results[0].userIndex;
+    const user_info = {
+      id: results[0].id,
+      name: results[0].name,
+      gender: results[0].gender,
+      phoneNumber: results[0].phoneNumber,
+      nickName: results[0].nickName,
+      profileShot: results[0].profileShot,
+    };
+    res.cookie("user", user_info, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
+    return res.status(200).json({ login: true });
   });
 };
 // 로그아웃
 const logout = function (req, res) {
   const login_cookie = req.signedCookies.user;
+  console.log(login_cookie.id);
   // 기존에 로그인 돼있을 때
   if (login_cookie) {
     req.session.destroy();
