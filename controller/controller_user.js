@@ -7,6 +7,7 @@ const moment = require("../a_mymodule/date_time");
 // mysql 모듈
 const mysql = require("mysql");
 const bcrypt = require("bcrypt");
+const { encryption } = require("../a_mymodule/crypto");
 
 const user = {
   userIndex: 1,
@@ -91,8 +92,6 @@ const revisePw = function (req, res) {
   /*
   body : oldPw/newPw/confirmPw
    */
-  // 입력된 비밀번호 정보 가져오기
-  const revise_pw = req.body;
 
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
@@ -110,15 +109,18 @@ const revisePw = function (req, res) {
     // 유효성 검사
     // 유저 비밀번호와 oldPw 비교
     // 1. input oldPw 해싱
-    if (!bcrypt.compare(revise_pw.pw, results[0].pw)) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
+    const hashed_old_pw = encryption(req.body.pw);
+    if (!bcrypt.compare(hashed_old_pw, results[0].pw)) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
     // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
-    if (!bcrypt.compare(revise_pw.pw, revise_pw.confirmPw))
+    const hashed_old_confirm = encryption(req.body.confirmPw);
+    if (!bcrypt.compare(hashed_old_pw, hashed_old_confirm))
       return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
     // 유효성 검사 통과
     // 비밀번호 변경 쿼리문
+    const hashed_new_pw = encryption(req.body.newPw);
     query =
       "UPDATE USER SET pw= " +
-      mysql.escape(revise_pw.newPw) + // 라우터에서 해싱된 암호 DB에 저장
+      mysql.escape(hashed_new_pw) + // 라우터에서 해싱된 암호 DB에 저장
       " WHERE userIndex = " +
       mysql.escape(user.userIndex);
     // 쿼리문 실행

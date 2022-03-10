@@ -9,7 +9,7 @@ const check = require("../a_mymodule/validation");
 const { encryption } = require("../a_mymodule/crypto");
 
 // 로그인 요청
-router.post("/login", body("id").isString().trim(), body("pw").isString().trim(), check.is_validate, encryption, controller.login);
+router.post("/login", body("id").isString().trim(), body("pw").isString().trim(), check.is_validate, controller.login);
 // 로그아웃 요청
 router.post("/logout", body("id").isString().trim(), body("pw").isString().trim(), check.is_validate, controller.logout);
 

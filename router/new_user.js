@@ -40,7 +40,6 @@ router.post(
     .isLength({ min: 2, max: 8 })
     .matches(/^[가-힣|a-z|A-Z|0-9]+$/), // 한글, 숫자, 영어만 입력 가능한 정규 표현식
   check.is_validate,
-  encryption,
   controller.signUp,
 );
 

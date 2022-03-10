@@ -4,6 +4,7 @@ const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const mysql = require("mysql");
 const bcrypt = require("bcrypt");
+const { encryption } = require("../a_mymodule/crypto");
 const user = {
   id: "Zoe",
   nickName: "Zoe",
@@ -16,7 +17,6 @@ const login = function (req, res) {
   // 기존에 로그인 돼있을 때
   if (login_cookie) return res.status(409).json({ state: "이미 로그인했습니다." });
   // 유저가 입력한 정보 가져오기
-  const input_login = req.body;
   const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(req.body.id);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
@@ -29,7 +29,9 @@ const login = function (req, res) {
     // 1. 존재하는 아이디가 없을 때
     if (results[0] === undefined) return res.status(404).json({ state: "존재하는 id가 없습니다." });
     // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
-    if (!bcrypt.compare(req.body.pw, results[0].pw)) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
+    const hashed_pw = encryption(req.body.pw);
+    console.log(hashed_pw);
+    if (!bcrypt.compare(hashed_pw, results[0].pw)) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
 
     // 로그인 성공
     req.session.login = true;
@@ -49,7 +51,6 @@ const login = function (req, res) {
 // 로그아웃
 const logout = function (req, res) {
   const login_cookie = req.signedCookies.user;
-  console.log(login_cookie.id);
   // 기존에 로그인 돼있을 때
   if (login_cookie) {
     req.session.destroy();

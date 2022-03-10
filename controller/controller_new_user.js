@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const mysql = require("mysql");
 const { compare } = require("bcrypt");
 const bcrypt = require("bcrypt");
+const { encryption } = require("../a_mymodule/crypto");
 // TODO 프론트 때 할 듯?
 // 회원가입 약관확인
 const signUpGuide = function (req, res) {
@@ -45,15 +46,17 @@ const signUp = function (req, res) {
     }
     // 3. 비밀번호 유효성 검사
     // 입력한 비밀번호와 비밀번호 확인이 다를 때 ( 둘다 해싱된 값)
-    if (!bcrypt.compare(req.body.confirmPw, req.body.pw))
-      return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
+    const hashed_pw = encryption(req.body.pw);
+    const hashed_confirm_pw = encryption(req.body.confirmPw);
+    if (!bcrypt.compare(hashed_pw, hashed_confirm_pw));
+    return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
 
     // 모든 유효성 검사 통과
     const new_query =
       "INSERT INTO USER(id,pw,name,gender,phoneNumber,nickName) VALUES (" +
       mysql.escape(req.body.id) +
       "," +
-      mysql.escape(req.body.pw) + // 라우터에서 해싱된 pw값 insert
+      mysql.escape(hashed_pw) + // 라우터에서 해싱된 pw값 insert
       "," +
       mysql.escape(req.body.name) +
       "," +
