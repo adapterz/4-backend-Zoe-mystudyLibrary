@@ -21,6 +21,20 @@ const colors = require("colors");
 // 날짜/시간 관련 모듈
 const moment = require("./a_mymodule/date_time");
 
+// 쿠키&세션 모듈
+const cookieParser = require("cookie-parser");
+app.use(cookieParser("secret"));
+const session = require("express-session");
+const MemoryStore = require("session-memory-store")(session);
+app.use(
+  session({
+    secret: "secret key",
+    resave: false,
+    saveUninitialized: true,
+    store: new MemoryStore(),
+  }),
+);
+
 // 경로별로 라우팅
 const adj_lib_router = require("./router/library");
 const boards_router = require("./router/board");
@@ -34,7 +48,7 @@ const my_post_router = require("./router/my_post");
 app.use("/library", adj_lib_router);
 app.use("/", boards_router);
 app.use("/", home_router);
-app.use("/login", login_router);
+app.use("/", login_router);
 app.use("/new-user", new_user_router);
 app.use("/description", service_description_router);
 app.use("/user", user_router);
