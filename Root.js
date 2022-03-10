@@ -1,3 +1,10 @@
+// https/ssl 인증서 설정
+const https = require("https");
+const fs = require("fs");
+const options = {
+  key: fs.readFileSync("./private.pem"),
+  cert: fs.readFileSync("./public.pem"),
+};
 // express 모듈 가져오기
 const express = require("express");
 const app = express();
@@ -59,6 +66,7 @@ app.get("/not_found", function (req, res) {
   res.status(404).send("not founded page");
 });
 
-app.listen(process.env.PORT, () => {
+// https 서버 시작
+https.createServer(options, app).listen(process.env.PORT, () => {
   console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
 });
