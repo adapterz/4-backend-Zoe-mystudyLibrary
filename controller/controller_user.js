@@ -21,8 +21,9 @@ const user = {
 // TODO 로그인 기능 배운 뒤 다시작성
 // 내 프로필 수정
 const reviseProfile = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 입력된 새 프로필 정보 수정 요청
   const new_profile = req.body;
@@ -64,8 +65,9 @@ const reviseProfile = function (req, res) {
 
 // 회원정보 수정(연락처 수정)
 const revisePhoneNumber = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   const new_contact = req.body;
   // 새 개인정보 정보 수정해줄 쿼리문
   const query =
@@ -90,8 +92,10 @@ const revisePw = function (req, res) {
    */
   // 입력된 비밀번호 정보 가져오기
   const revise_pw = req.body;
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
+
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 유효성 검사
   // 기존에 비밀번호와 일치하나 확인해줄 쿼리문
   let query = "SELECT pw,salt FROM USER WHERE userIndex = " + mysql.escape(user.userIndex);
@@ -152,8 +156,9 @@ const dropOut = function (req, res) {
   const example_body = {
     checkBox1: false,
   };
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 회원탈퇴 안내조항에 체크 했는지
   const is_agreed = req.body;
   // 안내조항에 체크하지 않았을 때 회원탈퇴 실패

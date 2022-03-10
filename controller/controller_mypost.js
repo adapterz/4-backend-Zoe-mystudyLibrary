@@ -13,7 +13,9 @@ const user = {
 // 내가 작성한 포스팅 데이터
 // 이 페이지 전체 TODO 로그인 기능 배운 뒤 다시 작성
 const myPost = function (req, res) {
-  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 작성한 게시글 정보 가져오기
   const query =
     "SELECT boardIndex,postTitle,created,hits,favorite,category FROM BOARDS WHERE deleteDate IS NULL AND userIndex = " +
@@ -34,8 +36,9 @@ const myPost = function (req, res) {
 };
 // 내가 작성한 댓글 데이터
 const myComment = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 작성한 후기 정보 가져오기
   const query =
     "SELECT COMMENTS.commentIndex,COMMENTS.commentContent,COMMENTS.created,BOARDS.postTitle FROM COMMENTS INNER JOIN BOARDS ON COMMENT.boardIndex =BOARDS.boardIndex WHERE BOARDS.deleteDate IS NULL AND COMMENTS.deleteDate IS NULL AND COMMENTS.userIndex=" +
@@ -56,8 +59,9 @@ const myComment = function (req, res) {
 };
 // 내가 작성한 도서관 이용 후기 데이터
 const myReview = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 작성한 후기 정보 가져오기
   const query =
     "SELECT REVIEW.reviewContent,REVIEW.created,REVIEW.grade,LIBRARY.libName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libIndex = LIBRARY.libIndex WHERE REVIEW.deleteDate IS NULL AND LIBRARY.deleteDate IS NULL AND REVIEW.userIndex=" +
@@ -80,8 +84,9 @@ const myReview = function (req, res) {
 // TODO 로그인 배운 후 다시 작성
 // 선택 게시글 삭제
 const deletePost = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 인덱스 게시글 삭제
   const query =
     "UPDATE BOARDS SET deleteDate = " +
@@ -102,8 +107,9 @@ const deletePost = function (req, res) {
 };
 // 선택 댓글 삭제
 const deleteComment = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 댓글 삭제 쿼리문
   const query =
     "UPDATE COMMENTS SET deleteDate = " +
@@ -124,8 +130,9 @@ const deleteComment = function (req, res) {
 };
 // 도서관 후기 삭제
 const deleteReview = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "해당 기능을 이용하기 위해서는 로그인이 필요합니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   const query =
     "UPDATE REVIEW SET deleteDate=" +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +

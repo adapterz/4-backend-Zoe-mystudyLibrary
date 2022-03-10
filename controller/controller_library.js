@@ -73,8 +73,9 @@ const particularLib = function (req, res) {
 // TODO 로그인 여부 체크 공부 후 다시 작성
 // 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
 const registerMyLib = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // userLib 테이블에 해당 유저인덱스에 관심도서관 인덱스 추가
   const query = "INSERT INTO userLib(userIndex,userLib) VALUES (?,?) ";
   // 해당 인덱스의 도서관 정보 응답
@@ -92,8 +93,9 @@ const registerMyLib = function (req, res) {
 // TODO 로그인 배운 뒤 다시 작성
 // 특정 도서관 이용 후 후기등록
 const registerComment = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 후기 등록 쿼리문
   const query = "INSERT INTO REVIEW(libIndex,userIndex,reviewContent,created,grade) VALUES (?,?,?,?,?)";
   db.db_connect.query(
@@ -116,8 +118,9 @@ const registerComment = function (req, res) {
 // TODO 로그인 배운 뒤 다시 작성
 // 후기 삭제
 const deleteReview = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ?";
   // 오류 발생

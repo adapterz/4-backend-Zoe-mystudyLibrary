@@ -58,10 +58,11 @@ const detailBoard = function (req, res) {
 // TODO 로그인 배운 뒤 다시 작성
 // 게시글 쓰기
 const writePost = function (req, res) {
+  const login_cookie = req.signedCookies.user;
   // 작성 내용
   const write_post = req.body;
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
+  if (!login_cookie) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
 
   let query;
   let tag_query = "";
@@ -113,8 +114,9 @@ const writePost = function (req, res) {
 
 // 글 새로 작성시 그냥 return/ 수정시 기존 게시글 정보 불러오기
 const getWrite = function (req, res) {
+  const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 글 새로 작성
   if (req.query.boardIndex === "") return res.status(200).end();
   // 기존의 글 수정하는 경우
@@ -138,8 +140,9 @@ const getWrite = function (req, res) {
 // TODO 로그인 배운 후 다시 작성
 // 게시글 수정요청
 const revisePost = function (req, res) {
+  const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  if (!login_cookie) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
   // 수정한 내용
   const revised_post = req.body;
   // 게시글 수정 쿼리문
@@ -188,8 +191,9 @@ const revisePost = function (req, res) {
 // TODO 로그인 배운 후 다시 작성
 // 게시글 삭제하기
 const deletePost = function (req, res) {
+  const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "글을 삭제하기 위해서는 로그인을 해야합니다." });
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 인덱스 게시글 삭제
   const query =
     "UPDATE BOARDS SET deleteDate = " +
@@ -221,8 +225,9 @@ const deletePost = function (req, res) {
 // TODO 로그인 배운 후 다시 작성
 // 댓글 작성
 const writeComment = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 댓글 내용
   const comment = req.body;
 
@@ -253,8 +258,9 @@ const writeComment = function (req, res) {
 // TODO 로그인 배운 뒤 다시 작성
 // 댓글 삭제
 const deleteComment = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다. " });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 댓글 삭제 쿼리문
   const query =
@@ -288,8 +294,9 @@ likeUser : [{ nickName : "Zoe"}, { nickName : "yeji" }] //< 해당 게시글에 
  */
 // TODO 로그인기능 배우고 추가/다시하기
 const likePost = function (req, res) {
+  const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
-  if (user.userIndex === null) return res.status(401).json({ state: "좋아요를 누르기 위해서는 로그인을 해야합니다." });
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   let query =
     "SELECT userIndex FROM favoritePost WHERE boardIndex=" +

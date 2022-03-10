@@ -28,8 +28,9 @@ const getRecentPost = function (req, res) {
 
 // 내 관심도서관(adj_lib 코드 작성 후 구현)
 const myLib = function (req, res) {
-  // 로그인이 안 돼있을 때
-  if (user.userIndex === null) return res.status(401).json({ state: "인증되지 않은 사용자입니다." });
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
     "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY LEFT JOIN userLib ON LIBRARY.libIndex = userLib.userLib WHERE LIBRARY.deleteDate IS NULL AND userLib.deleteDate IS NULL AND userIndex=" +

@@ -55,7 +55,7 @@ const logout = function (req, res) {
     res.status(200).json({ state: "로그아웃" });
   }
   if (!login_cookie) {
-    res.status(400).json({ state: "기존에 로그인 되어있지 않습니다." });
+    res.status(401).json({ state: "기존에 로그인 되어있지 않습니다." });
   }
 };
 // 모듈화
