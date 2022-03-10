@@ -6,6 +6,7 @@ const moment = require("../a_mymodule/date_time");
 
 // mysql 모듈
 const mysql = require("mysql");
+const bcrypt = require("bcrypt");
 
 const user = {
   userIndex: 1,
@@ -109,30 +110,15 @@ const revisePw = function (req, res) {
     // 유효성 검사
     // 유저 비밀번호와 oldPw 비교
     // 1. input oldPw 해싱
-    let salts = results[0].salt;
-    const hashed_input_pw = crypto
-      .createHash("sha512")
-      .update(revise_pw.oldPw + salts)
-      .digest("hex");
-    if (hashed_input_pw !== results[0].pw) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
+    if (!bcrypt.compare(revise_pw.pw, results[0].pw)) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
     // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
-    if (revise_pw.newPw !== revise_pw.confirmPw)
+    if (!bcrypt.compare(revise_pw.pw, revise_pw.confirmPw))
       return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
     // 유효성 검사 통과
-    // 암호화
-    // 새로운 salts 발급
-    salts = crypto.randomBytes(128).toString("base64");
-    // 해싱된 암호
-    const hashed_pw = crypto
-      .createHash("sha512")
-      .update(revise_pw.newPw + salts)
-      .digest("hex");
     // 비밀번호 변경 쿼리문
     query =
       "UPDATE USER SET pw= " +
-      mysql.escape(hashed_pw) +
-      ",salt=" +
-      mysql.escape(salts) +
+      mysql.escape(revise_pw.newPw) + // 라우터에서 해싱된 암호 DB에 저장
       " WHERE userIndex = " +
       mysql.escape(user.userIndex);
     // 쿼리문 실행

@@ -2,9 +2,10 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("../controller/controller_user");
-//
+
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
+const { encryption } = require("../a_mymodule/crypto");
 
 // 내프로필 변경
 router.patch(
@@ -35,6 +36,7 @@ router.patch(
     .trim()
     .matches(/^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/), // 하나 이상의 문자(영문),숫자,특수문자가 포함되도록 하는 정규식(8~16)
   check.is_validate,
+  encryption,
   controller.revisePw,
 );
 

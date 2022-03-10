@@ -4,6 +4,7 @@ const router = express.Router();
 const controller = require("../controller/controller_new_user");
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
+const { encryption } = require("../a_mymodule/crypto");
 
 // 요청 별 정의
 // 회원가입 약관확인
@@ -39,6 +40,7 @@ router.post(
     .isLength({ min: 2, max: 8 })
     .matches(/^[가-힣|a-z|A-Z|0-9]+$/), // 한글, 숫자, 영어만 입력 가능한 정규 표현식
   check.is_validate,
+  encryption,
   controller.signUp,
 );
 

@@ -5,6 +5,8 @@ const moment = require("../a_mymodule/date_time");
 const crypto = require("crypto");
 // mysql 모듈
 const mysql = require("mysql");
+const { compare } = require("bcrypt");
+const bcrypt = require("bcrypt");
 // TODO 프론트 때 할 듯?
 // 회원가입 약관확인
 const signUpGuide = function (req, res) {
@@ -42,31 +44,22 @@ const signUp = function (req, res) {
         return res.status(400).json({ state: "기존에 존재하는 닉네임입니다." });
     }
     // 3. 비밀번호 유효성 검사
-    // 입력한 비밀번호와 비밀번호 확인이 다를 때
-    if (req.body.confirmPw !== req.body.pw) return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
+    // 입력한 비밀번호와 비밀번호 확인이 다를 때 ( 둘다 해싱된 값)
+    if (!bcrypt.compare(req.body.confirmPw, req.body.pw))
+      return res.status(400).json({ state: "'비밀번호'와 '비밀번호 확인'이 일치하지 않습니다." });
 
     // 모든 유효성 검사 통과
-    // 암호화
-    // 기존의 암호를 알아내기 힘들도록 salts 쳐주기
-    const salts = crypto.randomBytes(128).toString("base64");
-    // 해싱된 암호
-    const hashed_pw = crypto
-      .createHash("sha512")
-      .update(req.body.pw + salts)
-      .digest("hex");
     const new_query =
-      "INSERT INTO USER(id,pw,name,gender,phoneNumber,salt,nickName) VALUES (" +
+      "INSERT INTO USER(id,pw,name,gender,phoneNumber,nickName) VALUES (" +
       mysql.escape(req.body.id) +
       "," +
-      mysql.escape(hashed_pw) +
+      mysql.escape(req.body.pw) + // 라우터에서 해싱된 pw값 insert
       "," +
       mysql.escape(req.body.name) +
       "," +
       mysql.escape(req.body.gender) +
       "," +
       mysql.escape(req.body.phoneNumber) +
-      "," +
-      mysql.escape(salts) +
       "," +
       mysql.escape(req.body.nickName) +
       ")";
