@@ -20,4 +20,86 @@ function userLibModel(user_index, ip) {
   });
 }
 
-module.exports = { userLib: userLib };
+// 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
+function registerMyLibModel(lib_index, user_index, ip) {
+  // userLib 테이블에 해당 유저인덱스에 관심도서관 인덱스 추가
+  const query = "INSERT INTO userLib(userIndex,userLib) VALUES (" + mysql.escape(user_index) + "," + mysql.escape(lib_index) + ")";
+  // 해당 인덱스의 도서관 정보 응답
+  db.db_connect.query(query, function (err) {
+    if (err) {
+      console.log(("model-registerLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return { state: "mysql 사용실패" };
+    }
+    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+
+    return { state: "관심도서관추가" };
+  });
+}
+
+// 전체 도서관 정보
+function allLibModel(ip) {
+  // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 review 평점 평균 가져오는 쿼리문
+  const query =
+    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL;" +
+    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
+
+  db.db_connect.query(query, function (err, results) {
+    if (err) {
+      console.log(("model-allLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return { state: "mysql 사용실패" };
+    }
+    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    return { state: "전체도서관정보", data: results };
+  });
+}
+
+// 입력한 지역에 따라 도서관 정보주는 모델
+function localLibModel(input_local, ip) {
+  // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
+  const query =
+    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL nameOfCity =" +
+    mysql.escape(input_local.nameOfCity) +
+    " AND districts =" +
+    mysql.escape(input_local.districts) +
+    ";" +
+    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
+
+  db.db_connect.query(query, function (err, results) {
+    if (err) {
+      console.log(("model-localLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return { state: "mysql 사용실패" };
+    }
+    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    if (results[0] === undefined) return { state: "존재하지않는정보" };
+    return { state: "주변도서관정보", data: results };
+  });
+}
+
+// 특정 도서관 정보 자세히 보기
+function particularLibModel(lib_index, ip) {
+  // 특정 libIndex의 도서관 정보 자세히 보기
+  const query =
+    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts,reviewContent,created,grade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libIndex=REVIEW.libIndex WHERE LIBRARY.deleteDate IS NULL AND REVIEW.deleteDate IS NULL AND libIndex = " +
+    mysql.escape(lib_index) +
+    ";" +
+    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
+
+  // 해당 인덱스의 도서관 정보 응답
+  db.db_connect.query(query, function (err, results) {
+    if (err) {
+      console.log(("model-particularLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return { state: "mysql 사용실패" };
+    }
+    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    if (results[0] === undefined) return { state: "존재하지않는정보" };
+    return { state: "상세도서관정보", data: results };
+  });
+}
+
+module.exports = {
+  userLibModel: userLibModel,
+  registerMyLibModel: registerMyLibModel,
+  allLibModel: allLibModel,
+  localLibModel: localLibModel,
+  particularLibModel: particularLibModel,
+};
