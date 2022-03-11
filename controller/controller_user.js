@@ -19,7 +19,7 @@ const myLib = function (req, res) {
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모듈
-  const model_results = library_model.userLib(login_cookie);
+  const model_results = library_model.userLibModel(login_cookie);
   /* TODO 비동기 공부 후 다시 작성
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
   else if(model_results.state==="유저의관심도서관") return res.state(200).json(model_results.data);
