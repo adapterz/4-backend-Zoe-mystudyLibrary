@@ -74,7 +74,7 @@ const writePost = function (req, res) {
     "INSERT INTO BOARDS(category,userIndex,postTitle,postContent,created,hits,favorite) VALUES (" +
     mysql.escape(req_category) +
     "," +
-    mysql.escape(user.userIndex) +
+    mysql.escape(login_cookie) +
     "," +
     mysql.escape(write_post.postTitle) +
     "," +
@@ -200,6 +200,8 @@ const deletePost = function (req, res) {
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     " WHERE boardIndex = " +
     mysql.escape(req.params.boardIndex) +
+    "WHERE userIndex" +
+    mysql.escape(login_cookie) +
     ";" +
     "UPDATE tagTable SET deleteDate =" +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
@@ -208,6 +210,8 @@ const deletePost = function (req, res) {
     ";" +
     "UPDATE favoritePost SET deleteDate = " +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    "WHERE boardIndex=" +
+    mysql.escape(req.params.boardIndex) +
     ";";
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
@@ -236,7 +240,7 @@ const writeComment = function (req, res) {
     "INSERT INTO COMMENTS(boardIndex,userIndex,commentContent,created) VALUES (" +
     mysql.escape(req.params.boardIndex) +
     "," +
-    mysql.escape(user.userIndex) +
+    mysql.escape(login_cookie) +
     "," +
     mysql.escape(comment.content) +
     "," +
@@ -267,7 +271,9 @@ const deleteComment = function (req, res) {
     "UPDATE COMMENTS SET deleteDate =" +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     " WHERE commentIndex =" +
-    mysql.escape(req.query.commentIndex);
+    mysql.escape(req.query.commentIndex) +
+    "AND userIndex" +
+    mysql.escape(login_cookie);
 
   db.db_connect.query(query, function (err) {
     // 오류 발생
@@ -302,7 +308,7 @@ const likePost = function (req, res) {
     "SELECT userIndex FROM favoritePost WHERE boardIndex=" +
     mysql.escape(req.params.boardIndex) +
     "AND userIndex = " +
-    mysql.escape(user.userIndex);
+    mysql.escape(login_cookie);
 
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {

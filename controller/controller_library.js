@@ -79,7 +79,7 @@ const registerMyLib = function (req, res) {
   // userLib 테이블에 해당 유저인덱스에 관심도서관 인덱스 추가
   const query = "INSERT INTO userLib(userIndex,userLib) VALUES (?,?) ";
   // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, [user.userIndex, req.params.libIndex], function (err) {
+  db.db_connect.query(query, [login_cookie, req.params.libIndex], function (err) {
     if (err) {
       console.log(("registerLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
       return res.status(500).json({ state: "registerLib 메서드 mysql 모듈사용 실패:" + err });
@@ -100,7 +100,7 @@ const registerComment = function (req, res) {
   const query = "INSERT INTO REVIEW(libIndex,userIndex,reviewContent,created,grade) VALUES (?,?,?,?,?)";
   db.db_connect.query(
     query,
-    [req.params.libIndex, user.userIndex, req.body.reviewContent, moment().format("YYYY-MM-DD HH:mm:ss"), req.body.grade],
+    [req.params.libIndex, login_cookie, req.body.reviewContent, moment().format("YYYY-MM-DD HH:mm:ss"), req.body.grade],
     function (err) {
       // 오류 발생
       if (err) {
@@ -122,7 +122,7 @@ const deleteReview = function (req, res) {
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
-  const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ?";
+  const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ? WHERE userIndex =" + mysql.escape(login_cookie);
   // 오류 발생
   db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.reviewIndex], function (err) {
     if (err) {

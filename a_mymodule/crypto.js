@@ -3,8 +3,7 @@ const saltRounds = 10;
 
 const encryption = function (body_pw) {
   // req.body.pw에 해싱된 값으로 바꿔줌
-  const hashed_pw = bcrypt.hashSync(body_pw, saltRounds);
-  return hashed_pw;
+  return bcrypt.hashSync(body_pw, saltRounds).toString();
 };
 
 module.exports = {

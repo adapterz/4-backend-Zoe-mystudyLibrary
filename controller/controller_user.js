@@ -41,7 +41,7 @@ const reviseProfile = function (req, res) {
     console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
 
     // 기존에 존재하는 닉네임이 있을 때
-    if (results[0].nickName === new_profile.nickName) return res.status(400).json({ state: "기존에 존재하는 닉네임입니다." });
+    if (results[0] !== undefined) return res.status(400).json({ state: "기존에 존재하는 닉네임입니다." });
 
     // 새 프로필 정보 수정해줄 쿼리문
     query =
@@ -50,7 +50,7 @@ const reviseProfile = function (req, res) {
       ", profileShot =" +
       mysql.escape(new_profile.profileShot) +
       " WHERE userIndex =" +
-      mysql.escape(user.userIndex);
+      mysql.escape(login_cookie);
     // 콜백 쿼리문 실행
     db.db_connect.query(query, function (err) {
       if (err) {
@@ -72,8 +72,7 @@ const revisePhoneNumber = function (req, res) {
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   const new_contact = req.body;
   // 새 개인정보 정보 수정해줄 쿼리문
-  const query =
-    "UPDATE USER SET phoneNumber=" + mysql.escape(new_contact.phoneNumber) + " WHERE userIndex = " + mysql.escape(user.userIndex);
+  const query = "UPDATE USER SET phoneNumber=" + mysql.escape(new_contact.phoneNumber) + " WHERE userIndex = " + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
     if (err) {
@@ -98,7 +97,7 @@ const revisePw = function (req, res) {
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 유효성 검사
   // 기존에 비밀번호와 일치하나 확인해줄 쿼리문
-  let query = "SELECT pw,salt FROM USER WHERE userIndex = " + mysql.escape(user.userIndex);
+  let query = "SELECT pw,salt FROM USER WHERE userIndex = " + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     if (err) {
@@ -122,7 +121,7 @@ const revisePw = function (req, res) {
       "UPDATE USER SET pw= " +
       mysql.escape(hashed_new_pw) + // 라우터에서 해싱된 암호 DB에 저장
       " WHERE userIndex = " +
-      mysql.escape(user.userIndex);
+      mysql.escape(login_cookie);
     // 쿼리문 실행
     db.db_connect.query(query, function (err) {
       if (err) {
@@ -152,7 +151,7 @@ const dropOut = function (req, res) {
   // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
   if (!is_agreed) return res.status(400).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
   // 해당 유저 데이터 삭제 쿼리문
-  const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(user.userIndex);
+  const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
     if (err) {

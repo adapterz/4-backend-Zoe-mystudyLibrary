@@ -34,7 +34,7 @@ const myLib = function (req, res) {
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
     "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY LEFT JOIN userLib ON LIBRARY.libIndex = userLib.userLib WHERE LIBRARY.deleteDate IS NULL AND userLib.deleteDate IS NULL AND userIndex=" +
-    mysql.escape(user.userIndex);
+    mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     if (err) {

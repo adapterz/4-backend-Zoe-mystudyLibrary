@@ -19,7 +19,7 @@ const myPost = function (req, res) {
   // 해당 유저가 작성한 게시글 정보 가져오기
   const query =
     "SELECT boardIndex,postTitle,created,hits,favorite,category FROM BOARDS WHERE deleteDate IS NULL AND userIndex = " +
-    mysql.escape(user.userIndex);
+    mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     if (err) {
@@ -42,7 +42,7 @@ const myComment = function (req, res) {
   // 해당 유저가 작성한 후기 정보 가져오기
   const query =
     "SELECT COMMENTS.commentIndex,COMMENTS.commentContent,COMMENTS.created,BOARDS.postTitle FROM COMMENTS INNER JOIN BOARDS ON COMMENT.boardIndex =BOARDS.boardIndex WHERE BOARDS.deleteDate IS NULL AND COMMENTS.deleteDate IS NULL AND COMMENTS.userIndex=" +
-    mysql.escape(user.userIndex);
+    mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     if (err) {
@@ -65,7 +65,7 @@ const myReview = function (req, res) {
   // 해당 유저가 작성한 후기 정보 가져오기
   const query =
     "SELECT REVIEW.reviewContent,REVIEW.created,REVIEW.grade,LIBRARY.libName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libIndex = LIBRARY.libIndex WHERE REVIEW.deleteDate IS NULL AND LIBRARY.deleteDate IS NULL AND REVIEW.userIndex=" +
-    mysql.escape(user.userIndex);
+    mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     if (err) {

@@ -36,28 +36,21 @@ const login = function (req, res) {
     // 로그인 성공
     req.session.login = true;
     req.session.userIndex = results[0].userIndex;
-    const user_info = {
-      id: results[0].id,
-      name: results[0].name,
-      gender: results[0].gender,
-      phoneNumber: results[0].phoneNumber,
-      nickName: results[0].nickName,
-      profileShot: results[0].profileShot,
-    };
-    res.cookie("user", user_info, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
+    res.cookie("user", results[0].userIndex, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
     return res.status(200).json({ login: true });
   });
 };
 // 로그아웃
 const logout = function (req, res) {
   const login_cookie = req.signedCookies.user;
+  console.log(login_cookie);
   // 기존에 로그인 돼있을 때
   if (login_cookie) {
-    req.session.destroy();
+    req.session.destroy(function (err) {});
     res.clearCookie("user");
     res.status(200).json({ state: "로그아웃" });
   }
-  if (!login_cookie) {
+  if (login_cookie) {
     res.status(401).json({ state: "기존에 로그인 되어있지 않습니다." });
   }
 };
