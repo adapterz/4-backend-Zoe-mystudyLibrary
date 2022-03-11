@@ -25,7 +25,7 @@ const detailBoard = function (req, res) {
   // 모듈 실행 결과에 의한 분기처리
   /* TODO 비동기 공부후 다시작성
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results);
+  else if (model_results.state === "존재하지않는게시글") return res.status(404).json(model_results);
   else if (model_results.state === "게시글상세보기") return res.status(200).json(model_results.data);
   
    */
@@ -144,7 +144,7 @@ const deleteComment = function (req, res) {
   // 해당 commentIndex에 대한 유저의 권한 체크
   const check_authority = check_authority_model.isCommentAuthorModel(req.query.commentIndex, login_cookie, req.ip);
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
-  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "존재하지않는댓글") return res.status(404).json(check_authority);
   else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
   else if (check_authority.state === "접근성공") {
     // 댓글삭제 모델 실행 결과
