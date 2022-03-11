@@ -30,7 +30,7 @@ const detailBoard = function (req, res) {
   // 모듈 실행 결과에 의한 분기처리
   /* TODO 비동기 공부후 다시작성
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  else if (model_results.state === "존재하지않는게시글") return res.status(404).json(model_results.state);
+  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results.state);
   else if (model_results.state === "게시글상세보기") return res.status(200).json(model_results.data);
   
    */
@@ -67,7 +67,7 @@ const getWrite = function (req, res) {
   const model_results = post_model.getWriteModel(req.query.boardIndex, login_cookie, req.ip);
   /* TODO 비동기 공부후 다시작성
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  else if (model_results.state === "존재하지않는게시글") return res.status(404).json(model_results.state);
+  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results.state);
   else if (model_results.state === "게시글정보로딩") return res.status(200).json(model_results.data);
 
    */
