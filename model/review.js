@@ -24,6 +24,33 @@ function userReviewModel(user_index, ip) {
     return { state: "성공적조회", data: results };
   });
 }
+// 도서관 후기 등록
+function registerCommentModel(lib_index, user_index, input_comment, ip) {
+  // 후기 등록 쿼리문
+  const query =
+    "INSERT INTO REVIEW(libIndex,userIndex,reviewContent,created,grade) VALUES (" +
+    mysql.escape(lib_index) +
+    "," +
+    mysql.escape(user_index) +
+    "," +
+    mysql.escape(input_comment.reviewContent) +
+    "," +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    "," +
+    mysql.escape(input_comment.grade) +
+    ")";
+  db.db_connect.query(query, function (err) {
+    // 오류 발생
+    if (err) {
+      console.log(("model-registerComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
+      return { state: "mysql 사용실패" };
+    }
+    // 정상적으로 쿼리문 실행(후기 등록)
+    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+
+    return { state: "도서관후기등록" };
+  });
+}
 
 // 해당 인덱스 후기 삭제
 function deleteReviewModel(review_index, user_index, ip) {
@@ -47,4 +74,4 @@ function deleteReviewModel(review_index, user_index, ip) {
   });
 }
 
-module.exports = { userReviewModel: userReviewModel, deleteReviewModel: deleteReviewModel };
+module.exports = { userReviewModel: userReviewModel, registerCommentModel: registerCommentModel, deleteReviewModel: deleteReviewModel };

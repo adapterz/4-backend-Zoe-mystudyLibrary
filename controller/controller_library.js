@@ -63,49 +63,29 @@ const registerMyLib = function (req, res) {
    */
 };
 
-// TODO 로그인 배운 뒤 다시 작성
 // 특정 도서관 이용 후 후기등록
 const registerComment = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 후기 등록 쿼리문
-  const query = "INSERT INTO REVIEW(libIndex,userIndex,reviewContent,created,grade) VALUES (?,?,?,?,?)";
-  db.db_connect.query(
-    query,
-    [req.params.libIndex, login_cookie, req.body.reviewContent, moment().format("YYYY-MM-DD HH:mm:ss"), req.body.grade],
-    function (err) {
-      // 오류 발생
-      if (err) {
-        console.log(("registerComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-        return res.status(500).json({ state: "registerComment 메서드 mysql 모듈사용 실패:" + err });
-      }
-      // 정상적으로 쿼리문 실행(후기 등록)
-      console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-
-      return res.status(201).end();
-    },
-  );
+  // 후기 등록 모델 사용 결과
+  const model_results = review_model.registerCommentModel(req.params.libIndex, login_cookie, req.body, req.ip);
+  /* TODO 비동기 공부한 후 작성
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "도서관후기등록") return res.status(201).end();
+   */
 };
-
-// TODO 로그인 배운 뒤 다시 작성
 // 후기 삭제
 const deleteReview = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-
-  const query = "UPDATE REVIEW SET deleteDate = ? WHERE reviewIndex = ? WHERE userIndex =" + mysql.escape(login_cookie);
-  // 오류 발생
-  db.db_connect.query(query, [moment().format("YYYY-MM-DD HH:mm:ss"), req.query.reviewIndex], function (err) {
-    if (err) {
-      console.log(("deleteReview 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "deleteReview 메서드 mysql 모듈사용 실패:" + err });
-    }
-    // 정상적으로 쿼리문 실행(후기 삭제)
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(204).end();
-  });
+  // 후기삭제 모듈
+  const model_results = review_model.deleteReviewModel(req.query.reviewIndex, login_cookie, req.ip);
+  /*TODO 비동기 공부후 다시작성
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "후기삭제") return res.status(204).end();
+*/
 };
 
 // 모듈화
