@@ -1,10 +1,4 @@
 // 로그인화면의 라우터의 컨트롤러
-// 예시 유저 정보
-const db = require("../a_mymodule/db");
-const moment = require("../a_mymodule/date_time");
-const mysql = require("mysql");
-const bcrypt = require("bcrypt");
-const { encryption } = require("../a_mymodule/crypto");
 const login_model = require("../model/login");
 const user = {
   id: "Zoe",

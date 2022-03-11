@@ -23,11 +23,11 @@ const signUp = function (req, res) {
   const model_results = new_user.signUpModel(req.body, req.ip);
   /*
   비동기 배운후 적용
-  if(model_results ==="mysql 사용실패") return res.status(500).json({state:model_results});
-  else if(model_results==="존재하는 아이디") return res.status(400).json({state:model_results});
-  else if(model_results==="존재하는 닉네임") return res.status(400).json({state:model_results});
-  else if(model_results==="비밀번호/비밀번호확인 불일치") return res.status(400).json({state:model_results});
-  else if(model_results==="회원가입") return res.status(201).json({state:model_results});
+  if(model_results.state ==="mysql 사용실패") return res.status(500).json(model_results);
+  else if(model_results.state==="존재하는 아이디") return res.status(400).json(model_results);
+  else if(model_results.state==="존재하는 닉네임") return res.status(400).json(model_results);
+  else if(model_results.state==="비밀번호/비밀번호확인 불일치") return res.status(400).json(model_results);
+  else if(model_results.state==="회원가입") return res.status(201).json(model_results);
 
    */
 };

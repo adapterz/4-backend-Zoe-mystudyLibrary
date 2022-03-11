@@ -1,4 +1,4 @@
-// 닉네임 정보
+// 필요모듈
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
@@ -9,20 +9,17 @@ const bcrypt = require("bcrypt");
 
 // 프로필 변경 모델
 function reviseProfileModel(revised, ip, login_cookie) {
-  let state;
   let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(revised.nickName);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("model-reviseProfile 메서드 mysql 모듈 사용 실패1:" + err).red.bold);
-      state = "mysql 사용실패";
-      return state;
+      return { state: "mysql 사용실패" };
     }
     console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
     // 기존에 존재하는 닉네임이 있을 때
     if (results[0] !== undefined) {
-      state = "중복닉네임";
-      return state;
+      return { state: "중복닉네임" };
     }
     // 새 프로필 정보 수정해줄 쿼리문
     // eslint-disable-next-line no-unreachable
@@ -40,42 +37,36 @@ function reviseProfileModel(revised, ip, login_cookie) {
         return { state: "mysql 사용실패", msg: "model-reviseProfile 메서드 mysql 모듈 사용 실패:" + err };
       }
       console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-      state = "프로필변경성공";
-      return state;
+      return { state: "프로필변경성공" };
     });
   });
 }
 // 연락처 변경 모델
 function revisePhoneNumberModel(new_contact, ip, login_cookie) {
-  let state;
   // 새 개인정보 정보 수정해줄 쿼리문
   const query = "UPDATE USER SET phoneNumber=" + mysql.escape(new_contact.phoneNumber) + " WHERE userIndex = " + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
     if (err) {
       console.log(("model-revisePhoneNumber 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      state = "mysql 사용실패";
-      return state;
+      return { state: "mysql 사용실패" };
     }
     console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
 
     // 연락처 수정 성공
-    state = "연락처변경성공";
-    return state;
+    return { state: "연락처변경성공" };
   });
 }
 
 // 비밀번호 수정
 function revisePwModel(input_pw, ip, login_cookie) {
-  let state;
   // 기존에 비밀번호와 일치하나 확인해줄 쿼리문
   let query = "SELECT pw,salt FROM USER WHERE userIndex = " + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     if (err) {
       console.log(("model-revisePw 메서드 mysql 모듈사용 실패1:" + err).red.bold);
-      state = "mysql 사용실패";
-      return state;
+      return { state: "mysql 사용실패" };
     }
     console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
     // 유효성 검사
@@ -83,14 +74,12 @@ function revisePwModel(input_pw, ip, login_cookie) {
     // 1. input oldPw 해싱
     const hashed_old_pw = encryption(input_pw.pw);
     if (!bcrypt.compare(hashed_old_pw, results[0].pw)) {
-      state = "기존비밀번호 불일치";
-      return state;
+      return { state: "기존비밀번호 불일치" };
     }
     // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
     const hashed_old_confirm = encryption(input_pw.confirmPw);
     if (!bcrypt.compare(hashed_old_pw, hashed_old_confirm)) {
-      state = "비밀번호/비밀번호확인 불일치";
-      return state;
+      return { state: "비밀번호/비밀번호확인 불일치" };
     }
     // 유효성 검사 통과
     // 비밀번호 변경 쿼리문
@@ -104,35 +93,30 @@ function revisePwModel(input_pw, ip, login_cookie) {
     db.db_connect.query(query, function (err) {
       if (err) {
         console.log(("model-revisePw 메서드 mysql 모듈사용 실패2:" + err).red.bold);
-        state = "mysql 사용실패";
-        return state;
+        return { state: "mysql 사용실패" };
       }
       console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
 
       // 비밀번호 변경 성공
-      state = "비밀번호변경성공";
-      return state;
+      return { state: "비밀번호변경성공" };
     });
   });
 }
 
 // 회원탈퇴
 function dropOutModel(ip, login_cookie) {
-  let state;
   // 해당 유저 데이터 삭제 쿼리문
   const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
     if (err) {
       console.log(("model-dropOut 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      state = "mysql 사용실패";
-      return state;
+      return { state: "mysql 사용실패" };
     }
     console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
 
     // 회원탈퇴 안내조항에 체크했을 때 성공적으로 회원탈퇴
-    state = "회원탈퇴";
-    return state;
+    return { state: "회원탈퇴" };
   });
 }
 
