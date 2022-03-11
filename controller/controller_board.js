@@ -62,28 +62,42 @@ const getWrite = function (req, res) {
   // 글 새로 작성
   if (req.query.boardIndex === "") return res.status(200).end();
   // 기존의 글 수정하는 경우
-  // 해당 인덱스의 게시글 가져오기
+  // 해당 boardIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 해당 인덱스의 게시글 가져오기
+    const model_results = post_model.getWriteModel(req.query.boardIndex, login_cookie, req.ip);
+    /* TODO 비동기 공부후 다시작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "존재하지않는게시글") return res.status(404).json(model_results);
+    else if (model_results.state === "게시글정보로딩") return res.status(200).json(model_results.data);
 
-  const model_results = post_model.getWriteModel(req.query.boardIndex, login_cookie, req.ip);
-  /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results);
-  else if (model_results.state === "게시글정보로딩") return res.status(200).json(model_results.data);
-
-   */
+     */
+  }
 };
 // 게시글 수정요청
 const revisePost = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
-  // 게시글 수정 모델 실행 결과
-  const model_results = post_model.revisePost(req.body, req.query.boardIndex, login_cookie, req.ip);
-  /* TODO 비동기 배운 후 다시 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "게시글수정") return res.status(200).end();
-  
-   */
+
+  // 해당 boardIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 게시글 수정 모델 실행 결과
+    const model_results = post_model.revisePost(req.body, req.query.boardIndex, login_cookie, req.ip);
+    /* TODO 비동기 배운 후 다시 작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "게시글수정") return res.status(200).end();
+
+     */
+  }
 };
 
 // 게시글 삭제하기
@@ -91,12 +105,19 @@ const deletePost = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 인덱스 게시글 삭제
-  const model_results = post_model.deletePostModel(req.query.boardIndex, login_cookie, req.ip);
-  /* TODO 비동기 공부후 다시 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "게시글삭제") return res.status(204).end();
-   */
+  // 해당 boardIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 해당 인덱스 게시글 삭제
+    const model_results = post_model.deletePostModel(req.query.boardIndex, login_cookie, req.ip);
+    /* TODO 비동기 공부후 다시 작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "게시글삭제") return res.status(204).end();
+     */
+  }
 };
 
 // 댓글 작성
@@ -104,13 +125,20 @@ const writeComment = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 댓글 작성 모델 실행 결과
-  const model_results = comment_model.writeCommentModel(req.params.boardIndex, login_cookie, req.ip);
-  /* TODO 비동기 공부 후 다시 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  if (model_results.state === "댓글작성") return res.status(201).end();
+  // 해당 commentIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isCommentAuthorModel(req.query.commentIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 댓글 작성 모델 실행 결과
+    const model_results = comment_model.writeCommentModel(req.params.boardIndex, login_cookie, req.ip);
+    /* TODO 비동기 공부 후 다시 작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    if (model_results.state === "댓글작성") return res.status(201).end();
 
-   */
+     */
+  }
 };
 
 // 댓글 삭제
@@ -118,13 +146,20 @@ const deleteComment = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 댓글삭제 모델 실행 결과
-  const model_results = comment_model.deleteCommentModel(req.query.commentIndex, login_cookie, req.ip);
-  /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "댓글삭제") return res.status(204).end();
+  // 해당 commentIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isCommentAuthorModel(req.query.commentIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 댓글삭제 모델 실행 결과
+    const model_results = comment_model.deleteCommentModel(req.query.commentIndex, login_cookie, req.ip);
+    /* TODO 비동기 공부후 다시작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "댓글삭제") return res.status(204).end();
 
-   */
+     */
+  }
 };
 
 // 좋아요 기능 -> 고민: 유저측에서 관리를 할지, 해당 게시물측에서 관리할지?

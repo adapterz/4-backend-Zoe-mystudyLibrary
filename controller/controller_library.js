@@ -7,13 +7,7 @@ const mysql = require("mysql");
 // 모델
 const library_model = require("../model/library");
 const review_model = require("../model/review");
-
-// 예시 데이터 (전체 도서관)
-const user = {
-  id: "Zoe",
-  userIndex: 132132,
-  nickName: "Zoe",
-};
+const check_authority_model = require("../model/check_authority");
 
 // 전체 도서관 정보 (get)
 const allLib = function (req, res) {
@@ -80,12 +74,19 @@ const deleteReview = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 후기삭제 모듈
-  const model_results = review_model.deleteReviewModel(req.query.reviewIndex, login_cookie, req.ip);
-  /*TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "후기삭제") return res.status(204).end();
-*/
+  // 해당 reviewIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isReviewAuthorModel(req.query.reviewIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 후기삭제 모듈
+    const model_results = review_model.deleteReviewModel(req.query.reviewIndex, login_cookie, req.ip);
+    /*TODO 비동기 공부후 다시작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "후기삭제") return res.status(204).end();
+  */
+  }
 };
 
 // 모듈화

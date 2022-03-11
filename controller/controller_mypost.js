@@ -3,6 +3,7 @@
 const post_model = require("../model/post");
 const comment_model = require("../model/comment");
 const review_model = require("../model/review");
+const check_authority_model = require("../model/check_authority");
 // 예시
 const user = {
   userIndex: 123123,
@@ -62,38 +63,61 @@ const deletePost = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 인덱스 게시글 삭제
-  const model_results = post_model.deletePostModel(req.query.boardIndex, login_cookie, req.ip);
-  /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "게시글삭제") return res.status(204).end();
+  // 해당 boardIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 해당 인덱스 게시글 삭제
+    const model_results = post_model.deletePostModel(req.query.boardIndex, login_cookie, req.ip);
+    /* TODO 비동기 공부후 다시작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "게시글삭제") return res.status(204).end();
 
-   */
+     */
+  }
 };
 // 선택 댓글 삭제
 const deleteComment = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 댓글삭제 모듈
-  const model_results = comment_model.deleteCommentModel(req.query.commentIndex, login_cookie, req.ip);
-  /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "댓글삭제") return res.status(204).end();
- 
-   */
+
+  // 해당 boardIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 댓글삭제 모듈
+    const model_results = comment_model.deleteCommentModel(req.query.commentIndex, login_cookie, req.ip);
+    /* TODO 비동기 공부후 다시작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "댓글삭제") return res.status(204).end();
+
+     */
+  }
 };
 // 도서관 후기 삭제
 const deleteReview = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 후기삭제 모듈
-  const model_results = review_model.deleteReviewModel(req.query.reviewIndex, login_cookie, req.ip);
-  /*TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  else if (model_results.state === "후기삭제") return res.status(204).end();
-*/
+
+  // 해당 boardIndex에 대한 유저의 권한 체크
+  const check_authority = check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_authority.state === "접근성공") {
+    // 후기삭제 모듈
+    const model_results = review_model.deleteReviewModel(req.query.reviewIndex, login_cookie, req.ip);
+    /*TODO 비동기 공부후 다시작성
+    if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+    else if (model_results.state === "후기삭제") return res.status(204).end();
+  */
+  }
 };
 
 // 모듈화
