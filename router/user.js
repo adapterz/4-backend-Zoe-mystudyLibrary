@@ -5,8 +5,9 @@ const controller = require("../controller/controller_user");
 
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
-const { encryption } = require("../a_mymodule/crypto");
 
+// 내가 관심도서관으로 등록한 도서관 정보
+router.get("/my-lib", controller.myLib);
 // 내프로필 변경
 router.patch(
   "/profile",

@@ -4,9 +4,9 @@ const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { encryption } = require("../a_mymodule/crypto");
 const bcrypt = require("bcrypt");
+const library_model = require("./library");
 
-// 내 정보 수정/회원가입 기능 관련 모델
-
+// 내 정보/회원가입 기능 관련 모델
 // 프로필 변경 모델
 function reviseProfileModel(revised, ip, login_cookie) {
   let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(revised.nickName);

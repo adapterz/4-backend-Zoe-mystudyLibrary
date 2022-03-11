@@ -21,27 +21,7 @@ const getRecentPost = function (req, res) {
    */
 };
 
-// 내 관심도서관(adj_lib 코드 작성 후 구현)
-const myLib = function (req, res) {
-  const login_cookie = req.signedCookies.user;
-  // 로그인 여부 검사
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
-  let query =
-    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY LEFT JOIN userLib ON LIBRARY.libIndex = userLib.userLib WHERE LIBRARY.deleteDate IS NULL AND userLib.deleteDate IS NULL AND userIndex=" +
-    mysql.escape(login_cookie);
-  // 쿼리문 실행
-  db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("myLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "myLib 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(200).json(results);
-  });
-};
 // 모듈화
 module.exports = {
   getRecentPost: getRecentPost,
-  myLib: myLib,
 };

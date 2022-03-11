@@ -1,5 +1,6 @@
 // 내 정보 라우터의 컨트롤러
 const user_model = require("../model/user");
+const library_model = require("../model/library");
 // 예시정보
 const user = {
   userIndex: 1,
@@ -11,6 +12,18 @@ const user = {
   salt: "1234#",
   nickName: null,
   profileShot: null,
+};
+// 내 관심도서관(adj_lib 코드 작성 후 구현)
+const myLib = function (req, res) {
+  const login_cookie = req.signedCookies.user;
+  // 로그인 여부 검사
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모듈
+  const model_results = library_model.userLib(login_cookie);
+  /* TODO 비동기 공부 후 다시 작성
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  else if(model_results.state==="유저의관심도서관") return res.state(200).json(model_results.data);
+   */
 };
 // 내 프로필 수정
 const reviseProfile = function (req, res) {
@@ -82,6 +95,7 @@ const dropOut = function (req, res) {
 
 // 모듈화
 module.exports = {
+  myLib: myLib,
   reviseProfile: reviseProfile,
   revisePhoneNumber: revisePhoneNumber,
   revisePw: revisePw,
