@@ -1,10 +1,11 @@
-// 회원가입
+// 필요 모듈
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { encryption } = require("../a_mymodule/crypto");
 const bcrypt = require("bcrypt");
 
+// 회원가입 모듈
 function signUpModel(input_user, ip) {
   let state;
 
