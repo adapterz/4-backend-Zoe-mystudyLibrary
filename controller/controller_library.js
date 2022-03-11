@@ -4,6 +4,8 @@ const db = require("../a_mymodule/db");
 // 날짜/시간 관련 모듈
 const moment = require("../a_mymodule/date_time");
 const mysql = require("mysql");
+// 모델
+const library_model = require("../model/library");
 
 // 예시 데이터 (전체 도서관)
 const user = {
@@ -14,80 +16,50 @@ const user = {
 
 // 전체 도서관 정보 (get)
 const allLib = function (req, res) {
-  // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 review 평점 평균 가져오는 쿼리문
-  const query =
-    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL;" +
-    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
-
-  db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("allLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "allLib 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(200).json(results);
-  });
+  // 전체 도서관 정보 가져오는 모델실행 결과
+  const model_results = library_model.allLibModel(req.ip);
+  /* TODO 비동기 공부한 후 작성
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  else if (model_results.state === "전체도서관정보") return res.status(200).json(model_results.data);
+   */
 };
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 함수(post)
 const localLib = function (req, res) {
-  // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
-  const query =
-    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL nameOfCity =" +
-    mysql.escape(req.body.nameOfCity) +
-    " AND districts =" +
-    mysql.escape(req.body.districts) +
-    ";" +
-    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
-
-  db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("localLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "localLib 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(200).json(results);
-  });
+  // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 모델 실행 결과
+  const model_results = library_model.localLibModel(req.body, req.ip);
+  // 결과에 따른 분기처리
+  /* TODO 비동기 공부한 후 작성
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  else if (model_results.state === "존재하지않는정보") return res.status(200).json(model_results.state);
+  else if (model_results.state === "주변도서관") return res.status(200).json(model_results.data);
+   */
 };
 
 // 특정 도서관 자세히 보기
 const particularLib = function (req, res) {
-  // 특정 libIndex의 도서관 정보 자세히 보기
-  const query =
-    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts,reviewContent,created,grade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libIndex=REVIEW.libIndex WHERE LIBRARY.deleteDate IS NULL AND REVIEW.deleteDate IS NULL AND libIndex = " +
-    mysql.escape(req.params.libIndex) +
-    ";" +
-    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
+  // 특정 libIndex의 도서관 정보 자세히 보는 모델 실행 결과
+  // 결과에따른 분기처리
+  const model_results = library_model.particularLibModel(req.params.libIndex, req.ip);
 
-  // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("particularLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "particularLib 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-    return res.status(200).json(results);
-  });
+  /* TODO 비동기 공부한 후 작성
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  else if (model_results.state === "존재하지않는정보") return res.status(404).json(model_results.state);
+  else if (model_results.state === "상세도서관정보") return res.status(200).json(model_results.data);
+   */
 };
 
-// TODO 로그인 여부 체크 공부 후 다시 작성
 // 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
 const registerMyLib = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // userLib 테이블에 해당 유저인덱스에 관심도서관 인덱스 추가
-  const query = "INSERT INTO userLib(userIndex,userLib) VALUES (?,?) ";
-  // 해당 인덱스의 도서관 정보 응답
-  db.db_connect.query(query, [login_cookie, req.params.libIndex], function (err) {
-    if (err) {
-      console.log(("registerLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "registerLib 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-
-    return res.status(200).end();
-  });
+  // 관심도서관 항목 추가 모델 실행 결과
+  const model_results = library_model.registerMyLibModel(req.params.libIndex, login_cookie, req.ip);
+  /* TODO 비동기 공부한 후 작성
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  else if (model_results.state === "유저의관심도서관") return res.status(200).end();
+   */
 };
 
 // TODO 로그인 배운 뒤 다시 작성
