@@ -5,6 +5,7 @@ const moment = require("../a_mymodule/date_time");
 const mysql = require("mysql");
 const bcrypt = require("bcrypt");
 const { encryption } = require("../a_mymodule/crypto");
+const login_model = require("../model/login");
 const user = {
   id: "Zoe",
   nickName: "Zoe",
@@ -16,29 +17,21 @@ const login = function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 기존에 로그인 돼있을 때
   if (login_cookie) return res.status(409).json({ state: "이미 로그인했습니다." });
-  // 유저가 입력한 정보 가져오기
-  const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(req.body.id);
-  // 쿼리문 실행
-  db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("login 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return res.status(500).json({ state: "login 메서드 mysql 모듈사용 실패:" + err });
-    }
-    console.log(("CLIENT IP: " + req.ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
-
-    // 1. 존재하는 아이디가 없을 때
-    if (results[0] === undefined) return res.status(404).json({ state: "존재하는 id가 없습니다." });
-    // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
-    const hashed_pw = encryption(req.body.pw);
-    console.log(hashed_pw);
-    if (!bcrypt.compare(hashed_pw, results[0].pw)) return res.status(400).json({ state: "비밀번호가 일치하지 않습니다." });
-
-    // 로그인 성공
+  // 로그인 모델
+  const model_results = login_model.loginModel(req.body, req.ip);
+  // 로그인 모델 결과에 따라 분기처리
+  /* TODO 비동기 배운 후 적용
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "일치하는 id 없음") return res.status(404).json(model_results);
+  else if (model_results.state === "비밀번호 불일치") return res.status(400).json(model_results);
+  else if (model_results.state === "로그인성공") {
     req.session.login = true;
-    req.session.userIndex = results[0].userIndex;
-    res.cookie("user", results[0].userIndex, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
+    req.session.userIndex = model_results.userIndex;
+    res.cookie("user", model_results.userIndex, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
     return res.status(200).json({ login: true });
-  });
+  }
+
+   */
 };
 // 로그아웃
 const logout = function (req, res) {
