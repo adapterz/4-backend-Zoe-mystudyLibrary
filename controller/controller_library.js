@@ -1,9 +1,4 @@
-// 내주변도서관 라우터의 컨트롤러
-// db 모듈
-const db = require("../a_mymodule/db");
-// 날짜/시간 관련 모듈
-const moment = require("../a_mymodule/date_time");
-const mysql = require("mysql");
+// 내정보 컨트롤러
 // 모델
 const library_model = require("../model/library");
 const review_model = require("../model/review");

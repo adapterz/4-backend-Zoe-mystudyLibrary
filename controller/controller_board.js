@@ -2,12 +2,7 @@
 // 모델
 const post_model = require("../model/post");
 const comment_model = require("../model/comment");
-// 로그인돼있는 예시 회원정보
-const user = {
-  id: "Zoe",
-  nickName: "Zoe",
-  userIndex: 123123,
-};
+const check_authority_model = require("../model/check_authority");
 // 전체 게시물 보기
 const entireBoard = function (req, res) {
   // 카테고리 정보 가져오는 변수

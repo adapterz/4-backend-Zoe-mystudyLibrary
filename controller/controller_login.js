@@ -1,11 +1,5 @@
 // 로그인화면의 라우터의 컨트롤러
 const login_model = require("../model/login");
-const user = {
-  id: "Zoe",
-  nickName: "Zoe",
-  userIndex: 123123,
-};
-
 // 로그인
 const login = function (req, res) {
   const login_cookie = req.signedCookies.user;
