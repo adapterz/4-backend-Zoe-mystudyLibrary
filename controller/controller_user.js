@@ -1,15 +1,6 @@
 // 내 정보 라우터의 컨트롤러
-// 예시 유저 ( 로그인 한 유저의 정보)
-const crypto = require("crypto");
-const db = require("../a_mymodule/db");
-const moment = require("../a_mymodule/date_time");
 const user_model = require("../model/user");
-
-// mysql 모듈
-const mysql = require("mysql");
-const bcrypt = require("bcrypt");
-const { encryption } = require("../a_mymodule/crypto");
-
+// 예시정보
 const user = {
   userIndex: 1,
   id: "syjg1234",
