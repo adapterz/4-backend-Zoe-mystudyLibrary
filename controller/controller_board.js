@@ -17,7 +17,7 @@ const entireBoard = function (req, res) {
   // 게시글 전체 정보 가져오는 모듈
   const model_results = post_model.entireBoardModel(req_category, req.ip);
   /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   else if (model_results.state === "전체게시글") return res.status(200).json(model_results.data);
   
    */
@@ -29,8 +29,8 @@ const detailBoard = function (req, res) {
   const model_results = post_model.detailBoardModel(req.params.boardIndex, req.ip);
   // 모듈 실행 결과에 의한 분기처리
   /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results);
   else if (model_results.state === "게시글상세보기") return res.status(200).json(model_results.data);
   
    */
@@ -48,7 +48,7 @@ const writePost = function (req, res) {
   // 게시글 작성 모델 실행 결과 변수
   const model_results = post_model.writePostModel(req_category, req.body, login_cookie, req.ip);
   /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   else if (model_results.state === "게시글작성완료") return res.status(201).end();
 
    */
@@ -66,8 +66,8 @@ const getWrite = function (req, res) {
 
   const model_results = post_model.getWriteModel(req.query.boardIndex, login_cookie, req.ip);
   /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "존재하지않는게시글") return res.status(200).json(model_results);
   else if (model_results.state === "게시글정보로딩") return res.status(200).json(model_results.data);
 
    */
@@ -80,7 +80,7 @@ const revisePost = function (req, res) {
   // 게시글 수정 모델 실행 결과
   const model_results = post_model.revisePost(req.body, req.query.boardIndex, login_cookie, req.ip);
   /* TODO 비동기 배운 후 다시 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   else if (model_results.state === "게시글수정") return res.status(200).end();
   
    */
@@ -107,7 +107,7 @@ const writeComment = function (req, res) {
   // 댓글 작성 모델 실행 결과
   const model_results = comment_model.writeCommentModel(req.params.boardIndex, login_cookie, req.ip);
   /* TODO 비동기 공부 후 다시 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   if (model_results.state === "댓글작성") return res.status(201).end();
 
    */
@@ -145,9 +145,9 @@ const likePost = function (req, res) {
   // 좋아요 모델 실행 결과
   const model_results = post_model.likePostModel(req.params.boardIndex, login_cookie, req.ip);
   /* TODO 비동기 공부후 다시작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  else if (model_results.state === "좋아요 중복요청") return res.status(400).json(model_results.state);
-  else if (model_results.state === "좋아요+1") return res.status(200).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "좋아요 중복요청") return res.status(400).json(model_results);
+  else if (model_results.state === "좋아요+1") return res.status(200).json(model_results);
 
    */
 };

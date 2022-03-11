@@ -6,6 +6,7 @@ const moment = require("../a_mymodule/date_time");
 const mysql = require("mysql");
 // 모델
 const library_model = require("../model/library");
+const review_model = require("../model/review");
 
 // 예시 데이터 (전체 도서관)
 const user = {
@@ -19,7 +20,7 @@ const allLib = function (req, res) {
   // 전체 도서관 정보 가져오는 모델실행 결과
   const model_results = library_model.allLibModel(req.ip);
   /* TODO 비동기 공부한 후 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   else if (model_results.state === "전체도서관정보") return res.status(200).json(model_results.data);
    */
 };
@@ -30,8 +31,8 @@ const localLib = function (req, res) {
   const model_results = library_model.localLibModel(req.body, req.ip);
   // 결과에 따른 분기처리
   /* TODO 비동기 공부한 후 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  else if (model_results.state === "존재하지않는정보") return res.status(200).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "존재하지않는정보") return res.status(200).json(model_results);
   else if (model_results.state === "주변도서관") return res.status(200).json(model_results.data);
    */
 };
@@ -43,8 +44,8 @@ const particularLib = function (req, res) {
   const model_results = library_model.particularLibModel(req.params.libIndex, req.ip);
 
   /* TODO 비동기 공부한 후 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  else if (model_results.state === "존재하지않는정보") return res.status(404).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "존재하지않는정보") return res.status(404).json(model_results);
   else if (model_results.state === "상세도서관정보") return res.status(200).json(model_results.data);
    */
 };
@@ -57,7 +58,7 @@ const registerMyLib = function (req, res) {
   // 관심도서관 항목 추가 모델 실행 결과
   const model_results = library_model.registerMyLibModel(req.params.libIndex, login_cookie, req.ip);
   /* TODO 비동기 공부한 후 작성
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   else if (model_results.state === "유저의관심도서관") return res.status(200).end();
    */
 };
