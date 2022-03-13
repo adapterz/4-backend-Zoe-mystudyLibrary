@@ -95,11 +95,8 @@ function dropOutModel(ip, login_cookie) {
   const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    if (err) {
-      console.log(("model-dropOut 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
 
     // 회원탈퇴 안내조항에 체크했을 때 성공적으로 회원탈퇴
     return { state: "회원탈퇴" };
