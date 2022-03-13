@@ -1,7 +1,7 @@
 // 내주변도서관 눌렀을 때 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/controller_library");
+const controller = require("../controller/library");
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation.js");

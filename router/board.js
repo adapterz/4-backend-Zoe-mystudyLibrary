@@ -1,7 +1,7 @@
 // 게시판 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/controller_board");
+const controller = require("../controller/board");
 
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");

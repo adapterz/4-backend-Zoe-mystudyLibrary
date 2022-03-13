@@ -2,6 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
+const {query_fail_log, query_success_log} = require("../a_mymodule/const");
 
 // 해당유저가 작성한 댓글 조회
 function userCommentModel(user_index, ip) {
@@ -12,12 +13,8 @@ function userCommentModel(user_index, ip) {
     mysql.escape(user_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("model-Comment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      state = { state: "mysql 사용실패" };
-      return state;
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
     // 데이터가 없을 때 보여줄 페이지
     if (results[0] === undefined) {
       state = { state: "등록된댓글없음" };
@@ -44,13 +41,8 @@ function writeCommentModel(board_index, user_index, input_comment, ip) {
     ")";
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    // 오류 발생
-    if (err) {
-      console.log(("model-writeComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    // 정상적으로 쿼리문 실행(후기 등록)
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
     return { state: "댓글작성" };
   });
 }
@@ -67,13 +59,8 @@ function deleteCommentModel(comment_index, user_index, ip) {
     mysql.escape(user_index);
 
   db.db_connect.query(query, function (err) {
-    // 오류 발생
-    if (err) {
-      console.log(("model-deleteComment 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    // 정상적으로 쿼리문 실행(댓글 삭제)
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
     return { state: "댓글삭제" };
   });
 }

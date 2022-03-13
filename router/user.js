@@ -1,7 +1,7 @@
 // 로그인 후 내 정보창 눌렀을 때 탭 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/controller_user");
+const controller = require("../controller/user");
 
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");

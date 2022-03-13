@@ -1,7 +1,7 @@
 // 로그인창 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/controller_login");
+const controller = require("../controller/login");
 
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");

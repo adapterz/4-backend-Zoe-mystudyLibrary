@@ -1,7 +1,7 @@
 // 로그인창 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/controller_mypost");
+const controller = require("../controller/mypost");
 
 // 요청 별 정의
 // 내가 쓴 글 데이터 목록 가져오기

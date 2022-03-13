@@ -4,6 +4,7 @@ const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { encryption } = require("../a_mymodule/crypto");
 const bcrypt = require("bcrypt");
+const {query_fail_log, query_success_log} = require("../a_mymodule/const");
 
 // 로그인 모델
 function loginModel(input_login, ip) {
@@ -12,12 +13,8 @@ function loginModel(input_login, ip) {
   const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(input_login.id);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("login 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      state = { state: "mysql 사용실패" };
-      return state;
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
 
     // 1. 존재하는 아이디가 없을 때
     if (results[0] === undefined) {

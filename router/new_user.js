@@ -1,7 +1,7 @@
 // 회원가입화면 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/controller_new_user");
+const controller = require("../controller/new_user");
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
 const { encryption } = require("../a_mymodule/crypto");

@@ -2,6 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
+const {query_fail_log, query_success_log} = require("../a_mymodule/const");
 
 // 유저 관심도서관
 function userLibModel(user_index, ip) {
@@ -11,11 +12,8 @@ function userLibModel(user_index, ip) {
     mysql.escape(user_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("model-userLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
     return { state: "유저의관심도서관", data: results };
   });
 }
@@ -26,11 +24,8 @@ function registerMyLibModel(lib_index, user_index, ip) {
   const query = "INSERT INTO userLib(userIndex,userLib) VALUES (" + mysql.escape(user_index) + "," + mysql.escape(lib_index) + ")";
   // 해당 인덱스의 도서관 정보 응답
   db.db_connect.query(query, function (err) {
-    if (err) {
-      console.log(("model-registerLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
 
     return { state: "관심도서관추가" };
   });
@@ -44,11 +39,8 @@ function allLibModel(ip) {
     "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
 
   db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("model-allLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
     return { state: "전체도서관정보", data: results };
   });
 }
@@ -65,11 +57,8 @@ function localLibModel(input_local, ip) {
     "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
 
   db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("model-localLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
     if (results[0] === undefined) return { state: "존재하지않는정보" };
     return { state: "주변도서관정보", data: results };
   });
@@ -86,11 +75,8 @@ function particularLibModel(lib_index, ip) {
 
   // 해당 인덱스의 도서관 정보 응답
   db.db_connect.query(query, function (err, results) {
-    if (err) {
-      console.log(("model-particularLib 메서드 mysql 모듈사용 실패:" + err).red.bold);
-      return { state: "mysql 사용실패" };
-    }
-    console.log(("CLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\nQUERY: " + query).blue.bold);
+    query_fail_log(err);
+    query_success_log(ip,query);
     if (results[0] === undefined) return { state: "존재하지않는정보" };
     return { state: "상세도서관정보", data: results };
   });
