@@ -1,3 +1,4 @@
+// 유효성 체크 메서드
 const { validationResult } = require("express-validator");
 
 const is_validate = function (req, res, next) {

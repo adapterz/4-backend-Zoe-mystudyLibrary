@@ -29,6 +29,7 @@ function detailBoardModel(board_index, ip) {
     ";" +
     "SELECT commentContent, created FROM COMMENTS WHERE deleteDate IS NULL AND boardIndex =" +
     mysql.escape(board_index) +
+    // TODO 조회수 중복 증가 막기, 조회수, 좋아요 수 컬럼명 명확히하기(favoriteCount, viewCount), TAGTABLE - TAG, libIndex x libraryIndex
     "UPDATE BOARDS SET hits = hits + 1 WHERE boardIndex = " +
     mysql.escape(board_index) +
     ";" +

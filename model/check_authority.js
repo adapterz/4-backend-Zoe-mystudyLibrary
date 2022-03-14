@@ -2,7 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
-const { query_execute_log, queryFail, querySuccessLog } = require("../a_mymodule/const");
+const { queryFail, querySuccessLog } = require("../a_mymodule/const");
 
 // 해당 게시글의 작성자인지 체크 하는 함수
 function isPostAuthorModel(board_index, user_index, ip) {
