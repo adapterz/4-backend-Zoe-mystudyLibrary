@@ -25,7 +25,7 @@ router.post(
   check.is_validate,
   controller.writePost,
 );
-// 글 작성창
+// 글 작성창 (최초작성, 기존 댓글 수정 기능 여기에 다 있음)
 router.get("/write/:category", controller.getWrite);
 // 게시글 수정 요청
 router.patch(
@@ -46,6 +46,10 @@ router.delete("/search/:boardIndex", controller.deletePost);
 // 댓글 작성
 router.post("/search/:boardIndex", body("content").isLength({ min: 2, max: 500 }).isString(), check.is_validate, controller.writeComment);
 
+// 기존 댓글 정보 불러오기
+router.get("/search/:boardIndex", controller.getComment);
+// 댓글 수정요청
+router.patch("/search/:boardIndex", body("content").isLength({ min: 2, max: 500 }).isString(), check.is_validate, controller.reviseComment);
 // 댓글 삭제
 router.delete("/search/:boardIndex", controller.deleteComment);
 // 좋아요 기능
