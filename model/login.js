@@ -4,7 +4,7 @@ const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { encryption } = require("../a_mymodule/crypto");
 const bcrypt = require("bcrypt");
-const { queryFailLog, querySuccessLog } = require("../a_mymodule/const");
+const { queryFail, querySuccessLog } = require("../a_mymodule/const");
 
 // 로그인 모델
 function loginModel(input_login, ip) {
@@ -13,7 +13,7 @@ function loginModel(input_login, ip) {
   const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(input_login.id);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
 
     // 1. 존재하는 아이디가 없을 때

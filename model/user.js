@@ -5,7 +5,7 @@ const moment = require("../a_mymodule/date_time");
 const { encryption } = require("../a_mymodule/crypto");
 const bcrypt = require("bcrypt");
 const library_model = require("./library");
-const { queryFailLog, querySuccessLog } = require("../a_mymodule/const");
+const { queryFail, querySuccessLog } = require("../a_mymodule/const");
 
 // 내 정보/회원가입 기능 관련 모델
 // 프로필 변경 모델
@@ -13,7 +13,7 @@ function reviseProfileModel(revised, ip, login_cookie) {
   let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(revised.nickName);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
     // 기존에 존재하는 닉네임이 있을 때
     if (results[0] !== undefined) {
@@ -30,7 +30,7 @@ function reviseProfileModel(revised, ip, login_cookie) {
       mysql.escape(login_cookie);
     // 콜백 쿼리문 실행
     db.db_connect.query(query, function (err) {
-      queryFailLog(err);
+      queryFail(err);
       querySuccessLog(ip, query);
       return { state: "프로필변경성공" };
     });
@@ -42,7 +42,7 @@ function revisePhoneNumberModel(new_contact, ip, login_cookie) {
   const query = "UPDATE USER SET phoneNumber=" + mysql.escape(new_contact.phoneNumber) + " WHERE userIndex = " + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
 
     // 연락처 수정 성공
@@ -56,7 +56,7 @@ function revisePwModel(input_pw, ip, login_cookie) {
   let query = "SELECT pw,salt FROM USER WHERE userIndex = " + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
     // 유효성 검사
     // 유저 비밀번호와 oldPw 비교
@@ -80,7 +80,7 @@ function revisePwModel(input_pw, ip, login_cookie) {
       mysql.escape(login_cookie);
     // 쿼리문 실행
     db.db_connect.query(query, function (err) {
-      queryFailLog(err);
+      queryFail(err);
       querySuccessLog(ip, query);
 
       // 비밀번호 변경 성공
@@ -95,7 +95,7 @@ function dropOutModel(ip, login_cookie) {
   const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
 
     // 회원탈퇴 안내조항에 체크했을 때 성공적으로 회원탈퇴

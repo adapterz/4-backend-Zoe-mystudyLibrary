@@ -2,7 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
-const { queryFailLog, querySuccessLog } = require("../a_mymodule/const");
+const { queryFail, querySuccessLog } = require("../a_mymodule/const");
 
 // 해당유저가 작성한 댓글 조회
 function userCommentModel(user_index, ip) {
@@ -13,7 +13,7 @@ function userCommentModel(user_index, ip) {
     mysql.escape(user_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
     // 데이터가 없을 때 보여줄 페이지
     if (results[0] === undefined) {
@@ -41,7 +41,7 @@ function writeCommentModel(board_index, user_index, input_comment, ip) {
     ")";
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
     return { state: "댓글작성" };
   });
@@ -59,7 +59,7 @@ function deleteCommentModel(comment_index, user_index, ip) {
     mysql.escape(user_index);
 
   db.db_connect.query(query, function (err) {
-    queryFailLog(err);
+    queryFail(err);
     querySuccessLog(ip, query);
     return { state: "댓글삭제" };
   });
