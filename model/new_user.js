@@ -4,7 +4,7 @@ const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { encryption } = require("../a_mymodule/crypto");
 const bcrypt = require("bcrypt");
-const {query_fail_log, query_success_log} = require("../a_mymodule/const");
+const { queryFailLog, querySuccessLog } = require("../a_mymodule/const");
 
 // 회원가입 모듈
 function signUpModel(input_user, ip) {
@@ -13,8 +13,8 @@ function signUpModel(input_user, ip) {
     "SELECT id,nickName FROM USER WHERE id = " + mysql.escape(input_user.id) + "OR nickName = " + mysql.escape(input_user.nickName);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     // 1. 기존에 존재하는 id나 닉네임이 있을 때
     if (results[0] !== undefined) {
       if (results[0].nickName !== input_user.nickName) return { state: "존재하는 아이디" };
@@ -45,8 +45,8 @@ function signUpModel(input_user, ip) {
 
     // 쿼리문 실행
     db.db_connect.query(new_query, function (err) {
-      query_fail_log(err);
-      query_success_log(ip,query);
+      queryFailLog(err);
+      querySuccessLog(ip, query);
       return { state: "회원가입" };
     });
   });

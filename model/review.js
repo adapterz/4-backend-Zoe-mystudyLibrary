@@ -2,7 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
-const {query_fail_log, query_success_log} = require("../a_mymodule/const");
+const { queryFailLog, querySuccessLog } = require("../a_mymodule/const");
 
 // 해당 유저가 작성한 후기 조회
 function userReviewModel(user_index, ip) {
@@ -12,8 +12,8 @@ function userReviewModel(user_index, ip) {
     mysql.escape(user_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     // 데이터가 없을 때 보여줄 페이지
     if (results[0] === undefined) {
       return { state: "등록된후기없음" };
@@ -38,8 +38,8 @@ function registerCommentModel(lib_index, user_index, input_comment, ip) {
     mysql.escape(input_comment.grade) +
     ")";
   db.db_connect.query(query, function (err) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
 
     return { state: "도서관후기등록" };
   });
@@ -57,8 +57,8 @@ function deleteReviewModel(review_index, user_index, ip) {
 
   // 오류 발생
   db.db_connect.query(query, function (err) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     return { state: "후기삭제" };
   });
 }

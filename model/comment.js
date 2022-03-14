@@ -2,7 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
-const {query_fail_log, query_success_log} = require("../a_mymodule/const");
+const { queryFailLog, querySuccessLog } = require("../a_mymodule/const");
 
 // 해당유저가 작성한 댓글 조회
 function userCommentModel(user_index, ip) {
@@ -13,8 +13,8 @@ function userCommentModel(user_index, ip) {
     mysql.escape(user_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     // 데이터가 없을 때 보여줄 페이지
     if (results[0] === undefined) {
       state = { state: "등록된댓글없음" };
@@ -41,8 +41,8 @@ function writeCommentModel(board_index, user_index, input_comment, ip) {
     ")";
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     return { state: "댓글작성" };
   });
 }
@@ -59,8 +59,8 @@ function deleteCommentModel(comment_index, user_index, ip) {
     mysql.escape(user_index);
 
   db.db_connect.query(query, function (err) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     return { state: "댓글삭제" };
   });
 }

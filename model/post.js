@@ -2,7 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
-const {query_fail_log, query_success_log} = require("../a_mymodule/const");
+const { queryFailLog, querySuccessLog } = require("../a_mymodule/const");
 
 // 전체 게시글 정보(글 타이틀)
 function entireBoardModel(category, ip) {
@@ -11,8 +11,8 @@ function entireBoardModel(category, ip) {
     mysql.escape(category);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     return { state: "전체게시글", data: results };
   });
 }
@@ -34,8 +34,8 @@ function detailBoardModel(board_index, ip) {
     ";" +
     // 쿼리문 실행
     db.db_connect.query(query, function (err, results) {
-      query_fail_log(err);
-      query_success_log(ip,query);
+      queryFailLog(err);
+      querySuccessLog(ip, query);
       if (results[0] === undefined) return { state: "존재하지않는게시글" };
       return { state: "게시글상세보기", data: results };
     });
@@ -48,8 +48,8 @@ function userPostModel(user_index, ip) {
     mysql.escape(user_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     // 데이터가 없을 때 보여줄 페이지
     if (results[0] === undefined) {
       return { state: "등록된글이없음" };
@@ -79,8 +79,8 @@ function writePostModel(category, input_write, user_index, ip) {
     ",0,0);";
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     // 태그 쿼리문 추가
     for (const temp_tag of input_write.tags) {
       tag_query +=
@@ -90,8 +90,8 @@ function writePostModel(category, input_write, user_index, ip) {
     if (tag_query === "") return { state: "게시글작성완료" };
     // 태그가 있다면 DB에 태그 정보 추가
     db.db_connect.query(tag_query, function (err) {
-      query_fail_log(err);
-      query_success_log(ip,query);
+      queryFailLog(err);
+      querySuccessLog(ip, query);
       return { state: "게시글작성완료" };
     });
   });
@@ -108,8 +108,8 @@ function getWriteModel(board_index, user_index, ip) {
 
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     if (results[0] === undefined) return { state: "존재하지않는게시글" };
     return { state: "게시글정보로딩", data: results };
   });
@@ -133,8 +133,8 @@ function revisePost(input_post, board_index, user_index, ip) {
 
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     // 태그 쿼리문 추가
     for (const temp_tag of input_post.tags) {
       tag_query +=
@@ -144,8 +144,8 @@ function revisePost(input_post, board_index, user_index, ip) {
     if (tag_query === "") return { state: "게시글수정" };
     // 태그가 있다면 DB에 태그 정보 추가
     db.db_connect.query(tag_query, function (err) {
-      query_fail_log(err);
-      query_success_log(ip,query);
+      queryFailLog(err);
+      querySuccessLog(ip, query);
       return { state: "게시글수정" };
     });
   });
@@ -174,8 +174,8 @@ function deletePostModel(board_index, user_index, ip) {
     ";";
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     return { state: "게시글삭제" };
   });
 }
@@ -187,8 +187,8 @@ function likePostModel(board_index, user_index, ip) {
 
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     // 좋아요를 이미 누른 경우
     if (results[0] !== undefined) return { state: "좋아요 중복요청" };
 
@@ -200,8 +200,8 @@ function likePostModel(board_index, user_index, ip) {
       "INSERT INTO favoritePost(boardIndex,userIndex) VALUES(?,?)";
     // 쿼리문 실행
     db.db_connect.query(query, [board_index, user_index], function (err, results) {
-      query_fail_log(err);
-      query_success_log(ip,query);
+      queryFailLog(err);
+      querySuccessLog(ip, query);
       // 정상적으로 좋아요 수 1증가
       return { state: "좋아요+1" };
     });
@@ -214,8 +214,8 @@ function getRecentPostModel(ip) {
     "SELECT postTitle,nickName,hits,favorite FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex=user.userIndex WHERE BOARDS.deleteDate IS NULL AND category = ? order by boardIndex DESC limit 5;" +
     "SELECT postTitle,nickName,hits,favorite FROM BOARDS LEFT JOIN USER ON BOARDS.userIndex=user.userIndex WHERE BOARDS.deleteDate IS NULL AND category = ? order by boardIndex DESC limit 4;";
   db.db_connect.query(query, ["자유게시판", "공부인증샷"], function (err, results) {
-    query_fail_log(err);
-    query_success_log(ip,query);
+    queryFailLog(err);
+    querySuccessLog(ip, query);
     return { state: "최신글정보", date: results };
   });
 }
