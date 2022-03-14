@@ -189,7 +189,7 @@ const getComment = function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 commentIndex에 대한 유저의 권한 체크
+  // 해당 댓글에 대한 유저의 권한 체크
   const check_authority = check_authority_model.isCommentAuthorModel(req.query.commentIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
@@ -217,7 +217,7 @@ const reviseComment = function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 commentIndex에 대한 유저의 권한 체크
+  // 해당 댓글에 대한 유저의 권한 체크
   const check_authority = check_authority_model.isCommentAuthorModel(req.query.commentIndex, login_cookie, req.body, req.ip);
   // mysql query 메서드 실패
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
