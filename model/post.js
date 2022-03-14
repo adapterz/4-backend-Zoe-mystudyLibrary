@@ -171,7 +171,11 @@ function deletePostModel(board_index, user_index, ip) {
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     "WHERE boardIndex=" +
     mysql.escape(board_index) +
-    ";";
+    ";" +
+    "UPDATE COMMENTS SET deleteDate = " +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    "WHERE boardIndex=" +
+    mysql.escape(board_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
     queryFail(err);
