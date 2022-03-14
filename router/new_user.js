@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controller/new_user");
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
-const { encryption } = require("../a_mymodule/crypto");
+const { encryption } = require("../a_mymodule/pw_bcrypt");
 
 // 요청 별 정의
 // 회원가입 약관확인

@@ -6,7 +6,7 @@ const controller = require("../controller/login");
 // 유효성 검사를 위한 모듈
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
-const { encryption } = require("../a_mymodule/crypto");
+const { encryption } = require("../a_mymodule/pw_bcrypt");
 
 // 로그인 요청
 router.post("/login", body("id").isString().trim(), body("pw").isString().trim(), check.is_validate, controller.login);

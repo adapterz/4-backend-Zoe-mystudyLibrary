@@ -2,7 +2,7 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
-const { encryption } = require("../a_mymodule/crypto");
+const { encryption } = require("../a_mymodule/pw_bcrypt");
 const bcrypt = require("bcrypt");
 const library_model = require("./library");
 const { queryFail, querySuccessLog } = require("../a_mymodule/const");
