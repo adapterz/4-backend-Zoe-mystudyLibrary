@@ -12,7 +12,6 @@ router.get("/search/:category", controller.entireBoard);
 // 각 게시물 상세보기
 router.get("/search/:boardIndex", controller.detailBoard);
 // 글작성 완료시
-// 유효성 검사 포함
 router.post(
   "/write/:category",
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
@@ -47,7 +46,6 @@ router.delete("/search/:boardIndex", controller.deletePost);
 // 댓글 작성
 router.post("/search/:boardIndex", body("content").isLength({ min: 2, max: 500 }).isString(), check.is_validate, controller.writeComment);
 
-// TODO RESTApi 공부
 // 댓글 삭제
 router.delete("/search/:boardIndex", controller.deleteComment);
 // 좋아요 기능

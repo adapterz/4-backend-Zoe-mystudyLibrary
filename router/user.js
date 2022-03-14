@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controller/user");
 
+// 유효성 검사 모듈
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
 
