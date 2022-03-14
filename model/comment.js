@@ -36,7 +36,7 @@ function getCommentModel(comment_index, login_cookie, ip) {
     if (results[0] === undefined) return { state: "등록된댓글없음" };
 
     // DB에 데이터가 있을 때
-    return { state: "성공적조회", data: results };
+    return { state: "댓글정보로딩", data: results };
   });
 }
 

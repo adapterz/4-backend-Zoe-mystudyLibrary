@@ -232,7 +232,7 @@ const reviseComment = function (req, res) {
     /* TODO 비동기 공부후 다시작성
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-    else if(model_results.state === "등록된댓글없음") return res.status(404).json(model_results);
+    else if(model_results.state === "존재하지않는댓글") return res.status(404).json(model_results);
     // 성공적으로 댓글삭제 요청 수행
     else if (model_results.state === "댓글수정") return res.status(200).end();
 

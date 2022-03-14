@@ -36,6 +36,16 @@ router.post(
   check.is_validate,
   controller.registerComment,
 );
+// 기존 후기 정보 불러오기
+router.get("/:libIndex", controller.getReview);
+// 후기 수정요청
+router.patch(
+  "/:libIndex",
+  body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
+  body("grade").isFloat({ min: 1, max: 5 }),
+  check.is_validate,
+  controller.reviseReview,
+);
 // 후기 삭제
 router.delete("/:libIndex", controller.deleteReview);
 
