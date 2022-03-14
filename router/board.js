@@ -45,7 +45,6 @@ router.patch(
 router.delete("/search/:boardIndex", controller.deletePost);
 // 댓글 작성
 router.post("/search/:boardIndex", body("content").isLength({ min: 2, max: 500 }).isString(), check.is_validate, controller.writeComment);
-
 // 기존 댓글 정보 불러오기
 router.get("/search/:boardIndex", controller.getComment);
 // 댓글 수정요청
