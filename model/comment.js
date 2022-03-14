@@ -1,36 +1,34 @@
-// 필요모듈
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { queryFail, querySuccessLog } = require("../a_mymodule/const");
 
-// 해당유저가 작성한 댓글 조회
+// 해당유저가 작성한 댓글 조회 모델
 function userCommentModel(user_index, ip) {
-  let state;
-  // 해당 유저가 작성한 후기 정보 가져오기
+  // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
-    "SELECT COMMENTS.commentIndex,COMMENTS.commentContent,COMMENTS.created,BOARDS.postTitle FROM COMMENTS INNER JOIN BOARDS ON COMMENT.boardIndex =BOARDS.boardIndex WHERE BOARDS.deleteDate IS NULL AND COMMENTS.deleteDate IS NULL AND COMMENTS.userIndex=" +
+    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
     mysql.escape(user_index);
-  // 쿼리문 실행
+
   db.db_connect.query(query, function (err, results) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
-    // 데이터가 없을 때 보여줄 페이지
+    // DB에 데이터가 없을 때
     if (results[0] === undefined) {
-      state = { state: "등록된댓글없음" };
-      return state;
+      return { state: "등록된댓글없음" };
     }
-    // 성공적으로 데이터 전달
-    state = { state: "성공적조회", data: results };
-    return state;
+    // DB에 데이터가 있을 때
+    return { state: "성공적조회", data: results };
   });
 }
 
-// 댓글 작성
+// 새 댓글 작성 모델
 function writeCommentModel(board_index, user_index, input_comment, ip) {
   // 댓글 등록 쿼리문
   const query =
-    "INSERT INTO COMMENTS(boardIndex,userIndex,commentContent,created) VALUES (" +
+    "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,creatDateTime) VALUES (" +
     mysql.escape(board_index) +
     "," +
     mysql.escape(user_index) +
@@ -39,19 +37,21 @@ function writeCommentModel(board_index, user_index, input_comment, ip) {
     "," +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     ")";
-  // 쿼리문 실행
+
   db.db_connect.query(query, function (err) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     return { state: "댓글작성" };
   });
 }
-
+// 댓글 삭제 모델
 function deleteCommentModel(comment_index, user_index, ip) {
   // 해당 인덱스 댓글 삭제
   // 댓글 삭제 쿼리문
   const query =
-    "UPDATE COMMENTS SET deleteDate = " +
+    "UPDATE COMMENT SET deleteDateTime = " +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     " WHERE commentIndex = " +
     mysql.escape(comment_index) +
@@ -59,7 +59,9 @@ function deleteCommentModel(comment_index, user_index, ip) {
     mysql.escape(user_index);
 
   db.db_connect.query(query, function (err) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     return { state: "댓글삭제" };
   });

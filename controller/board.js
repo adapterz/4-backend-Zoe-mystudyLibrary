@@ -26,7 +26,16 @@ const entireBoard = function (req, res) {
 const detailBoard = function (req, res) {
   // params: boardIndex
   // 특정 게시글인덱스에 따른 데이터 가져오는 모듈
-  const model_results = post_model.detailBoardModel(req.params.boardIndex, req.ip);
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  // 로그인을 하지 않았을 때
+  if (!login_cookie) {
+    const model_results = post_model.detailBoardModel(req.params.boardIndex, req.ip, null);
+  }
+  // 로그인을 했을 때
+  if (login_cookie) {
+    const model_results = post_model.detailBoardModel(req.params.boardIndex, req.ip, login_cookie);
+  }
   // 모듈 실행 결과에 의한 분기처리
   /* TODO 비동기 공부후 다시작성
     // mysql query 메서드 실패

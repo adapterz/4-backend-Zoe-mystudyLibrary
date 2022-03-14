@@ -1,46 +1,59 @@
-// 필요모듈
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { queryFail, querySuccessLog } = require("../a_mymodule/const");
 
-// 유저 관심도서관
+// 유저가 등록한 관심도서관 정보 불러오는 모델
 function userLibModel(user_index, ip) {
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
-    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY LEFT JOIN userLib ON LIBRARY.libIndex = userLib.userLib WHERE LIBRARY.deleteDate IS NULL AND userLib.deleteDate IS NULL AND userIndex=" +
+    "SELECT libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact FROM LIBRARY LEFT JOIN USERLIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND userIndex=" +
     mysql.escape(user_index);
-  // 쿼리문 실행
+
   db.db_connect.query(query, function (err, results) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     return { state: "유저의관심도서관", data: results };
   });
 }
 
-// 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
-function registerMyLibModel(lib_index, user_index, ip) {
-  // userLib 테이블에 해당 유저인덱스에 관심도서관 인덱스 추가
-  const query = "INSERT INTO userLib(userIndex,userLib) VALUES (" + mysql.escape(user_index) + "," + mysql.escape(lib_index) + ")";
-  // 해당 인덱스의 도서관 정보 응답
+// 해당 인덱스의 도서관 관심도서관으로 등록하는 모델
+function registerMyLibModel(library_index, user_index, ip) {
+  // USERLIBRARY 테이블에 유저인덱스와 해당 유저가 등록한 도서관인덱스 추가하는 쿼리문
+  const query =
+    "INSERT INTO USERLIBRARY(userIndex,libraryIndex,updateDateTime) VALUES (" +
+    mysql.escape(user_index) +
+    "," +
+    mysql.escape(library_index) +
+    "," +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    ")";
+
   db.db_connect.query(query, function (err) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
 
     return { state: "관심도서관추가" };
   });
 }
 
-// 전체 도서관 정보
+// 전체 도서관 정보 불러오는 모델
 function allLibModel(ip) {
-  // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 review 평점 평균 가져오는 쿼리문
+  // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 후기 평균 평점 가져오는 다중쿼리문
   const query =
-    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL;" +
-    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
+    "SELECT libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact FROM LIBRARY WHERE deleteDateTime IS NULL;" +
+    "SELECT AVG(grade) FROM REVIEW GROUP BY libraryIndex;"; // 후기 평균 평점 select 해오는 쿼리문
 
   db.db_connect.query(query, function (err, results) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
+
     return { state: "전체도서관정보", data: results };
   });
 }
@@ -49,35 +62,42 @@ function allLibModel(ip) {
 function localLibModel(input_local, ip) {
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
   const query =
-    "SELECT libIndex,libName,libType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libContact FROM LIBRARY WHERE deleteDate IS NULL nameOfCity =" +
+    "SELECT libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact FROM LIBRARY WHERE deleteDateTime IS NULL nameOfCity =" +
     mysql.escape(input_local.nameOfCity) +
     " AND districts =" +
     mysql.escape(input_local.districts) +
     ";" +
-    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
+    "SELECT AVG(grade) FROM REVIEW WHERE deleteDateTime IS NULL GROUP BY libraryIndex;";
 
   db.db_connect.query(query, function (err, results) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
+    // 유저가 요청한 지역에 도서관이 존재하지 않을 때
     if (results[0] === undefined) return { state: "존재하지않는정보" };
+    // 유저가 요청한 지역에 도서관이 존재할 때
     return { state: "주변도서관정보", data: results };
   });
 }
 
-// 특정 도서관 정보 자세히 보기
-function particularLibModel(lib_index, ip) {
-  // 특정 libIndex의 도서관 정보 자세히 보기
+// 특정 도서관 정보 가져오는 모델
+function particularLibModel(library_index, ip) {
+  // 특정 libIndex의 도서관 정보+ 해당 도서관인덱스의 후기 정보, 후기의 평균 평점 가져오는 다중 쿼리문
   const query =
-    "SELECT libIndex, libName,libType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libContact,nameOfCity,districts,reviewContent,created,grade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libIndex=REVIEW.libIndex WHERE LIBRARY.deleteDate IS NULL AND REVIEW.deleteDate IS NULL AND libIndex = " +
-    mysql.escape(lib_index) +
+    "SELECT libraryIndex, libraryName,libraryType,closeDay,timeWeekday,timeSaturday,timeHoliday,address,libraryContact,nameOfCity,districts,reviewContent,createDateTime,grade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex = " +
+    mysql.escape(library_index) +
     ";" +
-    "SELECT AVG(grade) FROM REVIEW GROUP BY libIndex;";
+    "SELECT AVG(grade) FROM REVIEW WHERE deleteDateTime IS NULL GROUP BY libraryIndex;";
 
-  // 해당 인덱스의 도서관 정보 응답
   db.db_connect.query(query, function (err, results) {
+    // 쿼리문 메서드 실패
     queryFail(err);
+    // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
+    // 유저가 요청한 인덱스의 도서관 정보가 존재하지 않을 때
     if (results[0] === undefined) return { state: "존재하지않는정보" };
+    // 유저가 요청한 도서관 정보가 존재할 때
     return { state: "상세도서관정보", data: results };
   });
 }
