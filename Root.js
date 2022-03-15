@@ -28,9 +28,9 @@ const session = require("express-session");
 const MemoryStore = require("session-memory-store")(session);
 app.use(
   session({
-    secret: "secret key",
+    secret: process.env.SESSION_PASSWORD,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: new MemoryStore(),
   }),
 );
