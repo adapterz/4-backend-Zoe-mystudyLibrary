@@ -13,7 +13,7 @@ function signUpModel(input_user, ip) {
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 1. 유저가 입력한 id나 닉네임이 기존에 있을 때
@@ -50,7 +50,7 @@ function signUpModel(input_user, ip) {
 
     db.db_connect.query(new_query, function (err) {
       // 쿼리문 메서드 실패
-      queryFail(err);
+      queryFail(err, ip, query);
       // 쿼리문 메서드 성공
       querySuccessLog(ip, query);
       return { state: "회원가입" };

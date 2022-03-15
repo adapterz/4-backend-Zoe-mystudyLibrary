@@ -11,7 +11,7 @@ function entireBoardModel(category, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 실패 메서드
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 성공 메서드
     querySuccessLog(ip, query);
 
@@ -35,7 +35,7 @@ function detailBoardModel(board_index, ip, user_index) {
   // 게시글 정보가져오는 쿼리 메서드
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 요청한 게시글 인덱스의 게시물이 존재하지 않을 때
@@ -62,7 +62,7 @@ function detailBoardModel(board_index, ip, user_index) {
     // 해당 게시글을 조회한 기록이 있는지 확인하는 쿼리 메서드
     db.db_connect.query(view_query, function (err, view_results) {
       // 쿼리문 메서드 실패
-      queryFail(err);
+      queryFail(err, ip, query);
       // 쿼리문 메서드 성공
       querySuccessLog(ip, query);
 
@@ -101,7 +101,7 @@ function detailBoardModel(board_index, ip, user_index) {
         // 해당 게시글 조회수 1 증가하는 쿼리문
         db.db_connect.query(view_query, function (err) {
           // 쿼리문 메서드 실패
-          queryFail(err);
+          queryFail(err, ip, query);
           // 쿼리문 메서드 성공
           querySuccessLog(ip, query);
         });
@@ -120,7 +120,7 @@ function userPostModel(user_index, ip) {
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 요청한 데이터가 없을 때
@@ -152,7 +152,7 @@ function writePostModel(category, input_write, user_index, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 실패 메서드
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 성공 메서드
     querySuccessLog(ip, query);
     // 태그 쿼리문 추가, 태그 배열이 비어있으면 해당 반복문은 작동하지 않음
@@ -170,7 +170,7 @@ function writePostModel(category, input_write, user_index, ip) {
     if (tag_query === "") return { state: "게시글작성완료" };
     // 태그가 있다면 DB에 태그 정보 추가
     db.db_connect.query(tag_query, function (err) {
-      queryFail(err);
+      queryFail(err, ip, query);
       querySuccessLog(ip, query);
       return { state: "게시글작성완료" };
     });
@@ -190,7 +190,7 @@ function getWriteModel(board_index, user_index, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 해당 게시글인덱스의 게시글이 없을 때
@@ -216,7 +216,7 @@ function revisePost(input_post, board_index, user_index, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리메서드 성공
     querySuccessLog(ip, query);
     let tag_query = "";
@@ -235,7 +235,7 @@ function revisePost(input_post, board_index, user_index, ip) {
     if (tag_query === "") return { state: "게시글수정" };
     // 태그가 있다면 DB에 태그 정보 추가
     db.db_connect.query(tag_query, function (err) {
-      queryFail(err);
+      queryFail(err, ip, query);
       querySuccessLog(ip, query);
       return { state: "게시글수정" };
     });
@@ -277,7 +277,7 @@ function deletePostModel(board_index, user_index, ip) {
 
   db.db_connect.query(query, function (err) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     return { state: "게시글삭제" };
@@ -291,7 +291,7 @@ function likePostModel(board_index, user_index, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 좋아요를 이미 누른 경우
@@ -305,7 +305,7 @@ function likePostModel(board_index, user_index, ip) {
       "INSERT INTO favoritePost(boardIndex,userIndex) VALUES(?,?)";
     // 쿼리문 실행
     db.db_connect.query(query, [board_index, user_index], function (err, results) {
-      queryFail(err);
+      queryFail(err, ip, query);
       querySuccessLog(ip, query);
       // 정상적으로 좋아요 수 1증가
       return { state: "좋아요+1" };
@@ -319,9 +319,55 @@ function getRecentPostModel(ip) {
     "SELECT postTitle,nickName,hits,favorite FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND category = ? order by boardIndex DESC limit 5;" +
     "SELECT postTitle,nickName,hits,favorite FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND category = ? order by boardIndex DESC limit 4;";
   db.db_connect.query(query, ["자유게시판", "공부인증샷"], function (err, results) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     return { state: "최신글정보", date: results };
+  });
+}
+
+// 검색 기능
+function searchModel(search_option, search_content, category, ip) {
+  let query;
+  // 검색 옵션에 맞는 게시글 정보 select 해오는 쿼리문 작성 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
+  // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
+  if (search_option === "제목만") {
+    query =
+      "SELECT boardIndex,postTitle, viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND postTitle LIKE" +
+      mysql.escape("%" + search_content + "%") +
+      "AND BOARD.category= " +
+      mysql.escape(category);
+    // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
+  } else if (search_option === "내용만") {
+    query =
+      "SELECT boardIndex,postTitle, viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND postContent LIKE" +
+      mysql.escape("%" + search_content + "%") +
+      "AND BOARD.category= " +
+      mysql.escape(category);
+    // 제목+내용 검색한다고 옵션설정했을 때 검색해주는 쿼리문
+  } else if (search_option === "제목 + 내용") {
+    query =
+      "SELECT boardIndex,postTitle, viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND postTitle LIKE" +
+      mysql.escape("%" + search_content + "%") +
+      "OR postContent LIKE" +
+      mysql.escape("%" + search_content + "%") +
+      "AND BOARD.category= " +
+      mysql.escape(category);
+    // 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
+  } else if (search_option === "닉네임") {
+    query =
+      "SELECT boardIndex,postTitle, viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND nickName LIKE" +
+      mysql.escape(search_content) +
+      "AND BOARD.category= " +
+      mysql.escape(category);
+  }
+
+  db.db_connect.query(query, function (err, results) {
+    queryFail(err, ip, query);
+    querySuccessLog(ip, query);
+    // 검색결과가 없을 때
+    if (results[0] === undefined) return { state: "검색결과없음" };
+    // 검색결과가 있을 때
+    return { state: "검색글정보", data: results };
   });
 }
 
@@ -335,4 +381,5 @@ module.exports = {
   deletePostModel: deletePostModel,
   likePostModel: likePostModel,
   getRecentPostModel: getRecentPostModel,
+  searchModel: searchModel,
 };

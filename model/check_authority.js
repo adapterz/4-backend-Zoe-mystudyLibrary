@@ -9,7 +9,7 @@ function isPostAuthorModel(board_index, user_index, ip) {
   const query = "SELECT userIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex=" + mysql.escape(board_index);
 
   db.db_connect.query(query, function (err, results) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     // 요청한 boardIndex의 게시글이 존재하지 않을 때
     if (results[0] === undefined) return { state: "존재하지않는게시글" };
@@ -25,7 +25,7 @@ function isCommentAuthorModel(comment_index, user_index, ip) {
   const query = "SELECT userIndex FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex=" + mysql.escape(comment_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     // 요청한 commentIndex의 게시글이 존재하지 않을 때
     if (results[0] === undefined) return { state: "존재하지않는댓글" };
@@ -41,7 +41,7 @@ function isReviewAuthorModel(review_index, user_index, ip) {
   const query = "SELECT userIndex FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex=" + mysql.escape(review_index);
   // 쿼리문 실행
   db.db_connect.query(query, function (err, results) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     // 요청한 reviewIndex의 게시글이 존재하지 않을 때
     if (results[0] === undefined) return { state: "존재하지않는후기" };

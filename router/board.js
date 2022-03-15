@@ -53,9 +53,7 @@ router.patch("/search/:boardIndex", body("content").isLength({ min: 2, max: 500 
 router.delete("/search/:boardIndex", controller.deleteComment);
 // 좋아요 기능
 router.patch("/search/:boardIndex", controller.likePost);
-
-// TODO
 // 검색관련 기능
-
+router.post("/search/:category", controller.searchPost);
 // 모듈화
 module.exports = router;

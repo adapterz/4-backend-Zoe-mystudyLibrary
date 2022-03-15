@@ -13,7 +13,7 @@ function reviseProfileModel(revised, ip, login_cookie) {
   let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(revised.nickName);
 
   db.db_connect.query(query, function (err, results) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     // 유저가 입력한 닉네임이 기존에 존재할 때
     if (results[0] !== undefined) {
@@ -31,7 +31,7 @@ function reviseProfileModel(revised, ip, login_cookie) {
       mysql.escape(login_cookie);
     // 콜백 쿼리문 실행
     db.db_connect.query(query, function (err) {
-      queryFail(err);
+      queryFail(err, ip, query);
       querySuccessLog(ip, query);
       return { state: "프로필변경성공" };
     });
@@ -49,7 +49,7 @@ function revisePhoneNumberModel(new_contact, ip, login_cookie) {
     mysql.escape(login_cookie);
 
   db.db_connect.query(query, function (err) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
 
     // 연락처 수정 성공
@@ -63,7 +63,7 @@ function revisePwModel(input_pw, ip, login_cookie) {
   let query = "SELECT pw FROM USER WHERE userIndex = " + mysql.escape(login_cookie);
 
   db.db_connect.query(query, function (err, results) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     // 유효성 검사
     // DB의 유저 pw와 '현재 비밀번호'창에 입력한 pw 비교
@@ -90,7 +90,7 @@ function revisePwModel(input_pw, ip, login_cookie) {
       mysql.escape(login_cookie);
 
     db.db_connect.query(query, function (err) {
-      queryFail(err);
+      queryFail(err, ip, query);
       querySuccessLog(ip, query);
 
       // 비밀번호 변경 성공
@@ -105,7 +105,7 @@ function dropOutModel(ip, login_cookie) {
   const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
   // 쿼리문 실행
   db.db_connect.query(query, function (err) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
 
     // 성공적으로 회원탈퇴

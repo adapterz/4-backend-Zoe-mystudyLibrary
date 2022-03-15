@@ -13,7 +13,7 @@ function userReviewModel(user_index, ip) {
     mysql.escape(user_index);
 
   db.db_connect.query(query, function (err, results) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     // 데이터가 없을 때
     if (results[0] === undefined) {
@@ -39,7 +39,7 @@ function registerReviewModel(library_index, user_index, input_comment, ip) {
     mysql.escape(input_comment.grade) +
     ")";
   db.db_connect.query(query, function (err) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
 
     return { state: "도서관후기등록" };
@@ -52,7 +52,7 @@ function getReviewModel(review_index, login_cookie, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // DB에 데이터가 없을 때
@@ -76,7 +76,7 @@ function reviseReviewModel(review_index, login_cookie, input_review, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // DB에 해당 인덱스의 댓글이 없을 때
@@ -98,7 +98,7 @@ function deleteReviewModel(review_index, user_index, ip) {
 
   // 오류 발생
   db.db_connect.query(query, function (err) {
-    queryFail(err);
+    queryFail(err, ip, query);
     querySuccessLog(ip, query);
     return { state: "후기삭제" };
   });

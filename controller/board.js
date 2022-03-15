@@ -297,6 +297,25 @@ const likePost = function (req, res) {
 };
 // TODO
 // 검색기능
+const searchPost = function (req, res) {
+  /*
+  req.body
+    searchOption (ex. 제목만, 내용만, 닉네임, 제목 + 내용)
+    searchContent (검색내용)
+  params: category
+   */
+  // 검색 모델 실행 결과
+  const model_results = post_model.searchModel(req.body.searchOption, req.body.searchContent, req.params.cateogry, req.ip);
+  /*
+  TODO 비동기 공부후 다시작성
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // 검색결과가 없을 때
+  else if(model_results.state === "검색결과없음") return res.status(200).json(model_results);
+  // 검색결과가 있을 때
+  else if(model_results.state === "검색글정보) return res.status(200).json(model_results);
+   */
+};
 
 module.exports = {
   entireBoard: entireBoard,
@@ -310,4 +329,5 @@ module.exports = {
   reviseComment: reviseComment,
   deleteComment: deleteComment,
   likePost: likePost,
+  searchPost: searchPost,
 };

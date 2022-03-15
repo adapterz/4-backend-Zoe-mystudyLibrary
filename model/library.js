@@ -12,7 +12,7 @@ function userLibModel(user_index, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     return { state: "유저의관심도서관", data: results };
@@ -33,7 +33,7 @@ function registerMyLibModel(library_index, user_index, ip) {
 
   db.db_connect.query(query, function (err) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
 
@@ -51,7 +51,7 @@ function deleteMyLibModel(library_index, user_index, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 기존에 해당 유저 인덱스로 해당 관심도서관이 등록되지 않았을 때
@@ -70,7 +70,7 @@ function allLibModel(ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
 
@@ -91,7 +91,7 @@ function localLibModel(input_local, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 유저가 요청한 지역에 도서관이 존재하지 않을 때
@@ -112,7 +112,7 @@ function particularLibModel(library_index, ip) {
 
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
     // 유저가 요청한 인덱스의 도서관 정보가 존재하지 않을 때

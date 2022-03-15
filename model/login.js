@@ -10,7 +10,7 @@ function loginModel(input_login, ip) {
   const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(input_login.id);
   db.db_connect.query(query, function (err, results) {
     // 쿼리문 메서드 실패
-    queryFail(err);
+    queryFail(err, ip, query);
     // 쿼리문 메서드 성공
     querySuccessLog(ip, query);
 

@@ -2,9 +2,12 @@
 const moment = require("./date_time");
 
 // model 에서 쿼리 메서드 수행 실패시 로그 찍기 및 모델 실행 결과 반환
-const queryFail = function (err) {
+const queryFail = function (err, ip, query) {
   if (err) {
-    console.log(("model-isAuthor 메서드 mysql 모듈사용 실패:" + err).red.bold);
+    console.log(
+      ("mysql 모듈사용 실패:" + err + "\nCLIENT IP: " + ip + "\nDATETIME: " + moment().format("YYYY-MM-DD HH:mm:ss") + "\\nQUERY: " + query)
+        .red.bold,
+    );
 
     return { state: "mysql 사용실패" };
   }
