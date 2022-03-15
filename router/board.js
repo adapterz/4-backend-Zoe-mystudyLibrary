@@ -54,6 +54,6 @@ router.delete("/search/:boardIndex", controller.deleteComment);
 // 좋아요 기능
 router.patch("/search/:boardIndex", controller.likePost);
 // 검색관련 기능
-router.post("/search/:category", controller.searchPost);
+router.get("/search/:category", controller.searchPost);
 // 모듈화
 module.exports = router;

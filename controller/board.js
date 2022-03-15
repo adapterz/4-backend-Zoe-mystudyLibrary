@@ -299,13 +299,14 @@ const likePost = function (req, res) {
 // 검색기능
 const searchPost = function (req, res) {
   /*
-  req.body
+  req.query
     searchOption (ex. 제목만, 내용만, 닉네임, 제목 + 내용)
     searchContent (검색내용)
-  params: category
+  req.params
+    category (자유게시판/공부인증샷)
    */
   // 검색 모델 실행 결과
-  const model_results = post_model.searchModel(req.body.searchOption, req.body.searchContent, req.params.cateogry, req.ip);
+  const model_results = post_model.searchModel(req.query.searchOption, req.query.searchContent, req.params.cateogry, req.ip);
   /*
   TODO 비동기 공부후 다시작성
   // mysql query 메서드 실패
