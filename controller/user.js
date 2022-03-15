@@ -17,6 +17,23 @@ const myLib = function (req, res) {
   else if(model_results.state==="유저의관심도서관") return res.state(200).json(model_results.data);
    */
 };
+// 내 관심도서관 삭제
+const deleteMyLib = function (req, res) {
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 관심도서관으로 등록한 도서관 정보 삭제하는모델 실행결과
+  const model_results = library_model.userLibModel(req.query.libraryIndex, login_cookie, req.ip);
+  /* TODO 비동기 공부 후 다시 작성
+  // 실행결과에 따라 분기처리
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  // 해당 유저인덱스에 해당 도서관이 관심도서관으로 등록돼있지 않을 때
+  if(model_results.state === "존재하지않는정보") return res.stauts(404).json(model_results.state);
+  // 해당 관심도서관 정보가 삭제됐을 때
+  if(model_results.state === "관심도서관삭제") return res.status(204).json(model_results.state);
+   */
+};
 // 내 프로필 수정
 const reviseProfile = function (req, res) {
   /*
@@ -112,6 +129,7 @@ const dropOut = function (req, res) {
 // 모듈화
 module.exports = {
   myLib: myLib,
+  deleteMyLib: deleteMyLib,
   reviseProfile: reviseProfile,
   revisePhoneNumber: revisePhoneNumber,
   revisePw: revisePw,

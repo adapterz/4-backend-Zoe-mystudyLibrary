@@ -40,6 +40,26 @@ function registerMyLibModel(library_index, user_index, ip) {
     return { state: "관심도서관추가" };
   });
 }
+// 해당 인덱스의 도서관 관심도서관 취소하는 모델
+function deleteMyLibModel(library_index, user_index, ip) {
+  // 등록한 관심도서관 삭제하는 쿼리문
+  const query =
+    "UPDATE USERLIBRARY SET deleteDateTime =" +
+    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+    "WHERE libraryIndex =" +
+    mysql.escape(library_index);
+
+  db.db_connect.query(query, function (err, results) {
+    // 쿼리문 메서드 실패
+    queryFail(err);
+    // 쿼리문 메서드 성공
+    querySuccessLog(ip, query);
+    // 기존에 해당 유저 인덱스로 해당 관심도서관이 등록되지 않았을 때
+    if (results[0] === undefined) return { state: "존재하지않는정보" };
+    // 해당 관심도서관 정보 삭제
+    return { state: "관심도서관삭제" };
+  });
+}
 
 // 전체 도서관 정보 불러오는 모델
 function allLibModel(ip) {
@@ -105,6 +125,7 @@ function particularLibModel(library_index, ip) {
 module.exports = {
   userLibModel: userLibModel,
   registerMyLibModel: registerMyLibModel,
+  deleteMyLibModel: deleteMyLibModel,
   allLibModel: allLibModel,
   localLibModel: localLibModel,
   particularLibModel: particularLibModel,
