@@ -2,7 +2,7 @@
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-const encryption = function (body_pw) {
+const encryption = async function (body_pw) {
   return bcrypt.hashSync(body_pw, saltRounds).toString();
 };
 
