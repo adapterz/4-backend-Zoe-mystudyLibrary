@@ -1,30 +1,37 @@
 const mysql = require("mysql");
 const db = require("../a_mymodule/db");
+const { pool } = require("../a_mymodule/db");
 const moment = require("../a_mymodule/date_time");
 const { queryFail, querySuccessLog } = require("../a_mymodule/const");
 const { db_connect } = require("../a_mymodule/db");
 
 // 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
 async function entireBoardModel(category, ip) {
-  db.db_connect.beginTransaction(async function (error) {
-    if (error) throw error;
-    const query =
-      "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
-      mysql.escape(category);
+  //const connection = await pool.getConnection(async (conn) => conn);
+  //try {
+  // await connection.beginTransaction();
+  const query =
+    "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+    mysql.escape(category);
 
-    db.db_connect.query(query, async function (err, results) {
-      // 쿼리문 실패 메서드
-      const fail = await queryFail(err, ip, query);
-      if (fail.state === "mysql 사용실패") {
-        db_connect.rollback();
-        return { state: "mysql 사용실패" };
-      }
-      // 쿼리문 성공 메서드
-      await querySuccessLog(ip, query);
-      db_connect.commit();
-      return { state: "전체게시글", data: results };
-    });
+  await db.db_connect.query(query, async function (err, results) {
+    // 쿼리문 실패 메서드
+    const fail = await queryFail(err, ip, query);
+    if (fail.state === "mysql 사용실패") {
+      //   connection.rollback();
+      return { state: "mysql 사용실패" };
+    }
+    // 쿼리문 성공 메서드
+    await querySuccessLog(ip, query);
+    // connection.commit();
+    return { state: "전체게시글", data: results };
   });
+  //} catch (err) {
+  //  await connection.rollback();
+  return { state: "mysql 사용실패" };
+  //} finally {
+  //  connection.release();
+  //}
 }
 
 // 특정 게시글 상세보기
@@ -198,7 +205,7 @@ async function revisePost(input_post, board_index, user_index, ip) {
       }
       // 쿼리메서드 성공
       await querySuccessLog(ip, query);
-      // 태그 추가 쿼리문
+      // 태그 추가 메서드
       const tag_results = await writeTag(board_index, input_post, user_index, ip);
       if (tag_results.state === "mysql 사용실패") {
         db_connect.rollback();
@@ -308,22 +315,25 @@ async function likePostModel(board_index, user_index, ip) {
 }
 // 최신글 정보 가져오기
 async function getRecentPostModel(ip) {
-  db.db_connect.beginTransaction(async function (error) {
-    if (error) throw error;
-    // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
-    const query =
-      "SELECT postTitle,nickName,hits,favorite FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND category = ? order by boardIndex DESC limit 5;" +
-      "SELECT postTitle,nickName,hits,favorite FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND category = ? order by boardIndex DESC limit 4;";
-    db.db_connect.query(query, ["자유게시판", "공부인증샷"], async function (err, results) {
-      // 쿼리문 메서드 실패
-      const fail = await queryFail(err, ip, query);
-      if (fail.state === "mysql 사용실패") {
-        db_connect.rollback();
-        return { state: "mysql 사용실패" };
-      }
-      db_connect.commit();
-      await querySuccessLog(ip, query);
-      return { state: "최신글정보", date: results };
+  pool.getConnection(function (err, connection) {
+    connection.beginTransaction(function (err) {
+      if (err) throw err;
+      // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
+      const query =
+        "SELECT postTitle,nickName,hits,favorite FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND category = ? order by boardIndex DESC limit 5;" +
+        "SELECT postTitle,nickName,hits,favorite FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND category = ? order by boardIndex DESC limit 4;";
+      connection.query(query, ["자유게시판", "공부인증샷"], async function (err, results) {
+        // 쿼리문 메서드 실패
+        const fail = await queryFail(err, ip, query);
+        if (fail.state === "mysql 사용실패") {
+          await connection.rollback();
+          return { state: "mysql 사용실패" };
+        }
+        await connection.commit();
+        await querySuccessLog(ip, query);
+        await connection.release();
+        return { state: "최신글정보", date: results };
+      });
     });
   });
 }

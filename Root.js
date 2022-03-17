@@ -44,7 +44,6 @@ const new_user_router = require("./router/new_user");
 const service_description_router = require("./router/service_description");
 const user_router = require("./router/user");
 const my_post_router = require("./router/my_post");
-
 app.use("/library", adj_lib_router);
 app.use("/", boards_router);
 app.use("/", home_router);
@@ -58,6 +57,13 @@ app.use("/my-post", my_post_router);
 app.get("/not_found", function (req, res) {
   res.status(404).send("not founded page");
 });
+
+// 최초 한번 도서관 정보 테이블에 넣기
+
+// request 옵션
+
+//const library_request = require("./a_mymodule/open_api");
+//library_request.library_request();
 
 //  서버 시작
 app.listen(process.env.PORT, () => {
