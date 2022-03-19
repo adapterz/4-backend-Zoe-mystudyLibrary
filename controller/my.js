@@ -1,24 +1,25 @@
 // 내가 작성한 글/댓글/후기 컨트롤러
-const post_model = require("../model/post");
+const my_model = require("../model/my");
+const post_model = require("../model/board");
 const comment_model = require("../model/comment");
 const review_model = require("../model/review");
 const check_authority_model = require("../model/check_authority");
 
 // 내가 작성한 정보
 // 내가 작성한 게시글 정보
-const myPost = async function (req, res) {
+const my = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
-  const model_results = await post_model.userPostModel(login_cookie, req.ip);
+  const model_results = await my_model.userPostModel(login_cookie, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
   // 내가 작성한 글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
   else if (model_results.state === "등록된글이없음") return res.status(200).json(model_results.state);
   // 성공적으로 내가 작성한 게시글 정보 응답
-  else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
+  else if (model_results.state === "내작성글조회") return res.status(200).json(model_results.data);
 };
 // 내가 작성한 댓글 정보
 const myComment = async function (req, res) {
@@ -26,12 +27,12 @@ const myComment = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 작성한 후기 정보 가져올 모델 실행 결과
-  const model_results = await comment_model.userCommentModel(login_cookie, req.ip);
+  const model_results = await my_model.userCommentModel(login_cookie, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 내가 작성한 댓글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
-  else if (model_results.state === "등록된댓글없음") return res.status(200).json(model_results.state);
+  else if (model_results.state === "등록된댓글없음") return res.status(200).json(model_results);
   // 성공적으로 내가 작성한 댓글 정보 응답
   else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
 };
@@ -41,12 +42,12 @@ const myReview = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
-  const model_results = await review_model.userReviewModel(login_cookie, req.ip);
+  const model_results = await my_model.userReviewModel(login_cookie, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 내가 작성한 후기가 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
-  else if (model_results.state === "등록된후기없음") return res.status(200).json(model_results.state);
+  else if (model_results.state === "등록된후기없음") return res.status(200).json(model_results);
   // 성공적으로 내가 작성한 후기 정보 응답
   else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
 };
@@ -82,9 +83,16 @@ const deleteComment = async function (req, res) {
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 해당 commentIndex에 대한 유저의 권한 체크
-  const check_authority = await check_authority_model.isCommentAuthorModel(req.query.commentIndex, login_cookie, req.ip);
+  const check_authority = await check_authority_model.isCommentAuthorModel(
+    req.query.boardIndex,
+    req.query.commentIndex,
+    login_cookie,
+    req.ip,
+  );
   // mysql query 메서드 실패
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  // 해당 게시글이 존재하지 않거나 이미 삭제됐을 때
+  else if (check_authority.state === "존재하지않는게시글") return res.status(400).json(check_authority);
   // 해당 댓글이 존재하지 않거나 이미 삭제됐을 때
   else if (check_authority.state === "존재하지않는댓글") return res.status(404).json(check_authority);
   // 요청한 유저가 해당 댓글 작성자가 아닐 때
@@ -128,7 +136,7 @@ const deleteReview = async function (req, res) {
 
 // 모듈화
 module.exports = {
-  myPost: myPost,
+  myPost: my,
   myComment: myComment,
   myReview: myReview,
   deletePost: deletePost,

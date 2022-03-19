@@ -38,7 +38,7 @@ const logout = async function (req, res) {
     res.status(200).json({ state: "로그아웃" });
   }
   // 기존에 로그인이 돼있지 않을 때 로그아웃 요청은 올바르지 않은 요청
-  if (login_cookie) {
+  if (!login_cookie) {
     res.status(401).json({ state: "기존에 로그인 되어있지 않습니다." });
   }
 };

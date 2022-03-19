@@ -27,9 +27,9 @@ router.patch(
 );
 // 연락처변경 요청
 router.patch(
-  "/user-data",
+  "/new-phone",
   body("phoneNumber")
-    .matches(/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/) // 휴대전화 정규식
+    .matches(/^01([0|1|6|7|8|9])([0-9]{3,4})([0-9]{4})$/) // 휴대전화 정규식
     .notEmpty(),
   check.is_validate,
   controller.revisePhoneNumber,

@@ -7,5 +7,5 @@ const encryption = async function (body_pw) {
 };
 
 module.exports = {
-  encryption: encryption,
+  hashPw: encryption,
 };
