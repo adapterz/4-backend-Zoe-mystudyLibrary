@@ -1,7 +1,7 @@
 // 특정 도서관 이용 후 후기등록
 const review_model = require("../model/review");
 const check_authority_model = require("../model/check_authority");
-const registerComment = async function (req, res) {
+const registerReview = async function (req, res) {
   /* params: libIndex
   req.body
     reviewContent: 후기 내용
@@ -25,7 +25,7 @@ const getReview = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 후기에 대한 유저의 권한 체크
-  const check_authority = await check_authority_model.isReviewAuthorModel(req.query.reviewIndex, login_cookie, req.ip);
+  const check_authority = await check_authority_model.isReviewAuthorModel(req.params.libIndex, req.query.reviewIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
   // 해당 도서관이 정보가 없을 때
@@ -53,12 +53,7 @@ const reviseReview = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 후기에 대한 유저의 권한 체크
-  const check_authority = await check_authority_model.isReviewAuthorModel(
-    req.params.libraryIndex,
-    req.query.reviewIndex,
-    login_cookie,
-    req.ip,
-  );
+  const check_authority = await check_authority_model.isReviewAuthorModel(req.params.libIndex, req.query.reviewIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
   // 해당 도서관이 정보가 없을 때
@@ -70,7 +65,7 @@ const reviseReview = async function (req, res) {
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_authority.state === "접근성공") {
     // 댓글수정 모델 실행 결과
-    const model_results = await review_model.reviseReviewModel(req.query.reviewIndex, login_cookie, req.ip);
+    const model_results = await review_model.reviseReviewModel(req.query.reviewIndex, login_cookie, req.body, req.ip);
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
     // 성공적으로 댓글삭제 요청 수행
@@ -84,14 +79,10 @@ const deleteReview = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 후기에 대한 유저의 권한 체크
-  const check_authority = await check_authority_model.isReviewAuthorModel(
-    req.params.libraryIndex,
-    req.query.reviewIndex,
-    login_cookie,
-    req.ip,
-  );
+  const check_authority = await check_authority_model.isReviewAuthorModel(req.params.libIndex, req.query.reviewIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  else if (check_authority.state === "존재하지않는도서관") return res.status(404).json(check_authority);
   // 해당 인덱스의 후기가 존재하지 않거나 이미 삭제됐을 때
   else if (check_authority.state === "존재하지않는후기") return res.status(404).json(check_authority);
   // 요청 유저가 해당 후기를 작성한 유저가 아닐 때
@@ -108,7 +99,7 @@ const deleteReview = async function (req, res) {
 
 // 모듈화
 module.exports = {
-  registerComment: registerComment,
+  registerReview: registerReview,
   getReview: getReview,
   reviseReview: reviseReview,
   deleteReview: deleteReview,

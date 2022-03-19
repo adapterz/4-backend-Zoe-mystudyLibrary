@@ -31,24 +31,24 @@ router.get("/:libIndex", controller_library.particularLib);
 router.patch("/:libIndex", controller_library.registerMyLib);
 // 특정 도서관 이용 후 후기등록
 router.post(
-  "/:libIndex",
+  "/:libIndex/review",
   body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
   body("grade").isFloat({ min: 1, max: 5 }),
   check.is_validate,
-  controller_review.registerComment,
+  controller_review.registerReview,
 );
 // 기존 후기 정보 불러오기
-router.get("/:libIndex", controller_review.getReview);
+router.get("/:libIndex/review", controller_review.getReview);
 // 후기 수정요청
 router.patch(
-  "/:libIndex",
+  "/:libIndex/review",
   body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
   body("grade").isFloat({ min: 1, max: 5 }),
   check.is_validate,
   controller_review.reviseReview,
 );
 // 후기 삭제
-router.delete("/:libIndex", controller_review.deleteReview);
+router.delete("/:libIndex/review", controller_review.deleteReview);
 
 // 모듈화
 module.exports = router;

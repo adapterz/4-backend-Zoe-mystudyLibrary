@@ -8,7 +8,7 @@ const myLib = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
-  const model_results = await library_model.userLibModel(login_cookie);
+  const model_results = await library_model.userLibModel(login_cookie, req.ip);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);

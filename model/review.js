@@ -34,7 +34,7 @@ async function registerReviewModel(library_index, user_index, input_comment, ip)
 
 // 기존 댓글 수정하기 버튼 눌렀을 때 기존 후기 정보 불러오는 모델
 async function getReviewModel(review_index, login_cookie, ip) {
-  const query = "SELECT reviewContent FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex =" + mysql.escape(review_index);
+  const query = "SELECT reviewContent, grade FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex =" + mysql.escape(review_index);
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
@@ -59,7 +59,7 @@ async function getReviewModel(review_index, login_cookie, ip) {
 async function reviseReviewModel(review_index, login_cookie, input_review, ip) {
   // 후기 수정 쿼리문
   const query =
-    "UPDATE REVIEW SET  reviewContent=" +
+    "UPDATE REVIEW SET reviewContent=" +
     mysql.escape(input_review.reviewContent) +
     ",grade = " +
     mysql.escape(input_review.grade) +
@@ -71,7 +71,6 @@ async function reviseReviewModel(review_index, login_cookie, input_review, ip) {
     // 성공 로그
     await querySuccessLog(ip, query);
     // DB에 해당 인덱스의 댓글이 있을 때
-    db_connect.commit();
     return { state: "후기수정" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
@@ -93,7 +92,6 @@ async function deleteReviewModel(review_index, user_index, ip) {
     await db.pool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
-    db_connect.commit();
     return { state: "후기삭제" };
     // 쿼리문 실행시 에러발생
   } catch (err) {

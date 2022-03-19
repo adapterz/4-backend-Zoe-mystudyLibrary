@@ -79,7 +79,7 @@ async function isCommentAuthorModel(board_index, comment_index, user_index, ip) 
 // 삭제/수정 요청한 유저가 해당 후기의 작성자인지 체크 하는 함수
 async function isReviewAuthorModel(library_index, review_index, user_index, ip) {
   // 해당 도서관이 존재하는지 확인
-  let query = "SELECT * FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(library_index);
+  let query = "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(library_index);
   // 성공시
   try {
     // 쿼리문 실행

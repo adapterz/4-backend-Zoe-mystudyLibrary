@@ -55,6 +55,7 @@ const registerMyLib = async function (req, res) {
   const model_results = await library_model.registerMyLibModel(req.params.libIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  else if (model_results.state === "중복된등록요청") return res.status(400).json(model_results);
   // 성공적으로 관심도서관 추가 요청 수행
   else if (model_results.state === "관심도서관추가") return res.status(200).end();
 };
