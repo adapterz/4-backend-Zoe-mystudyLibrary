@@ -4,10 +4,27 @@ const post_model = require("../model/board");
 const comment_model = require("../model/comment");
 const review_model = require("../model/review");
 const check_authority_model = require("../model/check_authority");
+const library_model = require("../model/library");
 
 // 내가 작성한 정보
+
+// 내 관심도서관
+const myLib = async function (req, res) {
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
+  const model_results = await library_model.userLibModel(login_cookie, req.ip);
+  // 실행결과에 따라 분기처리
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // 등록된 도서관 정보가 없을 때
+  else if (model_results.state === "등록된정보없음") return res.status(200).json(model_results);
+  // 해당 유저가 지금까지 등록한 관심도서관 정보 응답
+  else if (model_results.state === "유저의관심도서관") return res.status(200).json(model_results.data);
+};
 // 내가 작성한 게시글 정보
-const my = async function (req, res) {
+const myPost = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
@@ -52,6 +69,21 @@ const myReview = async function (req, res) {
   else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
 };
 
+// 내 관심도서관 삭제
+const deleteMyLib = async function (req, res) {
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 관심도서관으로 등록한 도서관 정보 삭제하는모델 실행결과
+  const model_results = await library_model.deleteMyLibModel(req.query.libraryIndex, login_cookie, req.ip);
+  // 실행결과에 따라 분기처리
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // 해당 유저인덱스에 해당 도서관이 관심도서관으로 등록돼있지 않을 때
+  if (model_results.state === "존재하지않는정보") return res.status(404).json(model_results);
+  // 해당 관심도서관 정보가 삭제됐을 때
+  if (model_results.state === "관심도서관삭제") return res.status(204).json(model_results);
+};
 // 선택 게시글 삭제
 const deletePost = async function (req, res) {
   // 로그인 여부 검사
@@ -136,9 +168,11 @@ const deleteReview = async function (req, res) {
 
 // 모듈화
 module.exports = {
-  myPost: my,
+  myLib: myLib,
+  myPost: myPost,
   myComment: myComment,
   myReview: myReview,
+  deleteMyLib: deleteMyLib,
   deletePost: deletePost,
   deleteComment: deleteComment,
   deleteReview: deleteReview,

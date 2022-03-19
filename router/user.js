@@ -7,12 +7,6 @@ const controller = require("../controller/user");
 const { body } = require("express-validator");
 const check = require("../a_mymodule/validation");
 
-// 내가 관심도서관으로 등록한 도서관 정보
-router.get("/my-lib", controller.myLib);
-
-// 특정 도서관 관심도서관에서 삭제
-router.delete("/my-lib", controller.deleteMyLib);
-
 // 내프로필 변경
 router.patch(
   "/profile",
