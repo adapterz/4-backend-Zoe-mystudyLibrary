@@ -37,34 +37,33 @@ app.use(
 
 // 경로별로 라우팅
 const adj_lib_router = require("./router/library");
-const boards_router = require("./router/board");
+const board_router = require("./router/board");
 const home_router = require("./router/home");
 const login_router = require("./router/login");
 const new_user_router = require("./router/new_user");
 const service_description_router = require("./router/service_description");
 const user_router = require("./router/user");
-const my_post_router = require("./router/my_post");
+const my_post_router = require("./router/my");
 app.use("/library", adj_lib_router);
-app.use("/", boards_router);
-app.use("/", home_router);
-app.use("/", login_router);
+app.use("/", board_router);
+app.use("/home", home_router);
+app.use("/user2", login_router);
 app.use("/new-user", new_user_router);
 app.use("/description", service_description_router);
 app.use("/user", user_router);
-app.use("/my-post", my_post_router);
+app.use("/my", my_post_router);
 
 // 404 에러처리
 app.get("/not_found", function (req, res) {
   res.status(404).send("not founded page");
 });
 
-// 최초 한번 도서관 정보 테이블에 넣기
-
-// request 옵션
+// 도서관 정보 테이블에 넣기
 
 //const library_request = require("./a_mymodule/open_api");
-//library_request.library_request();
+//library_request.reqOpenData();
 
+//console.log(query);
 //  서버 시작
 app.listen(process.env.PORT, () => {
   console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
