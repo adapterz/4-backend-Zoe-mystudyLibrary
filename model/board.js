@@ -1,7 +1,7 @@
 const mysql = require("mysql2/promise");
-const db = require("../a_mymodule/db");
-const moment = require("../a_mymodule/date_time");
-const { queryFail, querySuccessLog } = require("../a_mymodule/const");
+const db = require("../my_module/db");
+const moment = require("../my_module/date_time");
+const { queryFail, querySuccessLog } = require("../my_module/query_log");
 
 // 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
 async function entireBoardModel(category, ip) {
@@ -23,23 +23,18 @@ async function entireBoardModel(category, ip) {
 }
 
 // 특정 게시글 상세보기
-async function detailBoardModel(board_index, ip, user_index) {
+async function detailBoardModel(category, board_index, ip, user_index) {
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
-  const query =
-    "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND boardIndex =" +
-    mysql.escape(board_index) +
-    ";" +
-    "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" +
-    mysql.escape(board_index) +
-    ";" +
-    "SELECT commentContent, createDateTime FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
-    mysql.escape(board_index) +
-    ";";
+  let query =
+    "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+    mysql.escape(category) +
+    "AND boardIndex =" +
+    mysql.escape(board_index);
   // 성공시
   try {
     await db.pool.query("START TRANSACTION");
     // 게시글 정보가져오는 쿼리 메서드
-    const results = await db.pool.query(query);
+    let [results, fields] = await db.pool.query(query);
     // 쿼리문 메서드 성공
     await querySuccessLog(ip, query);
     // 요청한 게시글 인덱스의 게시물이 존재하지 않을 때
@@ -47,6 +42,23 @@ async function detailBoardModel(board_index, ip, user_index) {
       await db.pool.query("ROLLBACK");
       return { state: "존재하지않는게시글" };
     }
+    query =
+      "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+      mysql.escape(category) +
+      "AND boardIndex =" +
+      mysql.escape(board_index) +
+      ";" +
+      "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" +
+      mysql.escape(board_index) +
+      ";" +
+      "SELECT commentContent, createDateTime FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
+      mysql.escape(board_index) +
+      ";";
+
+    // 게시글 정보가져오는 쿼리 메서드
+    [results, fields] = await db.pool.query(query);
+    // 쿼리문 메서드 성공
+    await querySuccessLog(ip, query);
     // TODO 보완
     // 조회수 중복증가 여부 체크해서 반영해주는 메서드
     await increaseViewCount(board_index, user_index, ip);

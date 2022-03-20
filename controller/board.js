@@ -1,6 +1,7 @@
 // 게시판 라우터의 컨트롤러
 const post_model = require("../model/board");
-const check_authority_model = require("../model/check_authority");
+const check_data_or_authority_model = require("../my_module/check_data_or_authority");
+
 // 최신 자유게시판 글 5개/공부인증샷 글 4개 불러오기
 const getRecentPost = async function (req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
@@ -17,6 +18,8 @@ const entireBoard = async function (req, res) {
   // params 에 따라서 DB BOARDS 테이블 category 컬럼의 값 설정
   // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷면 공부인증샷 게시판의 글 정보만 Select 해오기
   let req_category;
+  if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
+    return res.status(404).json({ state: "존재하지않는카테고리" });
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   if (req.params.category === "proof-shot") req_category = "공부인증샷";
   // 카테고리에 따른 게시글 전체 정보 가져오는 모듈
@@ -31,6 +34,11 @@ const entireBoard = async function (req, res) {
 // 게시물 상세보기
 const detailBoard = async function (req, res) {
   // params: boardIndex
+  let req_category;
+  if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
+    return res.status(404).json({ state: "존재하지않는카테고리" });
+  if (req.params.category === "free-bulletin") req_category = "자유게시판";
+  if (req.params.category === "proof-shot") req_category = "공부인증샷";
   // 특정 게시글인덱스에 따른 데이터 가져오는 모듈
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
@@ -38,11 +46,11 @@ const detailBoard = async function (req, res) {
   let model_results;
   // 로그인을 하지 않았을 때
   if (!login_cookie) {
-    model_results = await post_model.detailBoardModel(req.params.boardIndex, req.ip, null);
+    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, req.ip, null);
   }
   // 로그인을 했을 때
   if (login_cookie) {
-    model_results = await post_model.detailBoardModel(req.params.boardIndex, req.ip, login_cookie);
+    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, req.ip, login_cookie);
   }
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -65,6 +73,10 @@ const writePost = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
+
+  if (!(req.body.category === "자유게시판" || req.body.category === "공부인증샷"))
+    return res.status(400).json({ state: "존재하지않는카테고리" });
+
   // 게시글 작성 모델 실행 결과 변수
   const model_results = await post_model.writePostModel(req.body.category, req.body, login_cookie, req.ip);
   // mysql query 메서드 실패
@@ -83,7 +95,7 @@ const getWrite = async function (req, res) {
   if (req.query.boardIndex === "") return res.status(200).end();
   // 2. 기존의 글 수정하는 경우
   // 해당 boardIndex에 대한 유저의 권한 체크 - 해당 게시글을 작성한 유저와 로그인돼있는 쿠키와 비교
-  const check_authority = await check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  const check_authority = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
   // 해당 boardIndex와 일치하는 로우가 없을 때
@@ -117,15 +129,17 @@ req.body
   if (!login_cookie) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
 
   // 해당 boardIndex에 대한 유저의 권한 체크
-  const check_authority = await check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
-  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
   // 해당 boardIndex와 일치하는 로우가 없을 때
-  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_post.state === "존재하지않는게시글") return res.status(404).json(check_post);
   // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_post.state === "접근권한없음") return res.status(403).json(check_post);
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-  else if (check_authority.state === "접근성공") {
+  else if (check_post.state === "접근성공") {
+    if (!(req.body.category === "자유게시판" || req.body.category === "공부인증샷"))
+      return res.status(404).json({ state: "존재하지않는카테고리" });
     // 게시글 수정 모델 실행 결과
     const model_results = await post_model.revisePost(req.body, req.query.boardIndex, login_cookie, req.ip);
     // mysql query 메서드 실패
@@ -143,15 +157,15 @@ const deletePost = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 boardIndex에 대한 유저의 권한 체크
-  const check_authority = await check_authority_model.isPostAuthorModel(req.query.boardIndex, login_cookie, req.ip);
+  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
-  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
+  if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
   // 해당 boardIndex와 일치하는 로우가 없을 때
-  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  else if (check_post.state === "존재하지않는게시글") return res.status(404).json(check_post);
   // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_post.state === "접근권한없음") return res.status(403).json(check_post);
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-  else if (check_authority.state === "접근성공") {
+  else if (check_post.state === "접근성공") {
     // 해당 인덱스 게시글 삭제
     const model_results = await post_model.deletePostModel(req.query.boardIndex, login_cookie, req.ip);
     // mysql query 메서드 실패
@@ -178,7 +192,7 @@ const likePost = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 좋아요 모델 실행 결과
-  const model_results = await post_model.likePostModel(req.params.boardIndex, login_cookie, req.ip);
+  const model_results = await post_model.likePostModel(req.query.boardIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 좋아요를 이미 누른적이 있을 때
@@ -195,6 +209,9 @@ const searchPost = async function (req, res) {
   req.params
     category (자유게시판/공부인증샷)
    */
+  // params.category 잘못 입력했을 때
+  if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
+    return res.status(404).json({ state: "존재하지않는카테고리" });
   // 검색 옵션이 올바르지 않을 때
   if (
     !(

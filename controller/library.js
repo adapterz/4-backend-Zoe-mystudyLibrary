@@ -1,7 +1,5 @@
 // 내정보 컨트롤러
 const library_model = require("../model/library");
-const review_model = require("../model/review");
-const check_authority_model = require("../model/check_authority");
 
 // 전체 도서관 정보
 const allLib = async function (req, res) {
@@ -65,5 +63,4 @@ module.exports = {
   allLib: allLib,
   localLib: localLib,
   particularLib: particularLib,
-  registerMyLib: registerMyLib,
 };

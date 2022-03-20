@@ -1,8 +1,8 @@
 const mysql = require("mysql2/promise");
-const db = require("../a_mymodule/db");
-const moment = require("../a_mymodule/date_time");
-const { queryFail, querySuccessLog } = require("../a_mymodule/const");
-const { db_connect } = require("../a_mymodule/db");
+const db = require("../my_module/db");
+const moment = require("../my_module/date_time");
+const { queryFail, querySuccessLog } = require("../my_module/query_log");
+const { db_connect } = require("../my_module/db");
 
 // 도서관 후기 등록하는 모델
 async function registerReviewModel(library_index, user_index, input_comment, ip) {

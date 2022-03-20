@@ -19,7 +19,7 @@ require("dotenv").config();
 const colors = require("colors");
 
 // 날짜/시간 관련 모듈
-const moment = require("./a_mymodule/date_time");
+const moment = require("./my_module/date_time");
 
 // 쿠키&세션 모듈
 const cookieParser = require("cookie-parser");
@@ -36,22 +36,17 @@ app.use(
 );
 
 // 경로별로 라우팅
-const adj_lib_router = require("./router/library");
 const board_router = require("./router/board");
-const home_router = require("./router/home");
-const login_router = require("./router/login");
-const new_user_router = require("./router/new_user");
-const service_description_router = require("./router/service_description");
+const comment_router = require("./router/comment");
+const library_router = require("./router/library");
+const review_router = require("./router/review");
 const user_router = require("./router/user");
-const my_router = require("./router/my");
-app.use("/library", adj_lib_router);
-app.use("/", board_router);
-app.use("/home", home_router);
-app.use("/user2", login_router);
-app.use("/new-user", new_user_router);
-app.use("/description", service_description_router);
+
+app.use("/comment", comment_router);
+app.use("/library", library_router);
+app.use("/review", review_router);
 app.use("/user", user_router);
-app.use("/my", my_router);
+app.use("/", board_router);
 
 // 404 에러처리
 app.get("/not_found", function (req, res) {
@@ -60,7 +55,7 @@ app.get("/not_found", function (req, res) {
 
 // 도서관 정보 테이블에 넣기
 
-//const library_request = require("./a_mymodule/open_api");
+//const library_request = require("./my_module/open_api");
 //library_request.reqOpenData();
 
 //console.log(query);

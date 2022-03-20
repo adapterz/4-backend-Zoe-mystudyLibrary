@@ -1,6 +1,6 @@
 const lib_request = require("request");
 const db = require("./db");
-const { querySuccessLog, queryFail } = require("./const");
+const { querySuccessLog, queryFail } = require("./query_log");
 const mysql = require("mysql2/promise");
 
 // 공공데이터 요청
