@@ -1,7 +1,7 @@
+// 공공데이터 OPEN API 에서 전국 도서관정보 가져오는 모듈
 const lib_request = require("request");
 const db = require("./db");
 const { querySuccessLog, queryFail } = require("./query_log");
-const mysql = require("mysql2/promise");
 
 // 공공데이터 요청
 async function reqOpenData() {

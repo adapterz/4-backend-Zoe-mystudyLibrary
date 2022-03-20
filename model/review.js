@@ -1,3 +1,4 @@
+// 후기 모델
 const mysql = require("mysql2/promise");
 const db = require("../my_module/db");
 const moment = require("../my_module/date_time");
@@ -22,7 +23,7 @@ async function registerReviewModel(library_index, user_index, input_comment, ip)
   // 성공시
   try {
     await db.pool.query(query);
-    // 쿼리문 메서드 성공
+    // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     return { state: "도서관후기등록" };
     // 쿼리문 실행시 에러발생
@@ -32,7 +33,7 @@ async function registerReviewModel(library_index, user_index, input_comment, ip)
   }
 }
 
-// 기존 댓글 수정하기 버튼 눌렀을 때 기존 후기 정보 불러오는 모델
+// 수정시 기존 후기 정보 불러오는 모델
 async function getReviewModel(review_index, login_cookie, ip) {
   const query = "SELECT reviewContent, grade FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex =" + mysql.escape(review_index);
   // 성공시
@@ -55,7 +56,7 @@ async function getReviewModel(review_index, login_cookie, ip) {
   }
 }
 
-// 후기 수정 요청 모델
+// 후기 수정 요청
 async function reviseReviewModel(review_index, login_cookie, input_review, ip) {
   // 후기 수정 쿼리문
   const query =
@@ -79,7 +80,7 @@ async function reviseReviewModel(review_index, login_cookie, input_review, ip) {
   }
 }
 
-// 해당 인덱스 후기 삭제
+// 후기 삭제 요청
 async function deleteReviewModel(review_index, user_index, ip) {
   // 후기삭제 쿼리문
   const query =

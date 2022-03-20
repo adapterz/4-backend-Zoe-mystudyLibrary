@@ -1,3 +1,4 @@
+// 댓글 모델
 const mysql = require("mysql2/promise");
 const db = require("../my_module/db");
 const moment = require("../my_module/date_time");
@@ -5,7 +6,7 @@ const { queryFail, querySuccessLog } = require("../my_module/query_log");
 
 // 새 댓글 작성 모델
 async function writeCommentModel(board_index, user_index, input_comment, ip) {
-  // 해당 게시글 params이 존재하는지 체크
+  // 해당 게시글이 존재하는지 체크
   let query = "SELECT boardIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex =" + mysql.escape(board_index);
   // 댓글 등록 쿼리문
 
@@ -39,13 +40,13 @@ async function writeCommentModel(board_index, user_index, input_comment, ip) {
     return { state: "mysql 사용실패" };
   }
 }
-// 기존 댓글 수정하기 버튼 눌렀을 때 기존 댓글 정보 불러오는 모델
+// 수정시 기존 댓글 정보 불러오는 모델
 async function getCommentModel(comment_index, login_cookie, ip) {
   const query = "SELECT commentContent FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex =" + mysql.escape(comment_index);
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공
+    // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     // DB에 데이터가 없을 때
     if (results[0] === undefined) {
@@ -60,7 +61,7 @@ async function getCommentModel(comment_index, login_cookie, ip) {
   }
 }
 
-// 댓글 수정 요청
+// 댓글 수정
 async function reviseCommentModel(comment_index, login_cookie, input_comment, ip) {
   // 댓글 수정 쿼리문
   const query =
@@ -68,7 +69,7 @@ async function reviseCommentModel(comment_index, login_cookie, input_comment, ip
   // 성공시
   try {
     await db.pool.query(query);
-    // 쿼리문 메서드 성공
+    // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     // DB에 해당 인덱스의 댓글이 있을 때
     return { state: "댓글수정" };
@@ -79,7 +80,7 @@ async function reviseCommentModel(comment_index, login_cookie, input_comment, ip
   }
 }
 
-// 댓글 삭제 모델
+// 댓글 삭제
 async function deleteCommentModel(comment_index, user_index, ip) {
   // 해당 인덱스 댓글 삭제
   // 댓글 삭제 쿼리문
@@ -93,7 +94,7 @@ async function deleteCommentModel(comment_index, user_index, ip) {
   // 성공시
   try {
     await db.pool.query(query);
-    // 성공 로그찍기, 커밋하고 data return
+    // 성공 로그찍기
     await querySuccessLog(ip, query);
     return { state: "댓글삭제" };
     // 쿼리문 실행시 에러발생

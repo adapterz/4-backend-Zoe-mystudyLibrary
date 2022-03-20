@@ -1,4 +1,4 @@
-// 자주 사용하는 반복적인 코드 정의
+// 쿼리문 성공/실패 여부 로그
 const moment = require("./date_time");
 // model 에서 쿼리 메서드 수행 실패시 로그 찍기 및 모델 실행 결과 반환
 function queryFail(err, ip, query) {

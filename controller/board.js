@@ -1,8 +1,13 @@
-// 게시판 라우터의 컨트롤러
+// 게시판 컨트롤러
 const post_model = require("../model/board");
 const check_data_or_authority_model = require("../my_module/check_data_or_authority");
-
-// 최신 자유게시판 글 5개/공부인증샷 글 4개 불러오기
+/*
+1. 게시글 조회
+2. 게시글 작성/수정/삭제
+3. 좋아요/검색 기능
+ */
+// 1. 게시글 조회
+// 1-1. 최신 자유게시판 글 5개/공부인증샷 글 4개 불러오기
 const getRecentPost = async function (req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
   const model_results = await post_model.getRecentPostModel(req.ip);
@@ -12,14 +17,17 @@ const getRecentPost = async function (req, res) {
   else if (model_results.state === "최신글정보") return res.status(200).json(model_results.data);
 };
 
-// 전체 게시물 보기
+// TODO 페이징
+// 1-2. 전체 게시물 보기
 const entireBoard = async function (req, res) {
-  // params: category
-  // params 에 따라서 DB BOARDS 테이블 category 컬럼의 값 설정
+  // req.params: category
+  // req.params 에 따라서 DB BOARDS 테이블 category 컬럼의 값 설정
   // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷면 공부인증샷 게시판의 글 정보만 Select 해오기
   let req_category;
+  // req.params.category 에 존재하지않는 카테고리가 들어왔을 때
   if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
     return res.status(404).json({ state: "존재하지않는카테고리" });
+  // params.category에 따라 DB에 저장될 값으로 바꿔주기
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   if (req.params.category === "proof-shot") req_category = "공부인증샷";
   // 카테고리에 따른 게시글 전체 정보 가져오는 모듈
@@ -31,9 +39,9 @@ const entireBoard = async function (req, res) {
   else if (model_results.state === "전체게시글") return res.status(200).json(model_results.data);
 };
 
-// 게시물 상세보기
+// 1-3. 게시물 상세보기
 const detailBoard = async function (req, res) {
-  // params: boardIndex
+  // req.params: category,boardIndex
   let req_category;
   if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
     return res.status(404).json({ state: "존재하지않는카테고리" });
@@ -52,19 +60,20 @@ const detailBoard = async function (req, res) {
   if (login_cookie) {
     model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, req.ip, login_cookie);
   }
+  // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  // 해당 boardIndex 정보가 존재하지않거나 삭제됐을 때
+  // 해당 게시글 정보가 없을 때
   else if (model_results.state === "존재하지않는게시글") return res.status(404).json(model_results);
-  // 해당 boardIndex 정보 가져오기
+  // 해당 게시글 정보 가져오기
   else if (model_results.state === "게시글상세보기") return res.status(200).json(model_results.data);
 };
-
-// 게시글 쓰기
+// 2. 게시글 작성/수정/삭제
+// 2-1. 게시글 쓰기
 const writePost = async function (req, res) {
   /*
-  params: category
   req.body
+    category: 게시판 카테고리
     postTitle: 글제목
     postContent: 글내용
     tags: 태그배열 [{content : 태그내용},{content: 태그내용}]
@@ -79,45 +88,46 @@ const writePost = async function (req, res) {
 
   // 게시글 작성 모델 실행 결과 변수
   const model_results = await post_model.writePostModel(req.body.category, req.body, login_cookie, req.ip);
+  // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 게시글 작성 요청 성공
   else if (model_results.state === "게시글작성완료") return res.status(201).end();
 };
 
-// 글 새로 작성시 그냥 return/ 수정시 기존 게시글 정보 불러오기
+// 2-2. 게시글 수정을 위해 기존 게시글 정보 불러오기
 const getWrite = async function (req, res) {
-  // params: category
+  // req.query : boardIndex
   const login_cookie = req.signedCookies.user;
   // 유저의 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 1. 글 새로 작성하는 경우
   if (req.query.boardIndex === "") return res.status(200).end();
   // 2. 기존의 글 수정하는 경우
-  // 해당 boardIndex에 대한 유저의 권한 체크 - 해당 게시글을 작성한 유저와 로그인돼있는 쿠키와 비교
-  const check_authority = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
+  // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
+  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
-  if (check_authority.state === "mysql 사용실패") return res.status(500).json(check_authority);
-  // 해당 boardIndex와 일치하는 로우가 없을 때
-  else if (check_authority.state === "존재하지않는게시글") return res.status(404).json(check_authority);
+  if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
+  // 해당 게시글 정보가 없을 때
+  else if (check_post.state === "존재하지않는게시글") return res.status(404).json(check_post);
   // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-  else if (check_authority.state === "접근권한없음") return res.status(403).json(check_authority);
+  else if (check_post.state === "접근권한없음") return res.status(403).json(check_post);
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-  else if (check_authority.state === "접근성공") {
-    // 해당 인덱스의 게시글 정보 가져오기
+  else if (check_post.state === "접근성공") {
+    // 해당 인덱스의 게시글 정보 가져오는 모델
     const model_results = await post_model.getWriteModel(req.query.boardIndex, login_cookie, req.ip);
+    // 모델 실행결과에 따른 분기처리
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-    // 해당 boardIndex와 일치하는 로우가 없을 때
+    // 해당 게시글 정보가 없을 때
     else if (model_results.state === "존재하지않는게시글") return res.status(404).json(model_results);
     // 성공적으로 게시글 정보 가져왔을 때
     else if (model_results.state === "게시글정보로딩") return res.status(200).json(model_results.data);
   }
 };
-// 게시글 수정요청
+// 2-3. 게시글 수정요청
 const revisePost = async function (req, res) {
   /*
-params: category
 req.body
   category: 카테고리(자유게시판/공부인증샷)
   postTitle: 글제목
@@ -128,11 +138,11 @@ req.body
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
 
-  // 해당 boardIndex에 대한 유저의 권한 체크
+  // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
   const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
-  // 해당 boardIndex와 일치하는 로우가 없을 때
+  // 해당 게시글 정보가 없을 때
   else if (check_post.state === "존재하지않는게시글") return res.status(404).json(check_post);
   // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
   else if (check_post.state === "접근권한없음") return res.status(403).json(check_post);
@@ -149,18 +159,18 @@ req.body
   }
 };
 
-// 게시글 삭제하기
+// 2-4. 게시글 삭제하기
 const deletePost = async function (req, res) {
-  // params: boardIndex
+  // req.query: boardIndex
 
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 boardIndex에 대한 유저의 권한 체크
+  // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
   const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
-  // 해당 boardIndex와 일치하는 로우가 없을 때
+  // 해당 게시글 정보가 없을 때
   else if (check_post.state === "존재하지않는게시글") return res.status(404).json(check_post);
   // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
   else if (check_post.state === "접근권한없음") return res.status(403).json(check_post);
@@ -174,20 +184,10 @@ const deletePost = async function (req, res) {
     else if (model_results.state === "게시글삭제") return res.status(204).end();
   }
 };
-
-// 좋아요 기능 -> 고민: 유저측에서 관리를 할지, 해당 게시물측에서 관리할지?
-// 게시물이 삭제될 경우에 유저 측의 정보를 따로 삭제해주는 기능을 구현해줘야하기 때문에 게시글 측에서 관리하기로 결정.
-// 예시 게시글 정보
-/*
-{
-category : "자유게시판",
-boardIndex : 134,
-likeUser : [{ nickName : "Zoe"}, { nickName : "yeji" }] //< 해당 게시글에 좋아요를 누른 유저 목록
-
-}
- */
+// 3. 좋아요/검색기능
+// 3-1. 게시글 좋아요 요청
 const likePost = async function (req, res) {
-  // params: boardIndex
+  // req.query: boardIndex
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
@@ -200,7 +200,7 @@ const likePost = async function (req, res) {
   // 성공적으로 좋아요 요청 수행
   else if (model_results.state === "좋아요+1") return res.status(200).json(model_results);
 };
-// 검색기능
+// 3-2. 게시글 검색기능
 const searchPost = async function (req, res) {
   /*
   req.body
@@ -209,6 +209,7 @@ const searchPost = async function (req, res) {
   req.params
     category (자유게시판/공부인증샷)
    */
+  // 유효성 검사
   // params.category 잘못 입력했을 때
   if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
     return res.status(404).json({ state: "존재하지않는카테고리" });
@@ -223,6 +224,7 @@ const searchPost = async function (req, res) {
   )
     return res.status(400).json({ state: "유효하지않은정보" });
 
+  // req.category에 따라 DB 값과 비교할 값으로 변경해주기
   let req_category;
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   else if (req.params.category === "proof-shoot") req_category = "공부인증샷";

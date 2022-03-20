@@ -13,7 +13,7 @@ router.get("/board", controller.getRecentPost);
 router.get("/board/:category", controller.entireBoard);
 // 각 게시물 상세보기
 router.get("/board/:category/:boardIndex", controller.detailBoard);
-// 글작성 완료시
+// 최초 게시글 작성 요청
 router.post(
   "/write",
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
@@ -27,7 +27,7 @@ router.post(
   check.is_validate,
   controller.writePost,
 );
-// 글 작성창 (최초작성, 기존 댓글 수정 기능 여기에 다 있음)
+// 수정시 기존 게시글 정보 가져오기
 router.get("/write", controller.getWrite);
 // 게시글 수정 요청
 router.patch(
@@ -43,7 +43,7 @@ router.patch(
   check.is_validate,
   controller.revisePost,
 );
-// 게시물 삭제
+// 게시물 삭제 요청
 router.delete("/delete", controller.deletePost);
 // 좋아요 기능
 router.patch("/like", controller.likePost);

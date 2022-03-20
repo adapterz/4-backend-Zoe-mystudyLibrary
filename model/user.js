@@ -1,19 +1,27 @@
+// 유저 모델
 const mysql = require("mysql2/promise");
 const db = require("../my_module/db");
 const moment = require("../my_module/date_time");
 const { hashPw } = require("../my_module/pw_bcrypt");
 const bcrypt = require("bcrypt");
 const { queryFail, querySuccessLog } = require("../my_module/query_log");
+/*
+1. 회원가입/탈퇴
+2. 로그인/(로그아웃 - 모델x)
+3. 유저 관심도서관 조회/등록/탈퇴
+4. 유저가 작성한 글/댓글/후기 조회
+5. 유저 정보 수정
+ */
 
-// 내 정보/회원가입 기능 관련 모델
-// 회원가입 모듈
+// 1. 회원가입/탈퇴
+// 1-1. 회원가입
 async function signUpModel(input_user, ip) {
   // 유저가 입력한 아이디가 기존에 있는지 select 해올 쿼리문
   let query = "SELECT id FROM USER WHERE id = " + mysql.escape(input_user.id);
   // 성공시
   try {
     let [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공
+    // 성공로그
     await querySuccessLog(ip, query);
     // 1. 유저가 입력한 id나 닉네임이 기존에 있을 때
     // 유저가 입력한 아이디가 기존에 존재하는 아이디일 때
@@ -68,7 +76,7 @@ async function signUpModel(input_user, ip) {
   }
 }
 
-// 회원탈퇴
+// 1-2. 회원탈퇴
 async function dropOutModel(ip, login_cookie) {
   // 해당 유저 데이터 삭제 쿼리문
   const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
@@ -87,14 +95,14 @@ async function dropOutModel(ip, login_cookie) {
   }
 }
 
-// 로그인 모델
+// 2. 로그인
 async function loginModel(input_login, ip) {
-  // 유저가 입력한 id의 로우 정보 가져오는 쿼리문
+  // 유저가 입력한 id의 유저 정보 가져오는 쿼리문
   const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(input_login.id);
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공로그
+    // 성공로그
     await querySuccessLog(ip, query);
 
     // 1. 요청한 id와 일치하는 아이디가 없을 때
@@ -115,15 +123,15 @@ async function loginModel(input_login, ip) {
   }
 }
 
-// 유저가 등록한 관심도서관 정보 불러오는 모델
+// 3. 내 관심도서관 조회/등록/탈퇴
+// 3-1. 관심도서관 조회
 async function userLibModel(user_index, ip) {
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade),COUNT(grade) FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
     mysql.escape(user_index) +
     "GROUP BY libraryIndex";
-  //";" +
-  //"SELECT AVG(grade) FROM REVIEW INNER JOIN USERLIBRARY ON REVIEW.libraryIndex=USERLIBRARY.libraryIndex  WHERE REVIEW.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL GROUP BY USERLIBRARY.libraryIndex;";
+  // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
     // 쿼리 성공 로그
@@ -139,8 +147,9 @@ async function userLibModel(user_index, ip) {
   }
 }
 
-// 해당 인덱스의 도서관 관심도서관으로 등록하는 모델
+// 3-2. 관심도서관 등록
 async function registerMyLibModel(library_index, user_index, ip) {
+  // 기존에 등록돼있는 관심도서관인지 확인하는 쿼리문
   let query =
     "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE userIndex=" +
     mysql.escape(user_index) +
@@ -162,7 +171,7 @@ async function registerMyLibModel(library_index, user_index, ip) {
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       ")";
     await db.pool.query(query);
-    // 쿼리문 메서드 성공
+    // 성공 로그
     await querySuccessLog(ip, query);
     return { state: "관심도서관추가" };
     // 쿼리문 실행시 에러발생
@@ -171,7 +180,7 @@ async function registerMyLibModel(library_index, user_index, ip) {
     return { state: "mysql 사용실패" };
   }
 }
-// 해당 인덱스의 도서관 관심도서관 취소하는 모델
+// 3-3. 관심도서관 삭제
 async function deleteMyLibModel(library_index, user_index, ip) {
   // 등록한 관심도서관이 존재하는지 확인하는 쿼리문
   let query =
@@ -202,19 +211,92 @@ async function deleteMyLibModel(library_index, user_index, ip) {
   }
 }
 
-// 프로필 변경 요청 모델
+// 4. 유저가 작성한 글/댓글/후기 조회
+// 4-1. 유저가 작성한 글
+async function userBoardModel(user_index, ip) {
+  // 해당 유저가 작성한 게시글 정보 가져오기
+  const query =
+    "SELECT boardIndex,postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
+    mysql.escape(user_index);
+  // 성공시
+  try {
+    const [results, fields] = await db.pool.query(query);
+    // 성공 로그
+    await querySuccessLog(ip, query);
+    // 요청한 데이터가 없을 때
+    if (results[0] === undefined) {
+      return { state: "등록된글이없음" };
+    }
+    // 성공 로그찍기, 커밋하고 data return
+    return { state: "내작성글조회", data: results };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await queryFail(err, ip, query);
+    return { state: "mysql 사용실패" };
+  }
+}
+
+// 4-2. 유저가 작성한 댓글
+async function userCommentModel(user_index, ip) {
+  // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
+  const query =
+    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
+    mysql.escape(user_index);
+
+  // 성공시
+  try {
+    const [results, fields] = await db.pool.query(query);
+    // 쿼리문 성공 로그
+    await querySuccessLog(ip, query);
+    // DB에 데이터가 없을 때
+    if (results[0] === undefined) {
+      return { state: "등록된댓글없음" };
+    }
+    // DB에 데이터가 있을 때
+    return { state: "성공적조회", data: results };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await queryFail(err, ip, query);
+    return { state: "mysql 사용실패" };
+  }
+}
+
+// 4-3. 유저가 작성한 후기
+async function userReviewModel(user_index, ip) {
+  // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
+  const query =
+    "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
+    mysql.escape(user_index);
+
+  // 성공시
+  try {
+    const [results, fields] = await db.pool.query(query);
+    // 성공 로그
+    await querySuccessLog(ip, query);
+    // 데이터가 없을 때
+    if (results[0] === undefined) {
+      return { state: "등록된후기없음" };
+    }
+    // 데이터가 있을 때
+    return { state: "성공적조회", data: results };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await queryFail(err, ip, query);
+    return { state: "mysql 사용실패" };
+  }
+}
+// 5. 유저 정보 수정
+// 5-1. 프로필 변경
 async function reviseProfileModel(input_revise, ip, login_cookie) {
   // 유저가 입력한 닉네임이 기존에 존재하는지 확인하기 위해 select 해올 쿼리문
   let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(input_revise.nickName);
   // 성공시
   try {
-    await db.pool.query("START TRANSACTION");
     let [results, fields] = await db.pool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
     // 유저가 입력한 닉네임이 기존에 존재할 때
     if (results[0] !== undefined) {
-      await db.pool.query("ROLLBACK");
       return { state: "중복닉네임" };
     }
 
@@ -229,25 +311,18 @@ async function reviseProfileModel(input_revise, ip, login_cookie) {
       " WHERE userIndex =" +
       mysql.escape(login_cookie);
 
-    console.log(1);
     await db.pool.query(query);
-
-    console.log(2);
     // 성공 로그
     await querySuccessLog(ip, query);
-    console.log(3);
-    await db.pool.query("COMMIT");
 
-    console.log(4);
     return { state: "프로필변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFail(err, ip, query);
-    await db.pool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
 }
-// 연락처 변경 모델
+// 5-2. 연락처 변경 모델
 async function revisePhoneNumberModel(new_contact, ip, login_cookie) {
   // 폰번호 변경 쿼리문
   const query =
@@ -273,7 +348,7 @@ async function revisePhoneNumberModel(new_contact, ip, login_cookie) {
   }
 }
 
-// 비밀번호 수정 요청 모델
+// 5-3. 비밀번호 수정 요청 모델
 async function revisePwModel(input_pw, ip, login_cookie) {
   // 해싱된 새비밀번호 변수 미리 선언
   let hashed_new_pw;
@@ -317,86 +392,14 @@ async function revisePwModel(input_pw, ip, login_cookie) {
   }
 }
 
-async function userPostModel(user_index, ip) {
-  // 해당 유저가 작성한 게시글 정보 가져오기
-  const query =
-    "SELECT boardIndex,postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
-    mysql.escape(user_index);
-  // 성공시
-  try {
-    const [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공
-    await querySuccessLog(ip, query);
-    // 요청한 데이터가 없을 때
-    if (results[0] === undefined) {
-      return { state: "등록된글이없음" };
-    }
-    // 성공 로그찍기, 커밋하고 data return
-    return { state: "내작성글조회", data: results };
-    // 쿼리문 실행시 에러발생
-  } catch (err) {
-    await queryFail(err, ip, query);
-    return { state: "mysql 사용실패" };
-  }
-}
-
-// 해당유저가 작성한 댓글 조회 모델
-async function userCommentModel(user_index, ip) {
-  // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
-  const query =
-    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
-    mysql.escape(user_index);
-
-  // 성공시
-  try {
-    const [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공
-    await querySuccessLog(ip, query);
-    // DB에 데이터가 없을 때
-    if (results[0] === undefined) {
-      return { state: "등록된댓글없음" };
-    }
-    // DB에 데이터가 있을 때
-    return { state: "성공적조회", data: results };
-    // 쿼리문 실행시 에러발생
-  } catch (err) {
-    await queryFail(err, ip, query);
-    return { state: "mysql 사용실패" };
-  }
-}
-
-// 해당 유저가 작성한 후기 정보 가져오는 모델
-async function userReviewModel(user_index, ip) {
-  // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
-  const query =
-    "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
-    mysql.escape(user_index);
-
-  // 성공시
-  try {
-    const [results, fields] = await db.pool.query(query);
-    // 성공 로그
-    await querySuccessLog(ip, query);
-    // 데이터가 없을 때
-    if (results[0] === undefined) {
-      return { state: "등록된후기없음" };
-    }
-    // 데이터가 있을 때
-    return { state: "성공적조회", data: results };
-    // 쿼리문 실행시 에러발생
-  } catch (err) {
-    await queryFail(err, ip, query);
-    return { state: "mysql 사용실패" };
-  }
-}
 module.exports = {
   signUpModel: signUpModel,
   dropOutModel: dropOutModel,
   loginModel: loginModel,
   userLibModel: userLibModel,
-  registerMyLibModel: registerMyLibModel,
+  registerUserLibModel: registerMyLibModel,
   deleteMyLibModel: deleteMyLibModel,
-  userPostModel: userPostModel,
+  userPostModel: userBoardModel,
   userCommentModel: userCommentModel,
   userReviewModel: userReviewModel,
   reviseProfileModel: reviseProfileModel,

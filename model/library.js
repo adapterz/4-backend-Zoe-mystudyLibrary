@@ -1,6 +1,6 @@
+// 도서관 모델
 const mysql = require("mysql2/promise");
 const db = require("../my_module/db");
-const moment = require("../my_module/date_time");
 const { queryFail, querySuccessLog } = require("../my_module/query_log");
 
 // 전체 도서관 정보 불러오는 모델
@@ -49,7 +49,7 @@ async function localLibModel(input_local, ip) {
 
 // 특정 도서관 정보 가져오는 모델
 async function particularLibModel(library_index, ip) {
-  // 특정 libIndex의 도서관 정보+ 해당 도서관인덱스의 후기 정보, 후기의 평균 평점/평점개수 가져오는 다중 쿼리문
+  // 특정 libraryIndex의 도서관 정보+ 해당 도서관인덱스의 후기 정보, 후기의 평균 평점/평점개수 가져오는 다중 쿼리문
   const query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade),AVG(grade) FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex=" +
     mysql.escape(library_index) +

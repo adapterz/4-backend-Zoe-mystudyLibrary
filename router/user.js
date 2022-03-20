@@ -1,4 +1,4 @@
-// 로그인 후 내 정보창 눌렀을 때 탭 라우터
+// 유저 라우터
 const express = require("express");
 const router = express.Router();
 const controller = require("../controller/user");
@@ -6,7 +6,14 @@ const controller = require("../controller/user");
 // 유효성 검사 모듈
 const { body } = require("express-validator");
 const check = require("../my_module/check_validation");
-
+/*
+1. 회원가입/탈퇴
+2. 로그인/(로그아웃 - 모델x)
+3. 관심도서관 조회/등록/탈퇴
+4. 유저가 작성한 글/댓글/후기 조회
+5. 유저 정보 수정
+ */
+// 1. 회원가입/탈퇴
 // 회원가입 약관확인
 router.post(
   "/guide",
@@ -43,25 +50,29 @@ router.post(
   controller.signUp,
 );
 
+// 2. 로그인/로그아웃
 // 로그인 요청
 router.post("/login", body("id").isString().trim(), body("pw").isString().trim(), check.is_validate, controller.login);
 // 로그아웃 요청
 router.post("/logout", controller.logout);
 
-// 내가 관심도서관으로 등록한 도서관 정보
-router.get("/my-lib", controller.myLib);
+// 3. 관심도서관 조회/등록/삭제
+// 관심도서관 조회
+router.get("/user-lib", controller.userLib);
+// 관심도서관 등록
+router.patch("/user-lib", controller.registerUserLib);
+// 관심도서관 삭제
+router.delete("/user-lib", controller.deleteUserLib);
 
-// 내 정보의 '관심 도서관'에 특정도서관 데이터 추가
-router.patch("/my-lib", controller.registerMyLib);
-// 특정 도서관 관심도서관에서 삭제
-router.delete("/my-lib", controller.deleteMyLib);
-// 내가 쓴 글 목록 가져오기
-router.get("/post", controller.myPost);
-// 내가 쓴 댓글 목록 가져오기
-router.get("/comment", controller.myComment);
-// 도서관 후기 목록 가져오기
-router.get("/review", controller.myReview);
+// 4. 유저가 작성한 글/댓글/후기
+// 유저가 쓴 글 목록 가져오기
+router.get("/post", controller.userPost);
+// 유저가 쓴 댓글 목록 가져오기
+router.get("/comment", controller.userComment);
+// 유저가 작성한 도서관 후기 목록 가져오기
+router.get("/review", controller.userReview);
 
+// 5. 유저 정보 수정
 // 내프로필 변경
 router.patch(
   "/profile",

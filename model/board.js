@@ -1,9 +1,34 @@
+// 게시판 모델
+// 필요모듈
 const mysql = require("mysql2/promise");
 const db = require("../my_module/db");
 const moment = require("../my_module/date_time");
 const { queryFail, querySuccessLog } = require("../my_module/query_log");
-
-// 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
+/*
+1. 게시글 조회
+2. 게시글 작성/수정/삭제
+3. 좋아요/검색 기능
+ */
+// 1. 게시글 조회
+// 1-1. 최신글 정보 가져오기
+async function getRecentPostModel(ip) {
+  // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
+  const query =
+    "SELECT postTitle,nickName,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
+    "SELECT postTitle,nickName,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
+  // 성공시
+  try {
+    const [results, fields] = await db.pool.query(query, ["자유게시판", "공부인증샷"]);
+    // 성공 로그찍기
+    await querySuccessLog(ip, query);
+    return { state: "최신글정보", data: results };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await queryFail(err, ip, query);
+    return { state: "mysql 사용실패" };
+  }
+}
+// 1-2. 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
 async function entireBoardModel(category, ip) {
   // 카테고리에 맞는 전체 게시글 정보 가져오기
   const query =
@@ -12,8 +37,9 @@ async function entireBoardModel(category, ip) {
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
-    // 성공 로그찍기, 커밋하고 data return
+    // 성공 로그찍기
     await querySuccessLog(ip, query);
+    // 가져온 게시글 정보 return
     return { state: "전체게시글", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
@@ -22,7 +48,7 @@ async function entireBoardModel(category, ip) {
   }
 }
 
-// 특정 게시글 상세보기
+// 1-3. 특정 게시글 상세보기
 async function detailBoardModel(category, board_index, ip, user_index) {
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
@@ -32,14 +58,12 @@ async function detailBoardModel(category, board_index, ip, user_index) {
     mysql.escape(board_index);
   // 성공시
   try {
-    await db.pool.query("START TRANSACTION");
     // 게시글 정보가져오는 쿼리 메서드
     let [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공
+    // 성공 로그찍기
     await querySuccessLog(ip, query);
     // 요청한 게시글 인덱스의 게시물이 존재하지 않을 때
     if (results[0] === undefined) {
-      await db.pool.query("ROLLBACK");
       return { state: "존재하지않는게시글" };
     }
     query =
@@ -57,25 +81,23 @@ async function detailBoardModel(category, board_index, ip, user_index) {
 
     // 게시글 정보가져오는 쿼리 메서드
     [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공
+    // 성공 로그찍기
     await querySuccessLog(ip, query);
-    // TODO 보완
     // 조회수 중복증가 여부 체크해서 반영해주는 메서드
     await increaseViewCount(board_index, user_index, ip);
 
     // 성공적으로 게시글 정보 조회
-    await db.pool.query("COMMIT");
     return { state: "게시글상세보기", data: results[0] };
 
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFail(err, ip, query);
-    await db.pool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
 }
 
-// 게시글 쓰기(최초)
+// 2. 게시글 작성/수정/삭제
+// 2-1. 게시글 최초 작성
 async function writePostModel(category, input_write, user_index, ip) {
   let query;
   // 게시글 작성 쿼리문
@@ -95,7 +117,7 @@ async function writePostModel(category, input_write, user_index, ip) {
   try {
     await db.pool.query("START TRANSACTION");
     const [results, fields] = await db.pool.query(query);
-    // 쿼리문 성공 메서드
+    // 쿼리문 성공로그
     await querySuccessLog(ip, query);
     // 태그 추가 쿼리문
     // 태그 쿼리문 추가, 태그 배열이 비어있으면 해당 반복문은 작동하지 않음
@@ -124,22 +146,22 @@ async function writePostModel(category, input_write, user_index, ip) {
     return { state: "mysql 사용실패" };
   }
 }
-// 게시글 수정하기 버튼 눌렀을 때 기존 게시글 정보 불러오는 모델
+// 2-2. 게시글 수정시 기존 게시글 정보 불러오기
 async function getWriteModel(board_index, user_index, ip) {
-  // 해당 인덱스의 게시글 가져오기
+  // 해당 인덱스의 게시글 정보 가져오기 + 해당 게시글인덱스의 태그 가져오기
   const query =
     "SELECT postTitle,postContent,viewCount,favoriteCount,createDateTime FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex = " +
     mysql.escape(board_index) +
     ";" +
     "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND boardIndex=" +
     mysql.escape(board_index) +
-    ";"; // 해당 게시글인덱스의 태그 가져오기
+    ";";
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
-    // 쿼리문 메서드 성공로그
+    // 쿼리문 성공로그
     await querySuccessLog(ip, query);
-    // 해당 게시글인덱스의 게시글이 없을 때
+    // 해당 게시글이 없을 때
     if (results[0] === undefined) {
       return { state: "존재하지않는게시글" };
     }
@@ -150,9 +172,9 @@ async function getWriteModel(board_index, user_index, ip) {
     return { state: "mysql 사용실패" };
   }
 }
-// 게시글 수정 요청 모델
+// 2-3. 게시글 수정 요청
 async function revisePost(input_write, board_index, user_index, ip) {
-  // 게시글 수정요청 쿼리문
+  // 게시글 정보 수정 요청 쿼리문
   let query =
     "UPDATE BOARD SET postTitle = " +
     mysql.escape(input_write.postTitle) +
@@ -171,7 +193,7 @@ async function revisePost(input_write, board_index, user_index, ip) {
   try {
     await db.pool.query("START TRANSACTION");
     await db.pool.query(query);
-    // 쿼리메서드 성공
+    // 쿼리 성공로그
     await querySuccessLog(ip, query);
     // 태그 추가 쿼리문
     // 태그 쿼리문 추가, 태그 배열이 비어있으면 해당 반복문은 작동하지 않음
@@ -199,7 +221,7 @@ async function revisePost(input_write, board_index, user_index, ip) {
   }
 }
 
-// 선택 게시글 삭제
+// 2-4. 게시글 삭제 요청
 async function deletePostModel(board_index, user_index, ip) {
   // 해당 인덱스 게시글 삭제
   const query =
@@ -234,7 +256,7 @@ async function deletePostModel(board_index, user_index, ip) {
   // 성공시
   try {
     await db.pool.query(query);
-    // 성공 로그찍기, 커밋
+    // 성공 로그찍기
     await querySuccessLog(ip, query);
     return { state: "게시글삭제" };
     // 쿼리문 실행시 에러발생
@@ -244,7 +266,8 @@ async function deletePostModel(board_index, user_index, ip) {
   }
 }
 
-// 게시글에 좋아요 누르기 모델
+// 3. 좋아요 요청/검색기능
+// 3-1. 게시글 좋아요 요청
 async function likePostModel(board_index, user_index, ip) {
   // 좋아요한 유저 테이블에 해당게시글에 좋아요 누른 유저인덱스 추가하는 쿼리문
   let query =
@@ -281,32 +304,12 @@ async function likePostModel(board_index, user_index, ip) {
     return { state: "mysql 사용실패" };
   }
 }
-// 최신글 정보 가져오기
-async function getRecentPostModel(ip) {
-  // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
-  const query =
-    "SELECT postTitle,nickName,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
-    "SELECT postTitle,nickName,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
-  // 성공시
-  try {
-    const [results, fields] = await db.pool.query(query, ["자유게시판", "공부인증샷"]);
-    // 성공 로그찍기
-    await querySuccessLog(ip, query);
-    return { state: "최신글정보", data: results };
-    // 쿼리문 실행시 에러발생
-  } catch (err) {
-    await queryFail(err, ip, query);
-    return { state: "mysql 사용실패" };
-  }
-}
 
-// 검색 기능
+// 3-2. 게시글 검색 기능
 async function searchModel(search_option, search_content, category, ip) {
   // 검색 옵션에 맞는 게시글 정보 select 해오는 쿼리문 작성 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
-  // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   let query;
-  // 카테고리에 맞는 전체 게시글 정보 가져오기
-
+  // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (search_option === "제목만") {
     query =
       "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
@@ -354,7 +357,9 @@ async function searchModel(search_option, search_content, category, ip) {
     return { state: "mysql 사용실패" };
   }
 }
-// 특정 게시글을 봤을 때 조회수 중복증가 여부 체크해서 반영해주는 메서드 (export 할 메서드 x 해당 post model안에서만 사용)
+
+// +) board model에서만 쓰일 메서드
+// 특정 게시글을 봤을 때 조회수 중복증가 여부 체크해서 반영해주는 메서드 (해당 model 안에서만 사용)
 const increaseViewCount = async function (board_index, user_index, ip) {
   // 기존에 요청 유저 ip로 게시글 조회한 기록이 있는지 확인하는 쿼리문
   let query;

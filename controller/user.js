@@ -1,8 +1,17 @@
-// 내 정보 라우터의 컨트롤러
+// 유저 컨트롤러
+/*
+1. 회원가입/탈퇴
+2. 로그인/로그아웃
+3. 관심도서관 조회/등록/탈퇴
+4. 유저가 작성한 글/댓글/후기 조회
+5. 유저 정보 수정
+ */
+
 const user_model = require("../model/user");
 const check_data_or_authority_model = require("../my_module/check_data_or_authority");
 
-// 회원가입 약관확인
+// 1. 회원가입/탈퇴
+// 1-1. 회원가입 약관 확인
 const signUpGuide = async function (req, res) {
   // 약관동의 체크박스(예시 body)
   /*
@@ -20,7 +29,7 @@ const signUpGuide = async function (req, res) {
   res.status(400).json({ state: "안내사항을 읽고 동의해주세요." });
 };
 
-// 회원가입 요청
+// 1-2. 회원가입 요청
 const signUp = async function (req, res) {
   /*
   req.body
@@ -30,9 +39,9 @@ const signUp = async function (req, res) {
     name: 이름
     phoneNumber: 전화번호
     nickName: 닉네임
-    gender : 여,남
+    gender : 성별(여 or 남)
    */
-  // gender 유효성 확인
+  // req.body.gender 유효성 확인
   if (!(req.body.gender === "여" || req.body.gender === "남")) return res.status(400).json({ state: "유효하지않은정보" });
   // 회원가입 요청 모델 실행 결과
   const model_results = await user_model.signUpModel(req.body, req.ip);
@@ -48,7 +57,35 @@ const signUp = async function (req, res) {
   // 성공적으로 회원가입
   else if (model_results.state === "회원가입") return res.status(201).json(model_results);
 };
-// 로그인
+
+// 1-3. 회원탈퇴 요청
+const dropOut = async function (req, res) {
+  // 예시 바디
+  const example_body = {
+    checkBox1: false,
+  };
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 회원탈퇴 안내조항에 체크 했는지
+  const is_agreed = req.body;
+  // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
+  if (!is_agreed) return res.status(400).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
+  // 회원탈퇴 모델 실행결과
+  const model_results = await user_model.dropOutModel(req.ip, login_cookie);
+  // 실행결과에 따라 분기처리
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // 성공적으로 회원탈퇴 요청
+  else if (model_results.state === "회원탈퇴") {
+    req.session.destroy(function (err) {});
+    res.clearCookie("user");
+    return res.status(204).json(model_results);
+  }
+};
+
+// 2. 로그인/로그아웃
+// 2-1. 로그인
 const login = async function (req, res) {
   /*
   req.body
@@ -76,7 +113,7 @@ const login = async function (req, res) {
     return res.status(200).json({ login: true });
   }
 };
-// 로그아웃
+// 2-2. 로그아웃
 const logout = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 기존에 로그인 돼있을 때 성공적으로 로그아웃 요청 수행
@@ -91,14 +128,15 @@ const logout = async function (req, res) {
   }
 };
 
-// 내 관심도서관
-const myLib = async function (req, res) {
+// 3. 관심도서관 조회/등록/삭제
+// 3-1. 관심도서관 조회
+const userLib = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
   const model_results = await user_model.userLibModel(login_cookie, req.ip);
-  // 실행결과에 따라 분기처리
+  // 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 등록된 도서관 정보가 없을 때
@@ -106,76 +144,37 @@ const myLib = async function (req, res) {
   // 해당 유저가 지금까지 등록한 관심도서관 정보 응답
   else if (model_results.state === "유저의관심도서관") return res.status(200).json(model_results.data);
 };
-// 내가 작성한 게시글 정보
-const myPost = async function (req, res) {
-  // 로그인 여부 검사
-  const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
-  const model_results = await user_model.userPostModel(login_cookie, req.ip);
-  // 모델 실행결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
-  // 내가 작성한 글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
-  else if (model_results.state === "등록된글이없음") return res.status(200).json(model_results.state);
-  // 성공적으로 내가 작성한 게시글 정보 응답
-  else if (model_results.state === "내작성글조회") return res.status(200).json(model_results.data);
-};
-// 내가 작성한 댓글 정보
-const myComment = async function (req, res) {
-  // 로그인 여부 검사
-  const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 유저가 작성한 후기 정보 가져올 모델 실행 결과
-  const model_results = await user_model.userCommentModel(login_cookie, req.ip);
-  // 모델 실행결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  // 내가 작성한 댓글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
-  else if (model_results.state === "등록된댓글없음") return res.status(200).json(model_results);
-  // 성공적으로 내가 작성한 댓글 정보 응답
-  else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
-};
-// 내가 작성한 도서관 이용 후기 데이터
-const myReview = async function (req, res) {
-  // 로그인 여부 검사
-  const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
-  const model_results = await user_model.userReviewModel(login_cookie, req.ip);
-  // 모델 실행결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  // 내가 작성한 후기가 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
-  else if (model_results.state === "등록된후기없음") return res.status(200).json(model_results);
-  // 성공적으로 내가 작성한 후기 정보 응답
-  else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
-};
 
-// 내 정보 '관심도서관' 항목에 해당 인덱스의 도서관 데이터 추가
-const registerMyLib = async function (req, res) {
-  // params: libIndex
+// 3-2. 관심도서관 등록
+const registerUserLib = async function (req, res) {
+  // req.query: libraryIndex
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 관심도서관 항목 추가 모델 실행 결과
-  const model_results = await user_model.registerMyLibModel(req.query.libraryIndex, login_cookie, req.ip);
+  const model_results = await user_model.registerUserLibModel(req.query.libraryIndex, login_cookie, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // 기존에 관심도서관으로 등록된 정보
   else if (model_results.state === "중복된등록요청") return res.status(400).json(model_results);
   // 성공적으로 관심도서관 추가 요청 수행
   else if (model_results.state === "관심도서관추가") return res.status(200).end();
 };
 
-// 내 관심도서관 삭제
-const deleteMyLib = async function (req, res) {
+// 3-3. 관심도서관 삭제
+const deleteUserLib = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 도서관 정보가 있는지, 해당 도서관이 관심도서관으로 등록돼있는지 확인해주는 메서드
   const check_my_lib = await check_data_or_authority_model.checkMyLibModel(req.query.libraryIndex, login_cookie, req.ip);
+  // 존재하지않는 도서관 정보
   if (check_my_lib.state === "존재하지않는도서관") return res.status(404).json(check_my_lib);
+  // 관심도서관으로 등록되지 않은 도서관(도서관 정보는 있지만 해당 유저가 구독하지 않음)
   else if (check_my_lib.state === "등록되지않은관심도서관") return res.status(400).json(check_my_lib);
+  // mysql query 메서드 사용실패
   else if (check_my_lib.state === "mysql 사용실패") return res.status(500).json(check_my_lib);
+  // 접근성공
   else if (check_my_lib.state === "접근성공") {
     // 해당 유저가 관심도서관으로 등록한 도서관 정보 삭제하는모델 실행결과
     const model_results = await user_model.deleteMyLibModel(req.query.libraryIndex, login_cookie, req.ip);
@@ -188,7 +187,55 @@ const deleteMyLib = async function (req, res) {
     if (model_results.state === "관심도서관삭제") return res.status(204).json(model_results);
   }
 };
-// 내 프로필 수정
+// 4. 유저가 작성한 글/댓글/후기 조회
+// 4-1. 유저가 작성한 글 조회
+const userPost = async function (req, res) {
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
+  const model_results = await user_model.userPostModel(login_cookie, req.ip);
+  // 모델 실행결과에 따른 분기처리
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
+  // 유저가 작성한 글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
+  else if (model_results.state === "등록된글이없음") return res.status(200).json(model_results.state);
+  // 성공적으로 유저가 작성한 게시글 정보 응답
+  else if (model_results.state === "내작성글조회") return res.status(200).json(model_results.data);
+};
+// 4-2. 유저가 작성한 댓글 조회
+const userComment = async function (req, res) {
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 작성한 댓글 정보 가져올 모델 실행 결과
+  const model_results = await user_model.userCommentModel(login_cookie, req.ip);
+  // 모델 실행결과에 따른 분기처리
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // 유저가 작성한 댓글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
+  else if (model_results.state === "등록된댓글없음") return res.status(200).json(model_results);
+  // 성공적으로 유저가 작성한 댓글 정보 응답
+  else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
+};
+// 4-3. 유저가 작성한 도서관 이용 후기 조회
+const userReview = async function (req, res) {
+  // 로그인 여부 검사
+  const login_cookie = req.signedCookies.user;
+  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
+  const model_results = await user_model.userReviewModel(login_cookie, req.ip);
+  // 모델 실행결과에 따른 분기처리
+  // mysql query 메서드 실패
+  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // 유저가 작성한 후기가 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
+  else if (model_results.state === "등록된후기없음") return res.status(200).json(model_results);
+  // 성공적으로 유저가 작성한 후기 정보 응답
+  else if (model_results.state === "성공적조회") return res.status(200).json(model_results.data);
+};
+
+// 5. 유저 정보 수정
+// 5-1. 유저 프로필 수정
 const reviseProfile = async function (req, res) {
   /*
   req.body
@@ -202,7 +249,6 @@ const reviseProfile = async function (req, res) {
   // 프로필 수정 요청 모델 실행결과
   const model_results = await user_model.reviseProfileModel(req.body, req.ip, login_cookie);
 
-  console.log(model_results);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -212,7 +258,7 @@ const reviseProfile = async function (req, res) {
   else if (model_results.state === "프로필변경성공") return res.status(200).end();
 };
 
-// 회원정보 수정(연락처 수정)
+// 5-2. 회원정보 수정(연락처 수정)
 const revisePhoneNumber = async function (req, res) {
   /*
   req.body
@@ -230,7 +276,7 @@ const revisePhoneNumber = async function (req, res) {
   else if (model_results.state === "연락처변경성공") return res.status(200).end();
 };
 
-// 비밀번호 수정(patch)
+// 5-3. 비밀번호 수정
 const revisePw = async function (req, res) {
   /*
   req.body
@@ -254,46 +300,20 @@ const revisePw = async function (req, res) {
   else if (model_results.state === "비밀번호변경성공") return res.status(200).json(model_results);
 };
 
-// 회원탈퇴 요청
-const dropOut = async function (req, res) {
-  // 예시 바디
-  const example_body = {
-    checkBox1: false,
-  };
-  // 로그인 여부 검사
-  const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 회원탈퇴 안내조항에 체크 했는지
-  const is_agreed = req.body;
-  // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
-  if (!is_agreed) return res.status(400).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
-  // 회원탈퇴 모델 실행결과
-  const model_results = await user_model.dropOutModel(req.ip, login_cookie);
-  // 실행결과에 따라 분기처리
-  // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
-  // 성공적으로 회원탈퇴 요청
-  else if (model_results.state === "회원탈퇴") {
-    req.session.destroy(function (err) {});
-    res.clearCookie("user");
-    return res.status(204).json(model_results);
-  }
-};
-
 // 모듈화
 module.exports = {
   signUpGuide: signUpGuide,
   signUp: signUp,
+  dropOut: dropOut,
   login: login,
   logout: logout,
-  myLib: myLib,
-  registerMyLib: registerMyLib,
-  deleteMyLib: deleteMyLib,
-  myPost: myPost,
-  myComment: myComment,
-  myReview: myReview,
+  userLib: userLib,
+  registerUserLib: registerUserLib,
+  deleteUserLib: deleteUserLib,
+  userPost: userPost,
+  userComment: userComment,
+  userReview: userReview,
   reviseProfile: reviseProfile,
   revisePhoneNumber: revisePhoneNumber,
   revisePw: revisePw,
-  dropOut: dropOut,
 };
