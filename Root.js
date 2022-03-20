@@ -59,7 +59,7 @@ app.get("/not_found", function (req, res) {
 //library_request.reqOpenData();
 
 //console.log(query);
-//  서버 시작
+// 서버 시작
 app.listen(process.env.PORT, () => {
   console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
 });
