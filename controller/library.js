@@ -2,7 +2,7 @@
 const library_model = require("../model/library");
 
 // 전체 도서관 정보
-const allLib = async function (req, res) {
+const allLibrary = async function (req, res) {
   // 전체 도서관 정보 가져오는 모델실행 결과
   const model_results = await library_model.allLibModel(req.ip);
   // 모델 실행결과에 따른 분기처리
@@ -13,7 +13,7 @@ const allLib = async function (req, res) {
 };
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 메서드
-const localLib = async function (req, res) {
+const localLibrary = async function (req, res) {
   /*
   req.body
     nameOfCity: 시도명
@@ -31,7 +31,7 @@ const localLib = async function (req, res) {
 };
 
 // 특정 도서관인덱스의 도서관 정보 응답
-const detailLib = async function (req, res) {
+const detailLibrary = async function (req, res) {
   // req.params: libraryIndex
   // 특정 libraryIndex의 도서관 정보 자세히 보는 모델 실행 결과
   const model_results = await library_model.particularLibModel(req.params.libraryIndex, req.ip);
@@ -46,7 +46,7 @@ const detailLib = async function (req, res) {
 
 // 모듈화
 module.exports = {
-  allLib: allLib,
-  localLib: localLib,
-  detailLib: detailLib,
+  allLibrary: allLibrary,
+  localLibrary: localLibrary,
+  detailLibrary: detailLibrary,
 };
