@@ -9,18 +9,33 @@ const { queryFail, querySuccessLog } = require("../my_module/query_log");
 2. 게시글 작성/수정/삭제
 3. 좋아요/검색 기능
  */
+/* TODO 조회수 좋아요 수 데이터 가공
+async function changeCount(count) {
+  let results;
+  let len;
+  // Count 가 1억 이상일 때
+  if (count > 100000000) return count;
+}
+ */
 // 1. 게시글 조회
 // 1-1. 최신글 정보 가져오기
 async function getRecentPostModel(ip) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
   const query =
-    "SELECT postTitle,nickName,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
+    "SELECT postTitle,nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
     "SELECT postTitle,nickName,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query, ["자유게시판", "공부인증샷"]);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
+    /* TODO 조회수 좋아요 수 데이터 가공
+    // 공부인증샷 조회수 확인
+    for (let index in results[1]) {
+      results[1][index].viewCount = await changeCount(results[1][index].viewCount);
+    }
+     */
+
     return { state: "최신글정보", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
