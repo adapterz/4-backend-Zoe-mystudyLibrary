@@ -129,7 +129,7 @@ const logout = async function (req, res) {
 
 // 3. 관심도서관 조회/등록/삭제
 // 3-1. 관심도서관 조회
-const userLib = async function (req, res) {
+const userLibrary = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
@@ -145,7 +145,7 @@ const userLib = async function (req, res) {
 };
 
 // 3-2. 관심도서관 등록
-const registerUserLib = async function (req, res) {
+const registerUserLibrary = async function (req, res) {
   // req.query: libraryIndex
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
@@ -161,7 +161,7 @@ const registerUserLib = async function (req, res) {
 };
 
 // 3-3. 관심도서관 삭제
-const deleteUserLib = async function (req, res) {
+const deleteUserLibrary = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
@@ -318,9 +318,9 @@ module.exports = {
   dropOut: dropOut,
   login: login,
   logout: logout,
-  userLib: userLib,
-  registerUserLib: registerUserLib,
-  deleteUserLib: deleteUserLib,
+  userLibrary: userLibrary,
+  registerUserLibrary: registerUserLibrary,
+  deleteUserLibrary: deleteUserLibrary,
   userPost: userPost,
   userComment: userComment,
   userReview: userReview,

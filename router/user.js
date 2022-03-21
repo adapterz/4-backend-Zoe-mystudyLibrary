@@ -16,7 +16,7 @@ const check = require("../my_module/check_validation");
 // 1. 회원가입/탈퇴
 // 회원가입 약관확인
 router.post(
-  "/guide",
+  "/sign-up/guide",
   body("checkBox1").isBoolean(),
   body("checkBox2").isBoolean(),
   body("checkBox3").isBoolean(),
@@ -63,11 +63,11 @@ router.post("/logout", controller.logout);
 
 // 3. 관심도서관 조회/등록/삭제
 // 관심도서관 조회
-router.get("/user-lib", controller.userLib);
+router.get("/user-lib", controller.userLibrary);
 // 관심도서관 등록
-router.patch("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), check.isExist, controller.registerUserLib);
+router.patch("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), check.isExist, controller.registerUserLibrary);
 // 관심도서관 삭제
-router.delete("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), check.isExist, controller.deleteUserLib);
+router.delete("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), check.isExist, controller.deleteUserLibrary);
 
 // 4. 유저가 작성한 글/댓글/후기
 // 유저가 쓴 글 목록 가져오기
