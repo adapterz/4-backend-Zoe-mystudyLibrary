@@ -29,14 +29,20 @@ async function getRecentPostModel(ip) {
   }
 }
 // 1-2. 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
-async function entireBoardModel(category, ip) {
+async function entireBoardModel(category, page, ip) {
   // 카테고리에 맞는 전체 게시글 정보 가져오기
   const query =
     "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
-    mysql.escape(category);
+    mysql.escape(category) +
+    "ORDER BY boardIndex DESC LIMIT " +
+    10 * (page - 1) +
+    ", 10";
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
+    if (results[0] === undefined) {
+      return { state: "존재하지않는정보" };
+    }
     // 성공 로그찍기
     await querySuccessLog(ip, query);
     // 가져온 게시글 정보 return
@@ -49,7 +55,7 @@ async function entireBoardModel(category, ip) {
 }
 
 // 1-3. 특정 게시글 상세보기
-async function detailBoardModel(category, board_index, ip, user_index) {
+async function detailBoardModel(category, board_index, page, ip, user_index) {
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
     "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
@@ -77,7 +83,9 @@ async function detailBoardModel(category, board_index, ip, user_index) {
       ";" +
       "SELECT commentContent, createDateTime FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
       mysql.escape(board_index) +
-      ";";
+      "ORDER BY commentIndex DESC LIMIT " +
+      5 * (page - 1) +
+      ",5;";
 
     // 게시글 정보가져오는 쿼리 메서드
     [results, fields] = await db.pool.query(query);
@@ -87,7 +95,7 @@ async function detailBoardModel(category, board_index, ip, user_index) {
     await increaseViewCount(board_index, user_index, ip);
 
     // 성공적으로 게시글 정보 조회
-    return { state: "게시글상세보기", data: results[0] };
+    return { state: "게시글상세보기", data: results };
 
     // 쿼리문 실행시 에러발생
   } catch (err) {

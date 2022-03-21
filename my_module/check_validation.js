@@ -1,5 +1,5 @@
 // 유효성 체크 메서드
-const { validationResult } = require("express-validator");
+const { query, validationResult } = require("express-validator");
 
 // body 유효하지 않을 때
 const isValidate = function (req, res, next) {
@@ -51,6 +51,13 @@ const isSearchOption = function (req, res, next) {
     return res.status(400).json({ state: "유효하지않은검색옵션" });
   next();
 };
+// 페이지 유효성 체크
+const checkPageValidation = function (req, res, next) {
+  if (req.query.page !== undefined) query("page").isInt();
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(404).json({ state: "존재하지 않는 정보입니다." });
+  next();
+};
 
 module.exports = {
   isValidate: isValidate,
@@ -58,4 +65,5 @@ module.exports = {
   isCategory: isCategory,
   isCategoryWhenWrite: isCategoryWhenWrite,
   isSearchOption: isSearchOption,
+  checkPageValidation: checkPageValidation,
 };

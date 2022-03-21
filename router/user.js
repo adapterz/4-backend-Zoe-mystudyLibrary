@@ -71,11 +71,11 @@ router.delete("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max:
 
 // 4. 유저가 작성한 글/댓글/후기
 // 유저가 쓴 글 목록 가져오기
-router.get("/post", controller.userPost);
+router.get("/post", check.checkPageValidation, controller.userPost);
 // 유저가 쓴 댓글 목록 가져오기
-router.get("/comment", controller.userComment);
+router.get("/comment", check.checkPageValidation, controller.userComment);
 // 유저가 작성한 도서관 후기 목록 가져오기
-router.get("/review", controller.userReview);
+router.get("/review", check.checkPageValidation, controller.userReview);
 
 // 5. 유저 정보 수정
 // 내프로필 변경

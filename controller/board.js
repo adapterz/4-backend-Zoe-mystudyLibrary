@@ -17,7 +17,6 @@ const getRecentPost = async function (req, res) {
   else if (model_results.state === "최신글정보") return res.status(200).json(model_results.data);
 };
 
-// TODO 페이징
 // 1-2. 전체 게시물 보기
 const entireBoard = async function (req, res) {
   // req.params: category
@@ -25,11 +24,17 @@ const entireBoard = async function (req, res) {
   let req_category;
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   if (req.params.category === "proof-shot") req_category = "공부인증샷";
+  // 게시판 page 값
+  let page;
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
   // 카테고리에 따른 게시글 전체 정보 가져오는 모듈
-  const model_results = await post_model.entireBoardModel(req_category, req.ip);
+  const model_results = await post_model.entireBoardModel(req_category, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  // return 해줄 게시글이 없을 때
+  else if (model_results.state === "존재하지않는정보") return res.status(200).json(model_results);
   // 성공적으로 게시판 정보 가져오기 수행
   else if (model_results.state === "전체게시글") return res.status(200).json(model_results.data);
 };
@@ -41,18 +46,21 @@ const detailBoard = async function (req, res) {
   let req_category;
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   if (req.params.category === "proof-shot") req_category = "공부인증샷";
-  // 특정 게시글인덱스에 따른 데이터 가져오는 모듈
+  // 댓글 page 값
+  let page;
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   // 모델 결과 변수
   let model_results;
   // 로그인을 하지 않았을 때
   if (!login_cookie) {
-    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, req.ip, null);
+    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, page, req.ip, null);
   }
   // 로그인을 했을 때
   if (login_cookie) {
-    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, req.ip, login_cookie);
+    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, page, req.ip, login_cookie);
   }
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패

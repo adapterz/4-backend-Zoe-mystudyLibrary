@@ -192,8 +192,12 @@ const userPost = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // page 값
+  let page;
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
   // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
-  const model_results = await user_model.userPostModel(login_cookie, req.ip);
+  const model_results = await user_model.userPostModel(login_cookie, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
@@ -207,8 +211,12 @@ const userComment = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // page 값
+  let page;
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
   // 해당 유저가 작성한 댓글 정보 가져올 모델 실행 결과
-  const model_results = await user_model.userCommentModel(login_cookie, req.ip);
+  const model_results = await user_model.userCommentModel(login_cookie, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -222,8 +230,12 @@ const userReview = async function (req, res) {
   // 로그인 여부 검사
   const login_cookie = req.signedCookies.user;
   if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // page 값
+  let page;
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
   // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
-  const model_results = await user_model.userReviewModel(login_cookie, req.ip);
+  const model_results = await user_model.userReviewModel(login_cookie, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);

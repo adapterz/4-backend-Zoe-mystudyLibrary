@@ -10,9 +10,16 @@ const check = require("../my_module/check_validation");
 // 최신글 자유게시판 5개, 공부인증샷 4개 정보
 router.get("/board", check.isExist, controller.getRecentPost);
 // 전체 게시물 목록보기
-router.get("/board/:category", check.isCategory, controller.entireBoard);
+router.get("/board/:category", check.isCategory, check.checkPageValidation, controller.entireBoard);
 // 각 게시물 상세보기
-router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), check.isCategory, check.isExist, controller.detailBoard);
+router.get(
+  "/board/:category/:boardIndex",
+  param("boardIndex").isInt(),
+  check.isCategory,
+  check.isExist,
+  check.checkPageValidation,
+  controller.detailBoard,
+);
 // 최초 게시글 작성 요청
 router.post(
   "/write",

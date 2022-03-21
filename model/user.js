@@ -213,11 +213,14 @@ async function deleteMyLibModel(library_index, user_index, ip) {
 
 // 4. 유저가 작성한 글/댓글/후기 조회
 // 4-1. 유저가 작성한 글
-async function userBoardModel(user_index, ip) {
+async function userBoardModel(user_index, page, ip) {
   // 해당 유저가 작성한 게시글 정보 가져오기
   const query =
     "SELECT boardIndex,postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
-    mysql.escape(user_index);
+    mysql.escape(user_index) +
+    "ORDER BY boardIndex DESC LIMIT " +
+    10 * (page - 1) +
+    ", 10";
   // 성공시
   try {
     const [results, fields] = await db.pool.query(query);
@@ -237,11 +240,14 @@ async function userBoardModel(user_index, ip) {
 }
 
 // 4-2. 유저가 작성한 댓글
-async function userCommentModel(user_index, ip) {
+async function userCommentModel(user_index, page, ip) {
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
     "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
-    mysql.escape(user_index);
+    mysql.escape(user_index) +
+    "ORDER BY commentIndex DESC LIMIT " +
+    5 * (page - 1) +
+    ", 5";
 
   // 성공시
   try {
@@ -262,11 +268,14 @@ async function userCommentModel(user_index, ip) {
 }
 
 // 4-3. 유저가 작성한 후기
-async function userReviewModel(user_index, ip) {
+async function userReviewModel(user_index, page, ip) {
   // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
   const query =
     "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
-    mysql.escape(user_index);
+    mysql.escape(user_index) +
+    "ORDER BY reviewIndex DESC LIMIT " +
+    5 * (page - 1) +
+    ",5";
 
   // 성공시
   try {
