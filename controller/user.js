@@ -1,4 +1,6 @@
 // 유저 컨트롤러
+const user_model = require("../model/user");
+const check_data_or_authority_model = require("../my_module/check_data_or_authority");
 /*
 1. 회원가입/탈퇴
 2. 로그인/로그아웃
@@ -6,10 +8,6 @@
 4. 유저가 작성한 글/댓글/후기 조회
 5. 유저 정보 수정
  */
-
-const user_model = require("../model/user");
-const check_data_or_authority_model = require("../my_module/check_data_or_authority");
-
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인
 const signUpGuide = async function (req, res) {
