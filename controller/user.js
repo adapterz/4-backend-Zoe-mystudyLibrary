@@ -115,7 +115,9 @@ const logout = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 기존에 로그인 돼있을 때 성공적으로 로그아웃 요청 수행
   if (login_cookie) {
-    req.session.destroy(function (err) {});
+    req.session.destroy(function (err) {
+      console.log(err);
+    });
     res.clearCookie("user");
     res.status(200).json({ state: "로그아웃" });
   }
