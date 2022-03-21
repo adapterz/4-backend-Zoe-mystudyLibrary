@@ -21,13 +21,8 @@ const getRecentPost = async function (req, res) {
 // 1-2. 전체 게시물 보기
 const entireBoard = async function (req, res) {
   // req.params: category
-  // req.params 에 따라서 DB BOARDS 테이블 category 컬럼의 값 설정
-  // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷면 공부인증샷 게시판의 글 정보만 Select 해오기
+  // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷면 공부인증샷 게시판의 글 정보만 가져오기
   let req_category;
-  // req.params.category 에 존재하지않는 카테고리가 들어왔을 때
-  if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
-    return res.status(404).json({ state: "존재하지않는카테고리" });
-  // params.category에 따라 DB에 저장될 값으로 바꿔주기
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   if (req.params.category === "proof-shot") req_category = "공부인증샷";
   // 카테고리에 따른 게시글 전체 정보 가져오는 모듈
@@ -42,9 +37,8 @@ const entireBoard = async function (req, res) {
 // 1-3. 게시물 상세보기
 const detailBoard = async function (req, res) {
   // req.params: category,boardIndex
+  // 요청 category 값이 자유게시판이면 자유게시판의 글 정보, 공부인증샷면 공부인증샷 게시판의 글 정보 가져오기
   let req_category;
-  if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
-    return res.status(404).json({ state: "존재하지않는카테고리" });
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   if (req.params.category === "proof-shot") req_category = "공부인증샷";
   // 특정 게시글인덱스에 따른 데이터 가져오는 모듈
@@ -82,9 +76,6 @@ const writePost = async function (req, res) {
   const login_cookie = req.signedCookies.user;
   // 로그인 여부 검사
   if (!login_cookie) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
-
-  if (!(req.body.category === "자유게시판" || req.body.category === "공부인증샷"))
-    return res.status(400).json({ state: "존재하지않는카테고리" });
 
   // 게시글 작성 모델 실행 결과 변수
   const model_results = await post_model.writePostModel(req.body.category, req.body, login_cookie, req.ip);
@@ -148,8 +139,6 @@ req.body
   else if (check_post.state === "접근권한없음") return res.status(403).json(check_post);
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_post.state === "접근성공") {
-    if (!(req.body.category === "자유게시판" || req.body.category === "공부인증샷"))
-      return res.status(404).json({ state: "존재하지않는카테고리" });
     // 게시글 수정 모델 실행 결과
     const model_results = await post_model.revisePost(req.body, req.query.boardIndex, login_cookie, req.ip);
     // mysql query 메서드 실패
@@ -209,20 +198,6 @@ const searchPost = async function (req, res) {
   req.params
     category (자유게시판/공부인증샷)
    */
-  // 유효성 검사
-  // params.category 잘못 입력했을 때
-  if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
-    return res.status(404).json({ state: "존재하지않는카테고리" });
-  // 검색 옵션이 올바르지 않을 때
-  if (
-    !(
-      req.query.searchOption === "제목만" ||
-      req.query.searchOption === "내용만" ||
-      req.query.searchOption === "제목 + 내용" ||
-      req.query.searchOption === "닉네임"
-    )
-  )
-    return res.status(400).json({ state: "유효하지않은정보" });
 
   // req.category에 따라 DB 값과 비교할 값으로 변경해주기
   let req_category;

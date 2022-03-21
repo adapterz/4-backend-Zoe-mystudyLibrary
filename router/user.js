@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controller/user");
 
 // 유효성 검사 모듈
-const { body } = require("express-validator");
+const { body, query } = require("express-validator");
 const check = require("../my_module/check_validation");
 /*
 1. 회원가입/탈퇴
@@ -20,7 +20,7 @@ router.post(
   body("checkBox1").isBoolean(),
   body("checkBox2").isBoolean(),
   body("checkBox3").isBoolean(),
-  check.is_validate,
+  check.isValidate,
   controller.signUpGuide,
 );
 
@@ -40,7 +40,7 @@ router.post(
     .trim()
     .isLength({ min: 1, max: 30 })
     .matches(/^[가-힣]+$/), // 한글만
-  body("phoneNumber").matches(/^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/), // 휴대전화 정규식
+  body("phoneNumber").matches(/^01([0|1|6|7|8|9])?([0-9]{3,4})?([0-9]{4})$/), // 휴대전화 정규식
   body("nickName")
     .isString()
     .trim()
@@ -51,13 +51,13 @@ router.post(
     .trim()
     .isLength({ min: 1, max: 1 })
     .matches(/^[여|남]+$/), // 여,남만 입력 가능한 정규표현식
-  check.is_validate,
+  check.isValidate,
   controller.signUp,
 );
 
 // 2. 로그인/로그아웃
 // 로그인 요청
-router.post("/login", body("id").isString().trim(), body("pw").isString().trim(), check.is_validate, controller.login);
+router.post("/login", body("id").isString().trim(), body("pw").isString().trim(), check.isValidate, controller.login);
 // 로그아웃 요청
 router.post("/logout", controller.logout);
 
@@ -65,9 +65,9 @@ router.post("/logout", controller.logout);
 // 관심도서관 조회
 router.get("/user-lib", controller.userLib);
 // 관심도서관 등록
-router.patch("/user-lib", controller.registerUserLib);
+router.patch("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), check.isExist, controller.registerUserLib);
 // 관심도서관 삭제
-router.delete("/user-lib", controller.deleteUserLib);
+router.delete("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), check.isExist, controller.deleteUserLib);
 
 // 4. 유저가 작성한 글/댓글/후기
 // 유저가 쓴 글 목록 가져오기
@@ -87,7 +87,7 @@ router.patch(
     .trim()
     .isLength({ min: 2, max: 8 })
     .matches(/^[가-힣|a-z|A-Z|0-9]+$/), // 한글, 숫자, 영어만 입력 가능한 정규 표현식
-  check.is_validate,
+  check.isValidate,
   controller.reviseProfile,
 );
 // 연락처변경 요청
@@ -96,7 +96,7 @@ router.patch(
   body("phoneNumber")
     .matches(/^01([0|1|6|7|8|9])([0-9]{3,4})([0-9]{4})$/) // 휴대전화 정규식
     .notEmpty(),
-  check.is_validate,
+  check.isValidate,
   controller.revisePhoneNumber,
 );
 // 비밀번호변경 요청
@@ -106,7 +106,7 @@ router.patch(
     .isString()
     .trim()
     .matches(/^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/), // 하나 이상의 문자(영문),숫자,특수문자가 포함되도록 하는 정규식(8~16)
-  check.is_validate,
+  check.isValidate,
   controller.revisePw,
 );
 

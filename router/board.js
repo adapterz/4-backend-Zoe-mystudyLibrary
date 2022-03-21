@@ -4,15 +4,15 @@ const router = express.Router();
 const controller = require("../controller/board");
 
 // 유효성 검사를 위한 모듈
-const { body } = require("express-validator");
+const { body, query, param } = require("express-validator");
 const check = require("../my_module/check_validation");
 
 // 최신글 자유게시판 5개, 공부인증샷 4개 정보
-router.get("/board", controller.getRecentPost);
+router.get("/board", check.isExist, controller.getRecentPost);
 // 전체 게시물 목록보기
-router.get("/board/:category", controller.entireBoard);
+router.get("/board/:category", check.isCategory, controller.entireBoard);
 // 각 게시물 상세보기
-router.get("/board/:category/:boardIndex", controller.detailBoard);
+router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), check.isCategory, check.isExist, controller.detailBoard);
 // 최초 게시글 작성 요청
 router.post(
   "/write",
@@ -24,14 +24,17 @@ router.post(
     .trim()
     .isString()
     .matches(/^[가-힣]+$/),
-  check.is_validate,
+  check.isValidate,
+  check.isCategoryWhenWrite,
   controller.writePost,
 );
 // 수정시 기존 게시글 정보 가져오기
-router.get("/write", controller.getWrite);
+router.get("/write", query("boardIndex").isInt(), check.isExist, controller.getWrite);
 // 게시글 수정 요청
 router.patch(
   "/write",
+  query("boardIndex").isInt(),
+  check.isExist,
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
   body("postContent").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }),
@@ -40,14 +43,23 @@ router.patch(
     .trim()
     .isString()
     .matches(/^[가-힣]+$/),
-  check.is_validate,
+  query("boardIndex").isInt(),
+  check.isValidate,
+  check.isCategoryWhenWrite,
   controller.revisePost,
 );
 // 게시물 삭제 요청
-router.delete("/delete", controller.deletePost);
+router.delete("/delete", query("boardIndex").isInt(), check.isExist, controller.deletePost);
 // 좋아요 기능
-router.patch("/like", controller.likePost);
+router.patch("/like", query("boardIndex").isInt(), check.isExist, controller.likePost);
 // 검색관련 기능
-router.get("/search/:category", controller.searchPost);
+router.get(
+  "/search/:category",
+  check.isCategory,
+  check.isSearchOption,
+  query("searchContent").isString(),
+  check.isValidate,
+  controller.searchPost,
+);
 // 모듈화
 module.exports = router;

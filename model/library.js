@@ -64,7 +64,7 @@ async function particularLibModel(library_index, ip) {
     // 성공 로그
     await querySuccessLog(ip, query);
     // 유저가 요청한 인덱스의 도서관 정보가 존재하지 않을 때
-    if (results[0] === undefined) {
+    if (results[0][0] === undefined) {
       return { state: "존재하지않는정보" };
     }
     // 유저가 요청한 도서관 정보가 존재할 때

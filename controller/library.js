@@ -31,10 +31,10 @@ const localLib = async function (req, res) {
 };
 
 // 특정 도서관인덱스의 도서관 정보 응답
-const particularLib = async function (req, res) {
+const detailLib = async function (req, res) {
   // req.params: libraryIndex
   // 특정 libraryIndex의 도서관 정보 자세히 보는 모델 실행 결과
-  const model_results = await library_model.particularLibModel(req.params.libIndex, req.ip);
+  const model_results = await library_model.particularLibModel(req.params.libraryIndex, req.ip);
   // 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -48,5 +48,5 @@ const particularLib = async function (req, res) {
 module.exports = {
   allLib: allLib,
   localLib: localLib,
-  particularLib: particularLib,
+  detailLib: detailLib,
 };
