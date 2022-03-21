@@ -39,8 +39,6 @@ const signUp = async function (req, res) {
     nickName: 닉네임
     gender : 성별(여 or 남)
    */
-  // req.body.gender 유효성 확인
-  if (!(req.body.gender === "여" || req.body.gender === "남")) return res.status(400).json({ state: "유효하지않은정보" });
   // 회원가입 요청 모델 실행 결과
   const model_results = await user_model.signUpModel(req.body, req.ip);
   // 모델 실행결과에 따른 분기처리

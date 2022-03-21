@@ -46,6 +46,11 @@ router.post(
     .trim()
     .isLength({ min: 2, max: 8 })
     .matches(/^[가-힣|a-z|A-Z|0-9]+$/), // 한글, 숫자, 영어만 입력 가능한 정규 표현식
+  body("gender")
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 1 })
+    .matches(/^[여|남]+$/), // 여,남만 입력 가능한 정규표현식
   check.is_validate,
   controller.signUp,
 );
