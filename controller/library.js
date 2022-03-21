@@ -20,7 +20,7 @@ const localLib = async function (req, res) {
     districts: 시군구명
    */
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 모델 실행 결과
-  const model_results = await library_model.localLibModel(req.body, req.ip);
+  const model_results = await library_model.localLibModel(req.query, req.ip);
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);

@@ -216,10 +216,10 @@ const searchPost = async function (req, res) {
   // 검색 옵션이 올바르지 않을 때
   if (
     !(
-      req.body.searchOption === "제목만" ||
-      req.body.searchOption === "내용만" ||
-      req.body.searchOption === "제목 + 내용" ||
-      req.body.searchOption === "닉네임"
+      req.query.searchOption === "제목만" ||
+      req.query.searchOption === "내용만" ||
+      req.query.searchOption === "제목 + 내용" ||
+      req.query.searchOption === "닉네임"
     )
   )
     return res.status(400).json({ state: "유효하지않은정보" });
@@ -229,7 +229,7 @@ const searchPost = async function (req, res) {
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
   else if (req.params.category === "proof-shoot") req_category = "공부인증샷";
   // 검색 모델 실행 결과
-  const model_results = await post_model.searchModel(req.body.searchOption, req.body.searchContent, req_category, req.ip);
+  const model_results = await post_model.searchModel(req.query.searchOption, req.query.searchContent, req_category, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 검색결과가 없을 때
