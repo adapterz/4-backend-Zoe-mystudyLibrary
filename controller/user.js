@@ -105,7 +105,8 @@ const login = async function (req, res) {
     // 로그인세션, 쿠키
     req.session.login = true;
     req.session.userIndex = model_results.userIndex;
-    res.cookie("user", model_results.userIndex, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
+    req.session.save();
+    res.cookie("user", req.session.userIndex, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
     return res.status(200).json({ login: true });
   }
 };
