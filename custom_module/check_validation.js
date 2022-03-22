@@ -15,7 +15,7 @@ const isExist = function (req, res, next) {
   const errors = validationResult(req);
   // 유효하지 않음
   console.log(errors);
-  if (!errors.isEmpty()) return res.status(404).json({ state: "존재하지 않는 정보입니다." });
+  if (!errors.isEmpty()) return res.status(400).json({ state: "존재하지 않는 정보입니다." });
 
   next();
 };

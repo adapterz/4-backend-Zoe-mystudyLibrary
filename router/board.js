@@ -50,7 +50,6 @@ router.patch(
     .trim()
     .isString()
     .matches(/^[가-힣]+$/),
-  query("boardIndex").isInt(),
   check.isValidate,
   check.isCategoryWhenWrite,
   controller.revisePost,

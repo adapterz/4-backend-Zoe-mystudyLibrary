@@ -1,5 +1,6 @@
 // 도서관 컨트롤러
 const library_model = require("../model/library");
+const { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } = require("../custom_module/status_code");
 
 // 전체 도서관 정보
 const allLibrary = async function (req, res) {
@@ -7,9 +8,9 @@ const allLibrary = async function (req, res) {
   const model_results = await library_model.allLibModel(req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 전체 도서관 정보 응답
-  else if (model_results.state === "전체도서관정보") return res.status(200).json(model_results.data);
+  else if (model_results.state === "전체도서관정보") return res.status(OK).json(model_results.data);
 };
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 메서드
@@ -23,11 +24,11 @@ const localLibrary = async function (req, res) {
   const model_results = await library_model.localLibModel(req.query, req.ip);
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 도서관 정보가 없을 때(올바른 요청이지만 안타깝게도 정보가 존재하지 않을 때)
-  else if (model_results.state === "존재하지않는정보") return res.status(200).json(model_results);
+  else if (model_results.state === "존재하지않는정보") return res.status(OK).json(model_results);
   // 도서관 정보가 있을 때 도서관 정보 응답
-  else if (model_results.state === "주변도서관") return res.status(200).json(model_results.data);
+  else if (model_results.state === "주변도서관") return res.status(OK).json(model_results.data);
 };
 
 // 특정 도서관인덱스의 도서관 정보 응답
@@ -37,11 +38,11 @@ const detailLibrary = async function (req, res) {
   const model_results = await library_model.particularLibModel(req.params.libraryIndex, req.ip);
   // 결과에 따른 분기처리
   // mysql query 메서드 실패
-  if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
+  if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 해당 도서관 정보가 존재하지 않거나 삭제됐을 때
-  else if (model_results.state === "존재하지않는정보") return res.status(404).json(model_results);
+  else if (model_results.state === "존재하지않는정보") return res.status(NOT_FOUND).json(model_results);
   // 성공적으로 해당 도서관 정보 응답
-  else if (model_results.state === "상세도서관정보") return res.status(200).json(model_results.data);
+  else if (model_results.state === "상세도서관정보") return res.status(OK).json(model_results.data);
 };
 
 // 모듈화
