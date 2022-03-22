@@ -238,9 +238,12 @@ const searchPost = async function (req, res) {
   // req.category에 따라 DB 값과 비교할 값으로 변경해주기
   let req_category;
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
-  else if (req.params.category === "proof-shoot") req_category = "공부인증샷";
+  else if (req.params.category === "proof-shoot") req_category = "공부인증샷"; // 댓글 page 값
+  let page;
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
   // 검색 모델 실행 결과
-  const model_results = await post_model.searchModel(req.query.searchOption, req.query.searchContent, req_category, req.ip);
+  const model_results = await post_model.searchModel(req.query.searchOption, req.query.searchContent, req_category, page, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 검색결과가 없을 때

@@ -329,7 +329,7 @@ async function likePostModel(board_index, user_index, ip) {
 }
 
 // 3-2. 게시글 검색 기능
-async function searchModel(search_option, search_content, category, ip) {
+async function searchModel(search_option, search_content, category, page, ip) {
   // 검색 옵션에 맞는 게시글 정보 select 해오는 쿼리문 작성 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
   let query;
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
@@ -338,14 +338,20 @@ async function searchModel(search_option, search_content, category, ip) {
       "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postTitle LIKE " +
-      mysql.escape("%" + search_content + "%");
+      mysql.escape("%" + search_content + "%") +
+      "ORDER BY boardIndex DESC LIMIT " +
+      10 * (page - 1) +
+      ", 10";
     // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (search_option === "내용만") {
     query =
       "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postContent LIKE " +
-      mysql.escape("%" + search_content + "%");
+      mysql.escape("%" + search_content + "%") +
+      "ORDER BY boardIndex DESC LIMIT " +
+      10 * (page - 1) +
+      ", 10";
 
     // 제목+내용 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (search_option === "제목 + 내용") {
@@ -355,14 +361,20 @@ async function searchModel(search_option, search_content, category, ip) {
       " AND postContent LIKE " +
       mysql.escape("%" + search_content + "%") +
       "OR postContent LIKE" +
-      mysql.escape("%" + search_content + "%");
+      mysql.escape("%" + search_content + "%") +
+      "ORDER BY boardIndex DESC LIMIT " +
+      10 * (page - 1) +
+      ", 10";
     // 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (search_option === "닉네임") {
     query =
       "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND nickName LIKE " +
-      mysql.escape("%" + search_content + "%");
+      mysql.escape("%" + search_content + "%") +
+      "ORDER BY boardIndex DESC LIMIT " +
+      10 * (page - 1) +
+      ", 10";
   }
   // 성공시
   try {
