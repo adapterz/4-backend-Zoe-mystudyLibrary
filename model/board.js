@@ -79,6 +79,7 @@ async function detailBoardModel(category, board_index, page, ip, user_index) {
     mysql.escape(board_index);
   // 성공시
   try {
+    await db.pool.query("START TRANSACTION");
     // 게시글 정보가져오는 쿼리 메서드
     let [results, fields] = await db.pool.query(query);
     // 성공 로그찍기
@@ -109,6 +110,7 @@ async function detailBoardModel(category, board_index, page, ip, user_index) {
     // 조회수 중복증가 여부 체크해서 반영해주는 메서드
     await increaseViewCount(board_index, user_index, ip);
 
+    await db.pool.query("COMMIT");
     // 성공적으로 게시글 정보 조회
     return { state: "게시글상세보기", data: results };
 
