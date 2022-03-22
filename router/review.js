@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controller/review");
 
 const { body, query } = require("express-validator");
-const check = require("../my_module/check_validation");
+const check = require("../custom_module/check_validation");
 // 후기 등록
 router.post(
   "/post",

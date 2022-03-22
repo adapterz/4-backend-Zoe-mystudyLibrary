@@ -1,6 +1,6 @@
 // 유저 컨트롤러
 const user_model = require("../model/user");
-const check_data_or_authority_model = require("../my_module/check_data_or_authority");
+const check_data_or_authority_model = require("../custom_module/check_data_or_authority");
 /*
 1. 회원가입/탈퇴
 2. 로그인/로그아웃

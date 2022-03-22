@@ -4,7 +4,7 @@ const router = express.Router();
 const controller = require("../controller/library");
 // 유효성 검사를 위한 모듈
 const { query, param } = require("express-validator");
-const check = require("../my_module/check_validation.js");
+const check = require("../custom_module/check_validation.js");
 
 // 전체도서관 정보
 router.get("/", controller.allLibrary);

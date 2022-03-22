@@ -1,9 +1,9 @@
 // 게시판 모델
 // 필요모듈
 const mysql = require("mysql2/promise");
-const db = require("../my_module/db");
-const moment = require("../my_module/date_time");
-const { queryFail, querySuccessLog } = require("../my_module/query_log");
+const db = require("../custom_module/db");
+const moment = require("../custom_module/date_time");
+const { queryFail, querySuccessLog } = require("../custom_module/query_log");
 /*
 1. 게시글 조회
 2. 게시글 작성/수정/삭제

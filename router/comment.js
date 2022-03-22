@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const controller = require("../controller/comment");
 const { body, query } = require("express-validator");
-const check = require("../my_module/check_validation");
+const check = require("../custom_module/check_validation");
 
 // 댓글 작성
 router.post(

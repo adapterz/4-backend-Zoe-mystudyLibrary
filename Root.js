@@ -19,7 +19,7 @@ require("dotenv").config();
 const colors = require("colors");
 
 // 날짜/시간 관련 모듈
-const moment = require("./my_module/date_time");
+const moment = require("./custom_module/date_time");
 
 // 쿠키&세션 모듈
 const cookieParser = require("cookie-parser");
@@ -54,7 +54,7 @@ app.get("/not_found", function (req, res) {
 
 // 도서관 정보 테이블에 넣기
 
-//const library_request = require("./my_module/open_api");
+//const library_request = require("./custom_module/open_api");
 //library_request.reqOpenData();
 
 //console.log(query);

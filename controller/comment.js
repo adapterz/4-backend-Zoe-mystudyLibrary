@@ -1,6 +1,6 @@
 // 댓글 컨트롤러
 const comment_model = require("../model/comment");
-const check_data_or_authority_model = require("../my_module/check_data_or_authority");
+const check_data_or_authority_model = require("../custom_module/check_data_or_authority");
 // 댓글 최초 작성
 const writeComment = async function (req, res) {
   /*

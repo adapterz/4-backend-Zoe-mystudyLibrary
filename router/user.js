@@ -5,7 +5,7 @@ const controller = require("../controller/user");
 
 // 유효성 검사 모듈
 const { body, query } = require("express-validator");
-const check = require("../my_module/check_validation");
+const check = require("../custom_module/check_validation");
 /*
 1. 회원가입/탈퇴
 2. 로그인/(로그아웃 - 모델x)

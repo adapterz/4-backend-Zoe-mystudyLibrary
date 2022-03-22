@@ -5,7 +5,7 @@ const controller = require("../controller/board");
 
 // 유효성 검사를 위한 모듈
 const { body, query, param } = require("express-validator");
-const check = require("../my_module/check_validation");
+const check = require("../custom_module/check_validation");
 
 // 최신글 자유게시판 5개, 공부인증샷 4개 정보
 router.get("/board", check.isExist, controller.getRecentPost);

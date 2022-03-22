@@ -1,6 +1,6 @@
 // 게시판 컨트롤러
 const post_model = require("../model/board");
-const check_data_or_authority_model = require("../my_module/check_data_or_authority");
+const check_data_or_authority_model = require("../custom_module/check_data_or_authority");
 /*
 1. 게시글 조회
 2. 게시글 작성/수정/삭제

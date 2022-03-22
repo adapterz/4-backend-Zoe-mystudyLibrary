@@ -1,6 +1,6 @@
 // 도서관 후기 컨트롤러
 const review_model = require("../model/review");
-const check_data_or_authority_model = require("../my_module/check_data_or_authority");
+const check_data_or_authority_model = require("../custom_module/check_data_or_authority");
 // 특정 도서관 이용 후 후기 등록
 const registerReview = async function (req, res) {
   /* req.query: libraryIndex
