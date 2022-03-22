@@ -25,13 +25,12 @@ const moment = require("./my_module/date_time");
 const cookieParser = require("cookie-parser");
 app.use(cookieParser("secret"));
 const session = require("express-session");
-const MemoryStore = require("session-memory-store")(session);
 app.use(
   session({
     secret: process.env.SESSION_PASSWORD,
     resave: false,
     saveUninitialized: false,
-    store: new MemoryStore(),
+    cookie: { maxAge: 24 * 60 * 60 * 1000 },
   }),
 );
 

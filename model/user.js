@@ -110,7 +110,6 @@ async function loginModel(input_login, ip) {
       return { state: "일치하는 id 없음" };
     }
     // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
-    console.log("pw비교" + bcrypt.compareSync(input_login.pw, results[0].pw));
     if (!bcrypt.compareSync(input_login.pw, results[0].pw)) {
       return { state: "비밀번호 불일치" };
     }

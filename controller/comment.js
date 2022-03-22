@@ -8,11 +8,15 @@ const writeComment = async function (req, res) {
   req.body
     content: 댓글내용
    */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 댓글 작성 모델 실행 결과
-  const model_results = await comment_model.writeCommentModel(req.query.boardIndex, login_cookie, req.body, req.ip);
+  const model_results = await comment_model.writeCommentModel(req.query.boardIndex, login_index, req.body, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -26,14 +30,18 @@ const getComment = async function (req, res) {
   /*
   req.query : boardIndex,commentIndex
    */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 댓글유무 체크, 댓글에 대한 유저의 권한 체크
   const check_comment = await check_data_or_authority_model.checkCommentModel(
     req.query.boardIndex,
     req.query.commentIndex,
-    login_cookie,
+    login_index,
     req.ip,
   );
   // mysql query 메서드 실패
@@ -47,7 +55,7 @@ const getComment = async function (req, res) {
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_comment.state === "접근성공") {
     // 해당 인덱스의 댓글 정보 가져오기
-    const model_results = await comment_model.getCommentModel(req.query.commentIndex, login_cookie, req.ip);
+    const model_results = await comment_model.getCommentModel(req.query.commentIndex, login_index, req.ip);
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
     // 해당 댓글이 존재하지 않을 때
@@ -62,14 +70,18 @@ const reviseComment = async function (req, res) {
   req.query: boardIndex, commentIndex
    req.body - content (댓글내용)
    */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 댓글에 존재유무와 유저의 권한 체크
   const check_comment = await check_data_or_authority_model.checkCommentModel(
     req.query.boardIndex,
     req.query.commentIndex,
-    login_cookie,
+    login_index,
     req.ip,
   );
   // mysql query 메서드 실패
@@ -83,7 +95,7 @@ const reviseComment = async function (req, res) {
   // 해당 댓글 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_comment.state === "접근성공") {
     // 댓글수정 모델 실행 결과
-    const model_results = await comment_model.reviseCommentModel(req.query.commentIndex, login_cookie, req.body, req.ip);
+    const model_results = await comment_model.reviseCommentModel(req.query.commentIndex, login_index, req.body, req.ip);
     // 모델 실행결과에 따른 분기처리
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -96,14 +108,18 @@ const deleteComment = async function (req, res) {
   /*
   req.query: boardIndex, commentIndex
    */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 게시글,댓글 유무와 댓글에 대한 유저의 권한 체크
   const check_comment = await check_data_or_authority_model.checkCommentModel(
     req.query.boardIndex,
     req.query.commentIndex,
-    login_cookie,
+    login_index,
     req.ip,
   );
   // mysql query 메서드 실패
@@ -117,7 +133,7 @@ const deleteComment = async function (req, res) {
   // 해당 댓글 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_comment.state === "접근성공") {
     // 댓글삭제 모델 실행 결과
-    const model_results = await comment_model.deleteCommentModel(req.query.commentIndex, login_cookie, req.ip);
+    const model_results = await comment_model.deleteCommentModel(req.query.commentIndex, login_index, req.ip);
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
     // 성공적으로 댓글삭제 요청 수행

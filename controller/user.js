@@ -60,21 +60,28 @@ const dropOut = async function (req, res) {
   const example_body = {
     checkBox1: false,
   };
-  // 로그인 여부 검사
+
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 회원탈퇴 안내조항에 체크 했는지
   const is_agreed = req.body;
   // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
   if (!is_agreed) return res.status(400).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
   // 회원탈퇴 모델 실행결과
-  const model_results = await user_model.dropOutModel(req.ip, login_cookie);
+  const model_results = await user_model.dropOutModel(req.ip, login_index);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 성공적으로 회원탈퇴 요청
   else if (model_results.state === "회원탈퇴") {
-    req.session.destroy(function (err) {});
+    req.session.destroy(function (err) {
+      if (err) console.log(err);
+    });
     res.clearCookie("user");
     return res.status(204).json(model_results);
   }
@@ -89,32 +96,37 @@ const login = async function (req, res) {
     pw: 비밀번호
    */
   // 기존에 로그인 돼있을 때
-  const login_cookie = req.signedCookies.user;
-  if (login_cookie) return res.status(409).json({ state: "이미 로그인했습니다." });
+  if (req.session.user) return res.status(409).json({ state: "이미 로그인했습니다." });
   // 로그인 모델 실행 결과
   const model_results = await user_model.loginModel(req.body, req.ip);
   // 로그인 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // DB에 해당 사용자가 로그인 요청한 id가 없을 때
-  else if (model_results.state === "일치하는 id 없음") return res.status(404).json(model_results);
+  if (model_results.state === "일치하는 id 없음") return res.status(404).json(model_results);
   // 존재하는 id는 있으나 id에 대한 요청 pw가 일치하지 않을 때
   else if (model_results.state === "비밀번호 불일치") return res.status(400).json(model_results);
   // 성공적으로 로그인 요청 수행
   else if (model_results.state === "로그인성공") {
     // 로그인세션, 쿠키
-    req.session.login = true;
-    req.session.userIndex = model_results.userIndex;
+    req.session.user = {
+      id: model_results.userIndex,
+      authorized: true,
+      key: Math.random().toString(36),
+    };
     req.session.save();
-    res.cookie("user", req.session.userIndex, { expires: new Date(Date.now() + 1000 * 60 * 60), httpOnly: true, signed: true });
+    res.cookie("user", req.session.user.key, {
+      maxAge: 60 * 60 * 1000,
+      httpOnly: true,
+      signed: true,
+    });
     return res.status(200).json({ login: true });
   }
 };
 // 2-2. 로그아웃
 const logout = async function (req, res) {
-  const login_cookie = req.signedCookies.user;
   // 기존에 로그인 돼있을 때 성공적으로 로그아웃 요청 수행
-  if (login_cookie) {
+  if (req.session.user) {
     req.session.destroy(function (err) {
       console.log(err);
     });
@@ -122,7 +134,7 @@ const logout = async function (req, res) {
     res.status(200).json({ state: "로그아웃" });
   }
   // 기존에 로그인이 돼있지 않을 때 로그아웃 요청은 올바르지 않은 요청
-  if (!login_cookie) {
+  else {
     res.status(401).json({ state: "기존에 로그인 되어있지 않습니다." });
   }
 };
@@ -130,11 +142,15 @@ const logout = async function (req, res) {
 // 3. 관심도서관 조회/등록/삭제
 // 3-1. 관심도서관 조회
 const userLibrary = async function (req, res) {
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
-  const model_results = await user_model.userLibModel(login_cookie, req.ip);
+  const model_results = await user_model.userLibModel(login_index, req.ip);
   // 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -147,11 +163,15 @@ const userLibrary = async function (req, res) {
 // 3-2. 관심도서관 등록
 const registerUserLibrary = async function (req, res) {
   // req.query: libraryIndex
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 관심도서관 항목 추가 모델 실행 결과
-  const model_results = await user_model.registerUserLibModel(req.query.libraryIndex, login_cookie, req.ip);
+  const model_results = await user_model.registerUserLibModel(req.query.libraryIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 기존에 관심도서관으로 등록된 정보
@@ -162,11 +182,15 @@ const registerUserLibrary = async function (req, res) {
 
 // 3-3. 관심도서관 삭제
 const deleteUserLibrary = async function (req, res) {
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 도서관 정보가 있는지, 해당 도서관이 관심도서관으로 등록돼있는지 확인해주는 메서드
-  const check_my_lib = await check_data_or_authority_model.checkMyLibModel(req.query.libraryIndex, login_cookie, req.ip);
+  const check_my_lib = await check_data_or_authority_model.checkMyLibModel(req.query.libraryIndex, login_index, req.ip);
   // 존재하지않는 도서관 정보
   if (check_my_lib.state === "존재하지않는도서관") return res.status(404).json(check_my_lib);
   // 관심도서관으로 등록되지 않은 도서관(도서관 정보는 있지만 해당 유저가 구독하지 않음)
@@ -176,7 +200,7 @@ const deleteUserLibrary = async function (req, res) {
   // 접근성공
   else if (check_my_lib.state === "접근성공") {
     // 해당 유저가 관심도서관으로 등록한 도서관 정보 삭제하는모델 실행결과
-    const model_results = await user_model.deleteMyLibModel(req.query.libraryIndex, login_cookie, req.ip);
+    const model_results = await user_model.deleteMyLibModel(req.query.libraryIndex, login_index, req.ip);
     // 실행결과에 따라 분기처리
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -189,15 +213,19 @@ const deleteUserLibrary = async function (req, res) {
 // 4. 유저가 작성한 글/댓글/후기 조회
 // 4-1. 유저가 작성한 글 조회
 const userPost = async function (req, res) {
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // page 값
   let page;
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
-  const model_results = await user_model.userPostModel(login_cookie, page, req.ip);
+  const model_results = await user_model.userPostModel(login_index, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results.state);
@@ -208,15 +236,19 @@ const userPost = async function (req, res) {
 };
 // 4-2. 유저가 작성한 댓글 조회
 const userComment = async function (req, res) {
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // page 값
   let page;
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 댓글 정보 가져올 모델 실행 결과
-  const model_results = await user_model.userCommentModel(login_cookie, page, req.ip);
+  const model_results = await user_model.userCommentModel(login_index, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -227,15 +259,19 @@ const userComment = async function (req, res) {
 };
 // 4-3. 유저가 작성한 도서관 이용 후기 조회
 const userReview = async function (req, res) {
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // page 값
   let page;
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
-  const model_results = await user_model.userReviewModel(login_cookie, page, req.ip);
+  const model_results = await user_model.userReviewModel(login_index, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -253,12 +289,16 @@ const reviseProfile = async function (req, res) {
     profileShot: 프로필 사진 uri
     nickName: 닉네임
    */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 프로필 수정 요청 모델 실행결과
-  const model_results = await user_model.reviseProfileModel(req.body, req.ip, login_cookie);
+  const model_results = await user_model.reviseProfileModel(req.body, req.ip, login_index);
 
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
@@ -275,11 +315,15 @@ const revisePhoneNumber = async function (req, res) {
   req.body
     phoneNumber: 폰 번호
    */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 연락처 수정 요청 모델 실행결과
-  const model_results = await user_model.revisePhoneNumberModel(req.body, req.ip, login_cookie);
+  const model_results = await user_model.revisePhoneNumberModel(req.body, req.ip, login_index);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -295,11 +339,15 @@ const revisePw = async function (req, res) {
     newPw: 새 비밀번호
     confirmPw: 새 비밀번호 확인
    */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 비밀번호 수정 모델 실행결과
-  const model_results = await user_model.revisePwModel(req.body, req.ip, login_cookie);
+  const model_results = await user_model.revisePwModel(req.body, req.ip, login_index);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);

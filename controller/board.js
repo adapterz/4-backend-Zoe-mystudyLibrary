@@ -42,6 +42,14 @@ const entireBoard = async function (req, res) {
 // 1-3. 게시물 상세보기
 const detailBoard = async function (req, res) {
   // req.params: category,boardIndex
+  // 로그인 여부 검사
+  let login_cookie = req.signedCookies.user;
+  let login_index;
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else login_index = null;
   // 요청 category 값이 자유게시판이면 자유게시판의 글 정보, 공부인증샷면 공부인증샷 게시판의 글 정보 가져오기
   let req_category;
   if (req.params.category === "free-bulletin") req_category = "자유게시판";
@@ -50,18 +58,10 @@ const detailBoard = async function (req, res) {
   let page;
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
-  // 로그인 여부 검사
-  const login_cookie = req.signedCookies.user;
+
   // 모델 결과 변수
-  let model_results;
-  // 로그인을 하지 않았을 때
-  if (!login_cookie) {
-    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, page, req.ip, null);
-  }
-  // 로그인을 했을 때
-  if (login_cookie) {
-    model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, page, req.ip, login_cookie);
-  }
+  const model_results = await post_model.detailBoardModel(req_category, req.params.boardIndex, page, req.ip, login_index);
+
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -80,13 +80,15 @@ const writePost = async function (req, res) {
     postContent: 글내용
     tags: 태그배열 [{content : 태그내용},{content: 태그내용}]
    */
-  // 쿠키의 유저인덱스 정보
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  // 로그인 여부 검사
-  if (!login_cookie) return res.status(401).json({ state: "글을 작성하기 위해서는 로그인을 해야합니다." });
-
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 게시글 작성 모델 실행 결과 변수
-  const model_results = await post_model.writePostModel(req.body.category, req.body, login_cookie, req.ip);
+  const model_results = await post_model.writePostModel(req.body.category, req.body, login_index, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -97,14 +99,18 @@ const writePost = async function (req, res) {
 // 2-2. 게시글 수정을 위해 기존 게시글 정보 불러오기
 const getWrite = async function (req, res) {
   // req.query : boardIndex
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  // 유저의 로그인 여부 검사
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 1. 글 새로 작성하는 경우
   if (req.query.boardIndex === "") return res.status(200).end();
   // 2. 기존의 글 수정하는 경우
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
+  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
   // 해당 게시글 정보가 없을 때
@@ -114,7 +120,7 @@ const getWrite = async function (req, res) {
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_post.state === "접근성공") {
     // 해당 인덱스의 게시글 정보 가져오는 모델
-    const model_results = await post_model.getWriteModel(req.query.boardIndex, login_cookie, req.ip);
+    const model_results = await post_model.getWriteModel(req.query.boardIndex, login_index, req.ip);
     // 모델 실행결과에 따른 분기처리
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
@@ -133,12 +139,16 @@ req.body
   postContent: 글내용
   tags: 태그배열
  */
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "글을 수정하기 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
+  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
   // 해당 게시글 정보가 없을 때
@@ -148,7 +158,7 @@ req.body
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_post.state === "접근성공") {
     // 게시글 수정 모델 실행 결과
-    const model_results = await post_model.revisePost(req.body, req.query.boardIndex, login_cookie, req.ip);
+    const model_results = await post_model.revisePost(req.body, req.query.boardIndex, login_index, req.ip);
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
     // 성공적으로 게시글 수정 요청 수행
@@ -160,11 +170,15 @@ req.body
 const deletePost = async function (req, res) {
   // req.query: boardIndex
 
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_cookie, req.ip);
+  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(500).json(check_post);
   // 해당 게시글 정보가 없을 때
@@ -174,7 +188,7 @@ const deletePost = async function (req, res) {
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_post.state === "접근성공") {
     // 해당 인덱스 게시글 삭제
-    const model_results = await post_model.deletePostModel(req.query.boardIndex, login_cookie, req.ip);
+    const model_results = await post_model.deletePostModel(req.query.boardIndex, login_index, req.ip);
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
     // 성공적으로 게시글 삭제 요청 수행
@@ -185,11 +199,15 @@ const deletePost = async function (req, res) {
 // 3-1. 게시글 좋아요 요청
 const likePost = async function (req, res) {
   // req.query: boardIndex
-  // 로그인 여부 검사
+  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
-  if (!login_cookie) return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  let login_index;
+  if (req.session.user) {
+    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    else return res.status(403).json({ state: "올바르지않은 접근" });
+  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 좋아요 모델 실행 결과
-  const model_results = await post_model.likePostModel(req.query.boardIndex, login_cookie, req.ip);
+  const model_results = await post_model.likePostModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(500).json(model_results);
   // 좋아요를 이미 누른적이 있을 때
