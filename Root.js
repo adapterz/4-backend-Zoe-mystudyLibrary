@@ -35,14 +35,40 @@ app.use(
 );
 
 // 로그 작성에 필요한 미들웨어
-const fs = require("fs");
 const morgan = require("morgan");
-const path = require("path");
+const winston = require("winston");
 
 // 파일에 로그 작성
-const accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
-app.use(morgan("combined", { stream: accessLogStream }));
+//const accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
+//app.use(morgan("combined", { stream: accessLogStream }));
+const logger = new winston.createLogger({
+  transports: [
+    new winston.transports.File({
+      level: "info",
+      filename: "./logs/all-logs.log",
+      handleExceptions: true,
+      json: true,
+      maxFiles: 5,
+      colorize: true,
+    }),
+    new winston.transports.Console({
+      level: "debug",
+      handleExceptions: true,
+      json: false,
+      colorize: true,
+    }),
+  ],
+  exitOnError: false,
+});
 
+logger.stream = {
+  write: function (message, encoding) {
+    logger.info(message);
+  },
+};
+
+// morgan 미들웨어 출력 winston 으로 전달
+app.use(morgan("combined", { stream: logger.stream }));
 // 경로별로 라우팅
 const board_router = require("./router/board");
 const comment_router = require("./router/comment");
