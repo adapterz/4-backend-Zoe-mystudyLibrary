@@ -34,6 +34,15 @@ app.use(
   }),
 );
 
+// 로그 작성에 필요한 미들웨어
+const fs = require("fs");
+const morgan = require("morgan");
+const path = require("path");
+
+// 파일에 로그 작성
+const accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
+app.use(morgan("combined", { stream: accessLogStream }));
+
 // 경로별로 라우팅
 const board_router = require("./router/board");
 const comment_router = require("./router/comment");
