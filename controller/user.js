@@ -1,6 +1,7 @@
 // 유저 컨트롤러
 const user_model = require("../model/user");
 const check_data_or_authority_model = require("../custom_module/check_data_or_authority");
+const path = require("path");
 const {
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
@@ -22,6 +23,10 @@ const {
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인
 const signUpGuide = async function (req, res) {
+  return res.status(OK).sendFile(path.join(__dirname, "..", "terms/sign_up_guide.html"));
+};
+// 1-2. 회원가입 약관 확인 요청
+const signUpGuideConfirm = async function (req, res) {
   // 약관동의 체크박스(예시 body)
   /*
   req.body (약관동의 체크박스에 체크했는지 여부 - boolean값)
@@ -38,7 +43,7 @@ const signUpGuide = async function (req, res) {
   res.status(BAD_REQUEST).json({ state: "안내사항을 읽고 동의해주세요." });
 };
 
-// 1-2. 회원가입 요청
+// 1-3. 회원가입 요청
 const signUp = async function (req, res) {
   /*
   req.body
@@ -65,7 +70,7 @@ const signUp = async function (req, res) {
   else if (model_results.state === "회원가입") return res.status(CREATED).json(model_results);
 };
 
-// 1-3. 회원탈퇴 요청
+// 1-4. 회원탈퇴 요청
 const dropOut = async function (req, res) {
   // 예시 바디
   const example_body = {
@@ -373,6 +378,7 @@ const revisePw = async function (req, res) {
 // 모듈화
 module.exports = {
   signUpGuide: signUpGuide,
+  signUpGuideConfirm: signUpGuideConfirm,
   signUp: signUp,
   dropOut: dropOut,
   login: login,

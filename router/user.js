@@ -15,13 +15,16 @@ const check = require("../custom_module/check_validation");
  */
 // 1. 회원가입/탈퇴
 // 회원가입 약관확인
+router.get("/sign-up/guide", controller.signUpGuide);
+
+// 회원가입 약관확인
 router.post(
   "/sign-up/guide",
   body("checkBox1").isBoolean(),
   body("checkBox2").isBoolean(),
   body("checkBox3").isBoolean(),
   check.isValidate,
-  controller.signUpGuide,
+  controller.signUpGuideConfirm,
 );
 
 // 회원가입 요청
