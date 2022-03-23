@@ -34,33 +34,40 @@ app.use(
   }),
 );
 
-// 로그 작성에 필요한 미들웨어
+// 로그 DB에 저장하는데 필요한 미들웨어
 const morgan = require("morgan");
 const winston = require("winston");
+const { SqlTransport } = require("winston-sql-transport");
+// DB에 로그 작성
+// DB 설정
+const transportConfig = {
+  client: "mysql2",
+  connection: {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  },
+};
 
-// 파일에 로그 작성
-//const accessLogStream = fs.createWriteStream(path.join(__dirname, "access.log"), { flags: "a" });
-//app.use(morgan("combined", { stream: accessLogStream }));
 const logger = new winston.createLogger({
   transports: [
-    new winston.transports.File({
-      level: "info",
-      filename: "./logs/all-logs.log",
-      handleExceptions: true,
-      json: true,
-      maxFiles: 5,
-      colorize: true,
-    }),
-    new winston.transports.Console({
-      level: "debug",
-      handleExceptions: true,
-      json: false,
-      colorize: true,
-    }),
+    new SqlTransport(transportConfig),
+    // 로그 파일에 로그 작성
+    // new winston.transports.File({
+    //   level: "info",
+    //   filename: "./logs/all-logs.log",
+    //   handleExceptions: true,
+    //   json: true,
+    //   maxFiles: 5,
+    //   colorize: true,
+    // }),
   ],
   exitOnError: false,
 });
 
+// morgan winston 설정
 logger.stream = {
   write: function (message, encoding) {
     logger.info(message);
@@ -69,6 +76,21 @@ logger.stream = {
 
 // morgan 미들웨어 출력 winston 으로 전달
 app.use(morgan("combined", { stream: logger.stream }));
+
+// 개발단계 콘솔 출력
+/*
+if (process.env.NODE_ENV !== "production") {
+  logger.add(
+    new winston.transports.Console({
+      level: "debug",
+      handleExceptions: true,
+      json: false,
+      colorize: true,
+    }),
+  );
+}
+ */
+
 // 경로별로 라우팅
 const board_router = require("./router/board");
 const comment_router = require("./router/comment");
