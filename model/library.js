@@ -54,7 +54,7 @@ async function particularLibModel(library_index, ip) {
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade),AVG(grade) FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex=" +
     mysql.escape(library_index) +
     " GROUP BY libraryIndex;" +
-    "SELECT reviewIndex,libraryIndex,userIndex,reviewContent,grade,createDateTime FROM REVIEW WHERE deleteDateTime IS NULL AND libraryIndex =" +
+    "SELECT nickName,reviewContent,grade,createDateTime FROM REVIEW LEFT JOIN USER ON USER.userIndex=REVIEW.userIndex WHERE deleteDateTime IS NULL AND libraryIndex =" +
     mysql.escape(library_index) +
     ";";
 
