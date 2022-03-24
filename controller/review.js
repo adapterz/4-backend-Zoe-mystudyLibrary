@@ -1,7 +1,7 @@
 // 도서관 후기 컨트롤러
 const review_model = require("../model/review");
 const check_data_or_authority_model = require("../custom_module/check_data_or_authority");
-const { FORBIDDEN, UNAUTHORIZED, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT } = require("../custom_module/status_code");
+const { FORBIDDEN, UNAUTHORIZED, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK, CREATED } = require("../custom_module/status_code");
 // 특정 도서관 이용 후 후기 등록
 const registerReview = async function (req, res) {
   /* req.query: libraryIndex

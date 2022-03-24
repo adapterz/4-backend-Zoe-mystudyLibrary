@@ -95,8 +95,8 @@ const writePost = async function (req, res) {
   let login_index;
   if (req.session.user) {
     if (req.session.user.key === login_cookie) login_index = req.session.user.id;
-    else return res.status(403).json({ state: "올바르지않은 접근" });
-  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
+  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 게시글 작성 모델 실행 결과 변수
   const model_results = await post_model.writePostModel(req.body.category, req.body, login_index, req.ip);
   // 모델 실행결과에 따른 분기처리
@@ -114,8 +114,8 @@ const getWrite = async function (req, res) {
   let login_index;
   if (req.session.user) {
     if (req.session.user.key === login_cookie) login_index = req.session.user.id;
-    else return res.status(403).json({ state: "올바르지않은 접근" });
-  } else return res.status(401).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
+  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 1. 글 새로 작성하는 경우
   if (req.query.boardIndex === "") return res.status(OK).end();
   // 2. 기존의 글 수정하는 경우
