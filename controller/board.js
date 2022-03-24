@@ -228,7 +228,7 @@ const likePost = async function (req, res) {
 // 3-2. 게시글 검색기능
 const searchPost = async function (req, res) {
   /*
-  req.body
+  req.query
     searchOption (ex. 제목만, 내용만, 닉네임, 제목 + 내용)
     searchContent (검색내용)
   req.params

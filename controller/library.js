@@ -16,7 +16,7 @@ const allLibrary = async function (req, res) {
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 메서드
 const localLibrary = async function (req, res) {
   /*
-  req.body
+  req.query
     nameOfCity: 시도명
     districts: 시군구명
    */
