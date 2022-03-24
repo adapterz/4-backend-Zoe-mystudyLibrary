@@ -89,7 +89,7 @@ async function detailBoardModel(category, board_index, page, ip, user_index) {
       return { state: "존재하지않는게시글" };
     }
     query =
-      "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+      "SELECT boardIndex,postTitle,USER.nickName,postContent,viewCount,favoriteCount,BOARD.createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
       mysql.escape(category) +
       "AND boardIndex =" +
       mysql.escape(board_index) +
@@ -97,7 +97,7 @@ async function detailBoardModel(category, board_index, page, ip, user_index) {
       "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" +
       mysql.escape(board_index) +
       ";" +
-      "SELECT commentContent, createDateTime FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
+      "SELECT commentContent,User.nickName, createDateTime FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE deleteDateTime IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
       mysql.escape(board_index) +
       "ORDER BY commentIndex DESC LIMIT " +
       5 * (page - 1) +

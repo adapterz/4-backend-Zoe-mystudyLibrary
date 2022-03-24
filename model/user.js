@@ -217,7 +217,7 @@ async function userBoardModel(user_index, page, ip) {
   const query =
     "SELECT boardIndex,postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
     mysql.escape(user_index) +
-    "ORDER BY boardIndex DESC LIMIT " +
+    " ORDER BY boardIndex DESC LIMIT " +
     10 * (page - 1) +
     ", 10";
   // 성공시
@@ -244,7 +244,7 @@ async function userCommentModel(user_index, page, ip) {
   const query =
     "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
     mysql.escape(user_index) +
-    "ORDER BY commentIndex DESC LIMIT " +
+    " ORDER BY commentIndex DESC LIMIT " +
     5 * (page - 1) +
     ", 5";
 
@@ -272,7 +272,7 @@ async function userReviewModel(user_index, page, ip) {
   const query =
     "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
     mysql.escape(user_index) +
-    "ORDER BY reviewIndex DESC LIMIT " +
+    " ORDER BY reviewIndex DESC LIMIT " +
     5 * (page - 1) +
     ",5";
 
