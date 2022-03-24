@@ -18,14 +18,7 @@ const check = require("../custom_module/check_validation");
 router.get("/sign-up/guide", controller.signUpGuide);
 
 // 회원가입 약관확인
-router.post(
-  "/sign-up/guide",
-  body("checkBox1").isBoolean(),
-  body("checkBox2").isBoolean(),
-  body("checkBox3").isBoolean(),
-  check.isValidate,
-  controller.signUpGuideConfirm,
-);
+router.post("/sign-up/guide", body("checkBox").isBoolean(), check.isValidate, controller.signUpGuideConfirm);
 
 // 회원가입 요청
 router.post(
@@ -57,6 +50,9 @@ router.post(
   check.isValidate,
   controller.signUp,
 );
+
+// 회원탈퇴 요청
+router.delete("/drop-out", body("checkBox").isBoolean(), check.isValidate, controller.dropOut);
 
 // 2. 로그인/로그아웃
 // 로그인 요청
@@ -113,7 +109,5 @@ router.patch(
   controller.revisePw,
 );
 
-// 회원탈퇴 요청
-router.delete("/drop-out", controller.dropOut);
 // 모듈화
 module.exports = router;

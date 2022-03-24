@@ -31,14 +31,12 @@ const signUpGuideConfirm = async function (req, res) {
   /*
   req.body (약관동의 체크박스에 체크했는지 여부 - boolean값)
     checkBox1
-    checkBox2
-    checkBox3
 
    */
 
   const is_agreed = req.body;
   // 약관확인에서 세 개의 체크박스에 모두 체크를 했을 때
-  if (is_agreed.checkBox1 && is_agreed.checkBox2 && is_agreed.checkBox3) return res.status(OK).end();
+  if (is_agreed.checkBox) return res.status(OK).end();
   // 체크박스에 체크하지 않았을 때
   res.status(BAD_REQUEST).json({ state: "안내사항을 읽고 동의해주세요." });
 };
@@ -74,7 +72,7 @@ const signUp = async function (req, res) {
 const dropOut = async function (req, res) {
   // 예시 바디
   const example_body = {
-    checkBox1: false,
+    checkBox: false,
   };
 
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
