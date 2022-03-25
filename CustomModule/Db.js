@@ -1,5 +1,5 @@
 // DB 연결을 위한 모듈 설치 및 DB connection 정보 설정
-const mysql = require("mysql");
+const mysql = require("mysql2/promise");
 const bluebird = require("bluebird");
 const pool = mysql.createPool({
   connectionLimit: 10, // 커넥션풀 적용
