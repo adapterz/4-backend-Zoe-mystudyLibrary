@@ -1,6 +1,6 @@
 // 게시판 컨트롤러
-const board_model = require("../model/Board");
-const check_data_or_authority_model = require("../custom_module/CheckDataOrAuthority");
+const board_model = require("../Model/Board");
+const check_data_or_authority_model = require("../CustomModule/CheckDataOrAuthority");
 const {
   OK,
   INTERNAL_SERVER_ERROR,
@@ -10,7 +10,7 @@ const {
   UNAUTHORIZED,
   NO_CONTENT,
   BAD_REQUEST,
-} = require("../custom_module/StatusCode");
+} = require("../CustomModule/StatusCode");
 /*
 1. 게시글 조회
 2. 게시글 작성/수정/삭제
@@ -18,7 +18,7 @@ const {
  */
 // 1. 게시글 조회
 // 1-1. 최신 자유게시판 글 5개/공부인증샷 글 4개 불러오기
-const getRecentPost = async function (req, res) {
+const getRecentBoard = async function (req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
   const model_results = await board_model.getRecentPostModel(req.ip);
   // mysql query 메서드 실패
@@ -90,7 +90,7 @@ const detailBoard = async function (req, res) {
 };
 // 2. 게시글 작성/수정/삭제
 // 2-1. 게시글 쓰기
-const writePost = async function (req, res) {
+const writeBoard = async function (req, res) {
   /*
   req.body
     category: 게시판 카테고리
@@ -149,7 +149,7 @@ const getWrite = async function (req, res) {
   }
 };
 // 2-3. 게시글 수정요청
-const revisePost = async function (req, res) {
+const editBoard = async function (req, res) {
   /*
 req.body
   category: 카테고리(자유게시판/공부인증샷)
@@ -185,7 +185,7 @@ req.body
 };
 
 // 2-4. 게시글 삭제하기
-const deletePost = async function (req, res) {
+const deleteBoard = async function (req, res) {
   // req.query: boardIndex
 
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
@@ -215,7 +215,7 @@ const deletePost = async function (req, res) {
 };
 // 3. 좋아요/검색기능
 // 3-1. 게시글 좋아요 요청
-const likePost = async function (req, res) {
+const favoriteBoard = async function (req, res) {
   // req.query: boardIndex
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
@@ -234,7 +234,7 @@ const likePost = async function (req, res) {
   else if (model_results.state === "좋아요+1") return res.status(OK).json(model_results);
 };
 // 3-2. 게시글 검색기능
-const searchPost = async function (req, res) {
+const searchBoard = async function (req, res) {
   /*
   req.query
     searchOption (ex. 제목만, 내용만, 닉네임, 제목 + 내용)
@@ -261,13 +261,13 @@ const searchPost = async function (req, res) {
 };
 
 module.exports = {
-  getRecentPost: getRecentPost,
+  getRecentBoard: getRecentBoard,
   entireBoard: entireBoard,
   detailBoard: detailBoard,
-  writePost: writePost,
+  writeBoard: writeBoard,
   getWrite: getWrite,
-  revisePost: revisePost,
-  deletePost: deletePost,
-  likePost: likePost,
-  searchPost: searchPost,
+  editBoard: editBoard,
+  deleteBoard: deleteBoard,
+  favoriteBoard: favoriteBoard,
+  searchBoard: searchBoard,
 };

@@ -1,9 +1,9 @@
 // 게시판 모델
 // 필요모듈
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/Db");
-const moment = require("../custom_module/DateTime");
-const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
+const db = require("../CustomModule/Db");
+const moment = require("../CustomModule/DateTime");
+const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
 /*
 1. 게시글 조회
 2. 게시글 작성/수정/삭제
@@ -409,7 +409,7 @@ async function searchModel(search_option, search_content, category, page, ip) {
 }
 
 // +) board model에서만 쓰일 메서드
-// 특정 게시글을 봤을 때 조회수 중복증가 여부 체크해서 반영해주는 메서드 (해당 model 안에서만 사용)
+// 특정 게시글을 봤을 때 조회수 중복증가 여부 체크해서 반영해주는 메서드 (해당 Model 안에서만 사용)
 const increaseViewCount = async function (board_index, user_index, ip) {
   // 기존에 요청 유저 ip로 게시글 조회한 기록이 있는지 확인하는 쿼리문
   let query;

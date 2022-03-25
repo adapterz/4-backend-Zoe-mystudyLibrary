@@ -1,6 +1,6 @@
 // 유저 컨트롤러
-const user_model = require("../model/User");
-const check_data_or_authority_model = require("../custom_module/CheckDataOrAuthority");
+const user_model = require("../Model/User");
+const check_data_or_authority_model = require("../CustomModule/CheckDataOrAuthority");
 const path = require("path");
 const {
   BAD_REQUEST,
@@ -12,7 +12,7 @@ const {
   NO_CONTENT,
   CONFLICT,
   OK,
-} = require("../custom_module/StatusCode");
+} = require("../CustomModule/StatusCode");
 /*
 1. 회원가입/탈퇴
 2. 로그인/로그아웃
@@ -23,7 +23,7 @@ const {
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인
 const signUpGuide = async function (req, res) {
-  return res.status(OK).sendFile(path.join(__dirname, "..", "terms/SignUpGuide.html"));
+  return res.status(OK).sendFile(path.join(__dirname, "..", "Terms/SignUpGuide.html"));
 };
 // 1-2. 회원가입 약관 확인 요청
 const signUpGuideConfirm = async function (req, res) {

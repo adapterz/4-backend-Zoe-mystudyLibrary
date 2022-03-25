@@ -1,8 +1,8 @@
 // 댓글 모델
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/Db");
-const moment = require("../custom_module/DateTime");
-const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
+const db = require("../CustomModule/Db");
+const moment = require("../CustomModule/DateTime");
+const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
 
 // 새 댓글 작성 모델
 async function writeCommentModel(board_index, user_index, input_comment, ip) {

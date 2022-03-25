@@ -1,10 +1,10 @@
 // 유저 모델
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/Db");
-const moment = require("../custom_module/DateTime");
-const { hashPw } = require("../custom_module/PwBcrypt");
+const db = require("../CustomModule/Db");
+const moment = require("../CustomModule/DateTime");
+const { hashPw } = require("../CustomModule/PwBcrypt");
 const bcrypt = require("bcrypt");
-const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
+const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
 /*
 1. 회원가입/탈퇴
 2. 로그인/(로그아웃 - 모델x)

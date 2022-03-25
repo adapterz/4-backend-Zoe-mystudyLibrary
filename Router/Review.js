@@ -1,10 +1,10 @@
 // 도서관 후기 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/Review");
+const controller = require("../Controller/Review");
 
 const { body, query } = require("express-validator");
-const check = require("../custom_module/CheckValidation");
+const check = require("../CustomModule/CheckValidation");
 // 후기 등록
 router.post(
   "/post",

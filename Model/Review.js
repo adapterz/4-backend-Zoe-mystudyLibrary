@@ -1,9 +1,9 @@
 // 후기 모델
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/Db");
-const moment = require("../custom_module/DateTime");
-const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
-const { db_connect } = require("../custom_module/Db");
+const db = require("../CustomModule/Db");
+const moment = require("../CustomModule/DateTime");
+const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
+const { db_connect } = require("../CustomModule/Db");
 
 // 도서관 후기 등록하는 모델
 async function registerReviewModel(library_index, user_index, input_comment, ip) {

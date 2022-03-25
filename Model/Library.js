@@ -1,7 +1,7 @@
 // 도서관 모델
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/Db");
-const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
+const db = require("../CustomModule/Db");
+const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
 
 // 전체 도서관 정보 불러오는 모델
 async function allLibModel(ip) {

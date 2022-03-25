@@ -1,13 +1,13 @@
 // 게시판 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/Board");
+const controller = require("../Controller/Board");
 
 // 유효성 검사를 위한 모듈
 const { body, query, param } = require("express-validator");
-const check = require("../custom_module/CheckValidation");
+const check = require("../CustomModule/CheckValidation");
 // 최신글 자유게시판 5개, 공부인증샷 4개 정보
-router.get("/board", check.isExist, controller.getRecentPost);
+router.get("/board", check.isExist, controller.getRecentBoard);
 // 전체 게시물 목록보기
 router.get("/board/:category", check.isCategory, check.checkPageValidation, controller.entireBoard);
 // 각 게시물 상세보기
@@ -32,7 +32,7 @@ router.post(
     .matches(/^[가-힣]+$/),
   check.isValidate,
   check.isCategoryWhenWrite,
-  controller.writePost,
+  controller.writeBoard,
 );
 // 수정시 기존 게시글 정보 가져오기
 router.get("/write", query("boardIndex").isInt(), check.isExist, controller.getWrite);
@@ -51,12 +51,12 @@ router.patch(
     .matches(/^[가-힣]+$/),
   check.isValidate,
   check.isCategoryWhenWrite,
-  controller.revisePost,
+  controller.editBoard,
 );
 // 게시물 삭제 요청
-router.delete("/delete", query("boardIndex").isInt(), check.isExist, controller.deletePost);
+router.delete("/delete", query("boardIndex").isInt(), check.isExist, controller.deleteBoard);
 // 좋아요 기능
-router.patch("/like", query("boardIndex").isInt(), check.isExist, controller.likePost);
+router.patch("/like", query("boardIndex").isInt(), check.isExist, controller.favoriteBoard);
 // 검색관련 기능
 router.get(
   "/search/:category",
@@ -65,7 +65,7 @@ router.get(
   query("searchContent").isString(),
   check.isValidate,
   check.checkPageValidation,
-  controller.searchPost,
+  controller.searchBoard,
 );
 // 모듈화
 module.exports = router;

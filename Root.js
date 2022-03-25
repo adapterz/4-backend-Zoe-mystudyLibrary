@@ -19,7 +19,7 @@ require("dotenv").config();
 const colors = require("colors");
 
 // 날짜/시간 관련 모듈
-const moment = require("./custom_module/DateTime");
+const moment = require("./CustomModule/DateTime");
 
 // 쿠키&세션 모듈
 const cookieParser = require("cookie-parser");
@@ -92,11 +92,11 @@ if (process.env.NODE_ENV !== "production") {
  */
 
 // 경로별로 라우팅
-const board_router = require("./router/Board");
-const comment_router = require("./router/Comment");
-const library_router = require("./router/Library");
-const review_router = require("./router/Review");
-const user_router = require("./router/User");
+const board_router = require("./Router/Board");
+const comment_router = require("./Router/Comment");
+const library_router = require("./Router/Library");
+const review_router = require("./Router/Review");
+const user_router = require("./Router/User");
 
 app.use("/comment", comment_router);
 app.use("/library", library_router);
@@ -111,7 +111,7 @@ app.get("/not_found", function (req, res) {
 
 // 도서관 정보 테이블에 넣기
 
-//const library_request = require("./custom_module/open_api");
+//const library_request = require("./CustomModule/open_api");
 //library_request.reqOpenData();
 
 //console.log(query);

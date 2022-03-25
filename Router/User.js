@@ -1,11 +1,11 @@
 // 유저 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/User");
+const controller = require("../Controller/User");
 
 // 유효성 검사 모듈
 const { body, query } = require("express-validator");
-const check = require("../custom_module/CheckValidation");
+const check = require("../CustomModule/CheckValidation");
 /*
 1. 회원가입/탈퇴
 2. 로그인/(로그아웃 - 모델x)

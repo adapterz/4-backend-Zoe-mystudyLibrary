@@ -1,6 +1,6 @@
 // 도서관 컨트롤러
-const library_model = require("../model/Library");
-const { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } = require("../custom_module/StatusCode");
+const library_model = require("../Model/Library");
+const { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } = require("../CustomModule/StatusCode");
 
 // 전체 도서관 정보
 const allLibrary = async function (req, res) {
