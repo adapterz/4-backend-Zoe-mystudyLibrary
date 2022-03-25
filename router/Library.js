@@ -1,10 +1,10 @@
 // 도서관 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/library");
+const controller = require("../controller/Library");
 // 유효성 검사를 위한 모듈
 const { query, param } = require("express-validator");
-const check = require("../custom_module/check_validation.js");
+const check = require("../custom_module/CheckValidation.js");
 
 // 전체도서관 정보
 router.get("/", controller.allLibrary);

@@ -1,7 +1,7 @@
 // 데이터의 유무나 권한 체크하는 모듈
 const mysql = require("mysql2/promise");
-const db = require("./db");
-const { queryFail, querySuccessLog } = require("./query_log");
+const db = require("./Db");
+const { queryFailLog, querySuccessLog } = require("./QueryLog");
 
 // 삭제/수정 요청시 해당 게시글의 존재유무 체크, 해당 게시글의 작성자인지 체크 하는 함수
 async function checkPostModel(board_index, user_index, ip) {
@@ -31,7 +31,7 @@ async function checkPostModel(board_index, user_index, ip) {
     return { state: "접근성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -78,7 +78,7 @@ async function checkCommentModel(board_index, comment_index, user_index, ip) {
     return { state: "접근성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -122,7 +122,7 @@ async function checkReviewModel(library_index, review_index, user_index, ip) {
     return { state: "접근성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -156,7 +156,7 @@ async function checkMyLibModel(library_index, user_index, ip) {
     return { state: "접근성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }

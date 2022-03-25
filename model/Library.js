@@ -1,7 +1,7 @@
 // 도서관 모델
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/db");
-const { queryFail, querySuccessLog } = require("../custom_module/query_log");
+const db = require("../custom_module/Db");
+const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
 
 // 전체 도서관 정보 불러오는 모델
 async function allLibModel(ip) {
@@ -16,7 +16,7 @@ async function allLibModel(ip) {
     return { state: "전체도서관정보", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -42,7 +42,7 @@ async function localLibModel(input_local, ip) {
     return { state: "주변도서관", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -71,7 +71,7 @@ async function particularLibModel(library_index, ip) {
     return { state: "상세도서관정보", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }

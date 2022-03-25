@@ -19,7 +19,7 @@ require("dotenv").config();
 const colors = require("colors");
 
 // 날짜/시간 관련 모듈
-const moment = require("./custom_module/date_time");
+const moment = require("./custom_module/DateTime");
 
 // 쿠키&세션 모듈
 const cookieParser = require("cookie-parser");
@@ -92,11 +92,11 @@ if (process.env.NODE_ENV !== "production") {
  */
 
 // 경로별로 라우팅
-const board_router = require("./router/board");
-const comment_router = require("./router/comment");
-const library_router = require("./router/library");
-const review_router = require("./router/review");
-const user_router = require("./router/user");
+const board_router = require("./router/Board");
+const comment_router = require("./router/Comment");
+const library_router = require("./router/Library");
+const review_router = require("./router/Review");
+const user_router = require("./router/User");
 
 app.use("/comment", comment_router);
 app.use("/library", library_router);

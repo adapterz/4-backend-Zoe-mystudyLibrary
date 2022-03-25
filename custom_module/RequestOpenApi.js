@@ -1,7 +1,7 @@
 // 공공데이터 OPEN API 에서 전국 도서관정보 가져오는 모듈
 const lib_request = require("request");
-const db = require("./db");
-const { querySuccessLog, queryFail } = require("./query_log");
+const db = require("./Db");
+const { querySuccessLog, queryFailLog } = require("./QueryLog");
 
 // 공공데이터 요청
 async function reqOpenData() {
@@ -83,7 +83,7 @@ async function queryData([values]) {
     return postLibraryRow;
   } catch (err) {
     // 쿼리문 실행시 에러발생
-    await queryFail(err, null, query);
+    await queryFailLog(err, null, query);
     await db.pool.query("ROLLBACK");
   }
 }

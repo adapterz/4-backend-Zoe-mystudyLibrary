@@ -1,11 +1,11 @@
 // 게시판 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/board");
+const controller = require("../controller/Board");
 
 // 유효성 검사를 위한 모듈
 const { body, query, param } = require("express-validator");
-const check = require("../custom_module/check_validation");
+const check = require("../custom_module/CheckValidation");
 // 최신글 자유게시판 5개, 공부인증샷 4개 정보
 router.get("/board", check.isExist, controller.getRecentPost);
 // 전체 게시물 목록보기

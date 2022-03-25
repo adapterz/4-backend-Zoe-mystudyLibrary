@@ -1,9 +1,9 @@
 // 게시판 모델
 // 필요모듈
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/db");
-const moment = require("../custom_module/date_time");
-const { queryFail, querySuccessLog } = require("../custom_module/query_log");
+const db = require("../custom_module/Db");
+const moment = require("../custom_module/DateTime");
+const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
 /*
 1. 게시글 조회
 2. 게시글 작성/수정/삭제
@@ -39,10 +39,23 @@ async function getRecentPostModel(ip) {
     return { state: "최신글정보", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
+/*
+// 리드미용 예시 모델
+async function exampleModel() {
+  // 쿼리문
+  const query = "SELECT * FROM BOARD";
+  // 쿼리 메서드
+  const results = await db.pool.query(query, async function (err, results) {
+    return results;
+  });
+  return results;
+}
+
+ */
 // 1-2. 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
 async function entireBoardModel(category, page, ip) {
   // 카테고리에 맞는 전체 게시글 정보 가져오기
@@ -64,7 +77,7 @@ async function entireBoardModel(category, page, ip) {
     return { state: "전체게시글", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -116,7 +129,7 @@ async function detailBoardModel(category, board_index, page, ip, user_index) {
 
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -166,7 +179,7 @@ async function writePostModel(category, input_write, user_index, ip) {
     return { state: "게시글작성완료" };
   } catch (err) {
     // 쿼리문 실행시 에러발생
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     await db.pool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
@@ -193,7 +206,7 @@ async function getWriteModel(board_index, user_index, ip) {
     return { state: "게시글정보로딩", data: results };
   } catch (err) {
     // 쿼리문 실행시 에러발생
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -240,7 +253,7 @@ async function revisePost(input_write, board_index, user_index, ip) {
     await db.pool.query("COMMIT");
     return { state: "게시글수정" };
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     await db.pool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
@@ -286,7 +299,7 @@ async function deletePostModel(board_index, user_index, ip) {
     return { state: "게시글삭제" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    queryFail(err, ip, query);
+    queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -324,7 +337,7 @@ async function likePostModel(board_index, user_index, ip) {
     return { state: "좋아요+1" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     await db.pool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
@@ -390,7 +403,7 @@ async function searchModel(search_option, search_content, category, page, ip) {
     return { state: "검색글정보", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -467,7 +480,7 @@ const increaseViewCount = async function (board_index, user_index, ip) {
     }
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     await db.pool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }

@@ -1,6 +1,6 @@
 // 유저 컨트롤러
-const user_model = require("../model/user");
-const check_data_or_authority_model = require("../custom_module/check_data_or_authority");
+const user_model = require("../model/User");
+const check_data_or_authority_model = require("../custom_module/CheckDataOrAuthority");
 const path = require("path");
 const {
   BAD_REQUEST,
@@ -12,7 +12,7 @@ const {
   NO_CONTENT,
   CONFLICT,
   OK,
-} = require("../custom_module/status_code");
+} = require("../custom_module/StatusCode");
 /*
 1. 회원가입/탈퇴
 2. 로그인/로그아웃
@@ -23,19 +23,18 @@ const {
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인
 const signUpGuide = async function (req, res) {
-  return res.status(OK).sendFile(path.join(__dirname, "..", "terms/sign_up_guide.html"));
+  return res.status(OK).sendFile(path.join(__dirname, "..", "terms/SignUpGuide.html"));
 };
 // 1-2. 회원가입 약관 확인 요청
 const signUpGuideConfirm = async function (req, res) {
   // 약관동의 체크박스(예시 body)
   /*
   req.body (약관동의 체크박스에 체크했는지 여부 - boolean값)
-    checkBox1
-
+    checkBox
    */
 
   const is_agreed = req.body;
-  // 약관확인에서 세 개의 체크박스에 모두 체크를 했을 때
+  // 약관확인에서 체크박스에 모두 체크를 했을 때
   if (is_agreed.checkBox) return res.status(OK).end();
   // 체크박스에 체크하지 않았을 때
   res.status(BAD_REQUEST).json({ state: "안내사항을 읽고 동의해주세요." });
@@ -69,6 +68,7 @@ const signUp = async function (req, res) {
 };
 
 // 1-4. 회원탈퇴 요청
+// TODO 메서드 명 일반적으로 회원탈퇴 signOut
 const dropOut = async function (req, res) {
   // 예시 바디
   const example_body = {
@@ -164,6 +164,7 @@ const userLibrary = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
+  // TODO Lib: 축약된 메서드 명 변경
   const model_results = await user_model.userLibModel(login_index, req.ip);
   // 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
@@ -185,6 +186,7 @@ const registerUserLibrary = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 관심도서관 항목 추가 모델 실행 결과
+  // TODO 메서드명 통일
   const model_results = await user_model.registerUserLibModel(req.query.libraryIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -312,6 +314,7 @@ const reviseProfile = async function (req, res) {
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 프로필 수정 요청 모델 실행결과
+  // TODO 메서드명 edit이라고 하는게 더 명확
   const model_results = await user_model.reviseProfileModel(req.body, req.ip, login_index);
 
   // 실행결과에 따라 분기처리

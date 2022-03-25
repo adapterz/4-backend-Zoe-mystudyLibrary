@@ -1,9 +1,9 @@
 // 댓글 라우터
 const express = require("express");
 const router = express.Router();
-const controller = require("../controller/comment");
+const controller = require("../controller/Comment");
 const { body, query } = require("express-validator");
-const check = require("../custom_module/check_validation");
+const check = require("../custom_module/CheckValidation");
 
 // 댓글 작성
 router.post(

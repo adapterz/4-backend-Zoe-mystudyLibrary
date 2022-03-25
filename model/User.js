@@ -1,10 +1,10 @@
 // 유저 모델
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/db");
-const moment = require("../custom_module/date_time");
-const { hashPw } = require("../custom_module/pw_bcrypt");
+const db = require("../custom_module/Db");
+const moment = require("../custom_module/DateTime");
+const { hashPw } = require("../custom_module/PwBcrypt");
 const bcrypt = require("bcrypt");
-const { queryFail, querySuccessLog } = require("../custom_module/query_log");
+const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
 /*
 1. 회원가입/탈퇴
 2. 로그인/(로그아웃 - 모델x)
@@ -17,6 +17,7 @@ const { queryFail, querySuccessLog } = require("../custom_module/query_log");
 // 1-1. 회원가입
 async function signUpModel(input_user, ip) {
   // 유저가 입력한 아이디가 기존에 있는지 select 해올 쿼리문
+  // TODO 무엇에 대한 쿼리문인지(변수명)
   let query = "SELECT id FROM USER WHERE id = " + mysql.escape(input_user.id);
   // 성공시
   try {
@@ -71,7 +72,7 @@ async function signUpModel(input_user, ip) {
     return { state: "회원가입" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -89,8 +90,7 @@ async function dropOutModel(ip, login_cookie) {
     return { state: "회원탈퇴" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
-    await db.pool.query("ROLLBACK");
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -117,7 +117,7 @@ async function loginModel(input_login, ip) {
     return { state: "로그인성공", userIndex: results[0].userIndex };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -141,7 +141,7 @@ async function userLibModel(user_index, ip) {
     return { state: "유저의관심도서관", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -175,7 +175,7 @@ async function registerMyLibModel(library_index, user_index, ip) {
     return { state: "관심도서관추가" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -205,7 +205,7 @@ async function deleteMyLibModel(library_index, user_index, ip) {
     return { state: "관심도서관삭제" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -233,7 +233,7 @@ async function userBoardModel(user_index, page, ip) {
     return { state: "내작성글조회", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -261,7 +261,7 @@ async function userCommentModel(user_index, page, ip) {
     return { state: "성공적조회", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -289,7 +289,7 @@ async function userReviewModel(user_index, page, ip) {
     return { state: "성공적조회", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -326,7 +326,7 @@ async function reviseProfileModel(input_revise, ip, login_cookie) {
     return { state: "프로필변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -350,7 +350,7 @@ async function revisePhoneNumberModel(new_contact, ip, login_cookie) {
     return { state: "연락처변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     await db.pool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
@@ -395,7 +395,7 @@ async function revisePwModel(input_pw, ip, login_cookie) {
     return { state: "비밀번호변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }

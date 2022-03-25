@@ -1,9 +1,9 @@
 // 후기 모델
 const mysql = require("mysql2/promise");
-const db = require("../custom_module/db");
-const moment = require("../custom_module/date_time");
-const { queryFail, querySuccessLog } = require("../custom_module/query_log");
-const { db_connect } = require("../custom_module/db");
+const db = require("../custom_module/Db");
+const moment = require("../custom_module/DateTime");
+const { queryFailLog, querySuccessLog } = require("../custom_module/QueryLog");
+const { db_connect } = require("../custom_module/Db");
 
 // 도서관 후기 등록하는 모델
 async function registerReviewModel(library_index, user_index, input_comment, ip) {
@@ -28,7 +28,7 @@ async function registerReviewModel(library_index, user_index, input_comment, ip)
     return { state: "도서관후기등록" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -51,7 +51,7 @@ async function getReviewModel(review_index, login_cookie, ip) {
     return { state: "후기정보로딩", data: results };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -75,7 +75,7 @@ async function reviseReviewModel(review_index, login_cookie, input_review, ip) {
     return { state: "후기수정" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -96,7 +96,7 @@ async function deleteReviewModel(review_index, user_index, ip) {
     return { state: "후기삭제" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFail(err, ip, query);
+    await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
