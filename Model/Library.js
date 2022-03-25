@@ -4,7 +4,7 @@ const db = require("../CustomModule/Db");
 const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
 
 // 전체 도서관 정보 불러오는 모델
-async function allLibModel(ip) {
+async function allLibraryModel(ip) {
   // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 후기 평균 평점, 평점개수 가져오는 쿼리문
   const query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade),AVG(grade) FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL GROUP BY libraryIndex";
@@ -22,7 +22,7 @@ async function allLibModel(ip) {
 }
 
 // 입력한 지역에 따라 도서관 정보주는 모델
-async function localLibModel(input_local, ip) {
+async function localLibraryModel(input_local, ip) {
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
   const query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.deleteDateTime=REVIEW.deleteDateTime WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND nameOfCity =" +
@@ -48,7 +48,7 @@ async function localLibModel(input_local, ip) {
 }
 
 // 특정 도서관 정보 가져오는 모델
-async function particularLibModel(library_index, ip) {
+async function detailLibraryModel(library_index, ip) {
   // 특정 libraryIndex의 도서관 정보+ 해당 도서관인덱스의 후기 정보, 후기의 평균 평점/평점개수 가져오는 다중 쿼리문
   const query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade),AVG(grade) FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex=" +
@@ -77,7 +77,7 @@ async function particularLibModel(library_index, ip) {
 }
 
 module.exports = {
-  allLibModel: allLibModel,
-  localLibModel: localLibModel,
-  particularLibModel: particularLibModel,
+  allLibraryModel: allLibraryModel,
+  localLibraryModel: localLibraryModel,
+  detailLibraryModel: detailLibraryModel,
 };

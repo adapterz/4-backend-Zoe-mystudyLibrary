@@ -26,7 +26,7 @@ router.patch(
   body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
   body("grade").isInt({ min: 1, max: 5 }),
   check.isValidate,
-  controller.reviseReview,
+  controller.editReview,
 );
 // 후기 삭제
 router.delete(

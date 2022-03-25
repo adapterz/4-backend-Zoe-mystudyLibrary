@@ -70,7 +70,7 @@ router.delete("/user-lib", query("libraryIndex").isInt().isLength({ min: 1, max:
 
 // 4. 유저가 작성한 글/댓글/후기
 // 유저가 쓴 글 목록 가져오기
-router.get("/post", check.checkPageValidation, controller.userPost);
+router.get("/post", check.checkPageValidation, controller.userBoard);
 // 유저가 쓴 댓글 목록 가져오기
 router.get("/comment", check.checkPageValidation, controller.userComment);
 // 유저가 작성한 도서관 후기 목록 가져오기
@@ -87,7 +87,7 @@ router.patch(
     .isLength({ min: 2, max: 8 })
     .matches(/^[가-힣|a-z|A-Z|0-9]+$/), // 한글, 숫자, 영어만 입력 가능한 정규 표현식
   check.isValidate,
-  controller.reviseProfile,
+  controller.editProfile,
 );
 // 연락처변경 요청
 router.patch(
@@ -96,7 +96,7 @@ router.patch(
     .matches(/^01([0|1|6|7|8|9])([0-9]{3,4})([0-9]{4})$/) // 휴대전화 정규식
     .notEmpty(),
   check.isValidate,
-  controller.revisePhoneNumber,
+  controller.editPhoneNumber,
 );
 // 비밀번호변경 요청
 router.patch(
@@ -106,7 +106,7 @@ router.patch(
     .trim()
     .matches(/^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,16}$/), // 하나 이상의 문자(영문),숫자,특수문자가 포함되도록 하는 정규식(8~16)
   check.isValidate,
-  controller.revisePw,
+  controller.editPw,
 );
 
 // 모듈화

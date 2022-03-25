@@ -67,7 +67,7 @@ const getReview = async function (req, res) {
   }
 };
 // 후기 수정 요청
-const reviseReview = async function (req, res) {
+const editReview = async function (req, res) {
   // req.body - reviewContent (댓글내용), grade(평점)
 
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
@@ -95,7 +95,7 @@ const reviseReview = async function (req, res) {
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_review.state === "접근성공") {
     // 댓글수정 모델 실행 결과
-    const model_results = await review_model.reviseReviewModel(req.query.reviewIndex, login_index, req.body, req.ip);
+    const model_results = await review_model.editReviewModel(req.query.reviewIndex, login_index, req.body, req.ip);
     // 모델 실행결과에 따른 분기처리
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -146,6 +146,6 @@ const deleteReview = async function (req, res) {
 module.exports = {
   registerReview: registerReview,
   getReview: getReview,
-  reviseReview: reviseReview,
+  editReview: editReview,
   deleteReview: deleteReview,
 };

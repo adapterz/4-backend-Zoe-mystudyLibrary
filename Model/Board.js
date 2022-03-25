@@ -19,7 +19,7 @@ async function changeCount(count) {
  */
 // 1. 게시글 조회
 // 1-1. 최신글 정보 가져오기
-async function getRecentPostModel(ip) {
+async function getRecentBoardModel(ip) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
   const query =
     "SELECT postTitle,nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
@@ -136,7 +136,7 @@ async function detailBoardModel(category, board_index, page, ip, user_index) {
 
 // 2. 게시글 작성/수정/삭제
 // 2-1. 게시글 최초 작성
-async function writePostModel(category, input_write, user_index, ip) {
+async function writeBoardModel(category, input_write, user_index, ip) {
   let query;
   // 게시글 작성 쿼리문
   query =
@@ -211,7 +211,7 @@ async function getWriteModel(board_index, user_index, ip) {
   }
 }
 // 2-3. 게시글 수정 요청
-async function revisePost(input_write, board_index, user_index, ip) {
+async function editBoard(input_write, board_index, user_index, ip) {
   // 게시글 정보 수정 요청 쿼리문
   let query =
     "UPDATE BOARD SET postTitle = " +
@@ -260,7 +260,7 @@ async function revisePost(input_write, board_index, user_index, ip) {
 }
 
 // 2-4. 게시글 삭제 요청
-async function deletePostModel(board_index, user_index, ip) {
+async function deleteBoardModel(board_index, user_index, ip) {
   // 해당 인덱스 게시글 삭제
   const query =
     // 게시글 삭제 쿼리문
@@ -306,7 +306,7 @@ async function deletePostModel(board_index, user_index, ip) {
 
 // 3. 좋아요 요청/검색기능
 // 3-1. 게시글 좋아요 요청
-async function likePostModel(board_index, user_index, ip) {
+async function favoriteBoardModel(board_index, user_index, ip) {
   // 좋아요한 유저 테이블에 해당게시글에 좋아요 누른 유저인덱스 추가하는 쿼리문
   let query =
     "SELECT userIndex FROM FAVORITEPOST WHERE boardIndex=" + mysql.escape(board_index) + "AND userIndex = " + mysql.escape(user_index);
@@ -344,7 +344,7 @@ async function likePostModel(board_index, user_index, ip) {
 }
 
 // 3-2. 게시글 검색 기능
-async function searchModel(search_option, search_content, category, page, ip) {
+async function searchBoardModel(search_option, search_content, category, page, ip) {
   // 검색 옵션에 맞는 게시글 정보 select 해오는 쿼리문 작성 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
   let query;
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
@@ -486,13 +486,13 @@ const increaseViewCount = async function (board_index, user_index, ip) {
   }
 };
 module.exports = {
-  getRecentPostModel: getRecentPostModel,
+  getRecentBoardModel: getRecentBoardModel,
   entireBoardModel: entireBoardModel,
   detailBoardModel: detailBoardModel,
-  writePostModel: writePostModel,
+  writeBoardModel: writeBoardModel,
   getWriteModel: getWriteModel,
-  revisePost: revisePost,
-  deletePostModel: deletePostModel,
-  likePostModel: likePostModel,
-  searchModel: searchModel,
+  editBoard: editBoard,
+  deleteBoardModel: deleteBoardModel,
+  favoriteBoardModel: favoriteBoardModel,
+  searchBoardModel: searchBoardModel,
 };

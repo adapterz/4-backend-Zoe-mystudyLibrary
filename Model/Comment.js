@@ -62,7 +62,7 @@ async function getCommentModel(comment_index, login_cookie, ip) {
 }
 
 // 댓글 수정
-async function reviseCommentModel(comment_index, login_cookie, input_comment, ip) {
+async function editCommentModel(comment_index, login_cookie, input_comment, ip) {
   // 댓글 수정 쿼리문
   const query =
     "UPDATE COMMENT SET  commentContent=" + mysql.escape(input_comment.content) + "WHERE commentIndex =" + mysql.escape(comment_index);
@@ -107,6 +107,6 @@ async function deleteCommentModel(comment_index, user_index, ip) {
 module.exports = {
   writeCommentModel: writeCommentModel,
   getCommentModel: getCommentModel,
-  reviseCommentModel: reviseCommentModel,
+  editCommentModel: editCommentModel,
   deleteCommentModel: deleteCommentModel,
 };

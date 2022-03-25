@@ -57,7 +57,7 @@ async function getReviewModel(review_index, login_cookie, ip) {
 }
 
 // 후기 수정 요청
-async function reviseReviewModel(review_index, login_cookie, input_review, ip) {
+async function editReviewModel(review_index, login_cookie, input_review, ip) {
   // 후기 수정 쿼리문
   const query =
     "UPDATE REVIEW SET reviewContent=" +
@@ -104,6 +104,6 @@ async function deleteReviewModel(review_index, user_index, ip) {
 module.exports = {
   registerReviewModel: registerReviewModel,
   getReviewModel: getReviewModel,
-  reviseReviewModel: reviseReviewModel,
+  editReviewModel: editReviewModel,
   deleteReviewModel: deleteReviewModel,
 };

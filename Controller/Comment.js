@@ -74,7 +74,7 @@ const getComment = async function (req, res) {
   }
 };
 // 댓글 수정 요청
-const reviseComment = async function (req, res) {
+const editComment = async function (req, res) {
   /*
   req.query: boardIndex, commentIndex
    req.body - content (댓글내용)
@@ -104,7 +104,7 @@ const reviseComment = async function (req, res) {
   // 해당 댓글 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_comment.state === "접근성공") {
     // 댓글수정 모델 실행 결과
-    const model_results = await comment_model.reviseCommentModel(req.query.commentIndex, login_index, req.body, req.ip);
+    const model_results = await comment_model.editCommentModel(req.query.commentIndex, login_index, req.body, req.ip);
     // 모델 실행결과에 따른 분기처리
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -153,6 +153,6 @@ const deleteComment = async function (req, res) {
 module.exports = {
   writeComment: writeComment,
   getComment: getComment,
-  reviseComment: reviseComment,
+  editComment: editComment,
   deleteComment: deleteComment,
 };

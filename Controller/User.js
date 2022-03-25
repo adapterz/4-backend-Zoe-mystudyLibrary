@@ -165,7 +165,7 @@ const userLibrary = async function (req, res) {
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
   // TODO Lib: 축약된 메서드 명 변경
-  const model_results = await user_model.userLibModel(login_index, req.ip);
+  const model_results = await user_model.userLibraryModel(login_index, req.ip);
   // 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -206,7 +206,7 @@ const deleteUserLibrary = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 도서관 정보가 있는지, 해당 도서관이 관심도서관으로 등록돼있는지 확인해주는 메서드
-  const check_my_lib = await check_data_or_authority_model.checkMyLibModel(req.query.libraryIndex, login_index, req.ip);
+  const check_my_lib = await check_data_or_authority_model.checkMyLibraryModel(req.query.libraryIndex, login_index, req.ip);
   // 존재하지않는 도서관 정보
   if (check_my_lib.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(check_my_lib);
   // 관심도서관으로 등록되지 않은 도서관(도서관 정보는 있지만 해당 유저가 구독하지 않음)
@@ -228,7 +228,7 @@ const deleteUserLibrary = async function (req, res) {
 };
 // 4. 유저가 작성한 글/댓글/후기 조회
 // 4-1. 유저가 작성한 글 조회
-const userPost = async function (req, res) {
+const userBoard = async function (req, res) {
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const login_cookie = req.signedCookies.user;
   let login_index;
@@ -241,7 +241,7 @@ const userPost = async function (req, res) {
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
-  const model_results = await user_model.userPostModel(login_index, page, req.ip);
+  const model_results = await user_model.userBoardModel(login_index, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results.state);
@@ -299,7 +299,7 @@ const userReview = async function (req, res) {
 
 // 5. 유저 정보 수정
 // 5-1. 유저 프로필 수정
-const reviseProfile = async function (req, res) {
+const editProfile = async function (req, res) {
   /*
   req.body
     profileShot: 프로필 사진 uri
@@ -315,7 +315,7 @@ const reviseProfile = async function (req, res) {
 
   // 프로필 수정 요청 모델 실행결과
   // TODO 메서드명 edit이라고 하는게 더 명확
-  const model_results = await user_model.reviseProfileModel(req.body, req.ip, login_index);
+  const model_results = await user_model.editProfileModel(req.body, req.ip, login_index);
 
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
@@ -327,7 +327,7 @@ const reviseProfile = async function (req, res) {
 };
 
 // 5-2. 회원정보 수정(연락처 수정)
-const revisePhoneNumber = async function (req, res) {
+const editPhoneNumber = async function (req, res) {
   /*
   req.body
     phoneNumber: 폰 번호
@@ -340,7 +340,7 @@ const revisePhoneNumber = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 연락처 수정 요청 모델 실행결과
-  const model_results = await user_model.revisePhoneNumberModel(req.body, req.ip, login_index);
+  const model_results = await user_model.editPhoneNumberModel(req.body, req.ip, login_index);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -349,7 +349,7 @@ const revisePhoneNumber = async function (req, res) {
 };
 
 // 5-3. 비밀번호 수정
-const revisePw = async function (req, res) {
+const editPw = async function (req, res) {
   /*
   req.body
     pw: 기존 비밀번호
@@ -364,7 +364,7 @@ const revisePw = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 비밀번호 수정 모델 실행결과
-  const model_results = await user_model.revisePwModel(req.body, req.ip, login_index);
+  const model_results = await user_model.editPwModel(req.body, req.ip, login_index);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -387,10 +387,10 @@ module.exports = {
   userLibrary: userLibrary,
   registerUserLibrary: registerUserLibrary,
   deleteUserLibrary: deleteUserLibrary,
-  userPost: userPost,
+  userBoard: userBoard,
   userComment: userComment,
   userReview: userReview,
-  reviseProfile: reviseProfile,
-  revisePhoneNumber: revisePhoneNumber,
-  revisePw: revisePw,
+  editProfile: editProfile,
+  editPhoneNumber: editPhoneNumber,
+  editPw: editPw,
 };

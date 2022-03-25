@@ -124,7 +124,7 @@ async function loginModel(input_login, ip) {
 
 // 3. 내 관심도서관 조회/등록/탈퇴
 // 3-1. 관심도서관 조회
-async function userLibModel(user_index, ip) {
+async function userLibraryModel(user_index, ip) {
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade),COUNT(grade) FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
@@ -295,7 +295,7 @@ async function userReviewModel(user_index, page, ip) {
 }
 // 5. 유저 정보 수정
 // 5-1. 프로필 변경
-async function reviseProfileModel(input_revise, ip, login_cookie) {
+async function editProfileModel(input_revise, ip, login_cookie) {
   // 유저가 입력한 닉네임이 기존에 존재하는지 확인하기 위해 select 해올 쿼리문
   let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(input_revise.nickName);
   // 성공시
@@ -331,7 +331,7 @@ async function reviseProfileModel(input_revise, ip, login_cookie) {
   }
 }
 // 5-2. 연락처 변경 모델
-async function revisePhoneNumberModel(new_contact, ip, login_cookie) {
+async function editPhoneNumberModel(new_contact, ip, login_cookie) {
   // 폰번호 변경 쿼리문
   const query =
     "UPDATE USER SET phoneNumber=" +
@@ -357,7 +357,7 @@ async function revisePhoneNumberModel(new_contact, ip, login_cookie) {
 }
 
 // 5-3. 비밀번호 수정 요청 모델
-async function revisePwModel(input_pw, ip, login_cookie) {
+async function editPwModel(input_pw, ip, login_cookie) {
   // 해싱된 새비밀번호 변수 미리 선언
   let hashed_new_pw;
   // 기존에 비밀번호와 일치하나 확인하기 위한 쿼리문
@@ -404,13 +404,13 @@ module.exports = {
   signUpModel: signUpModel,
   dropOutModel: dropOutModel,
   loginModel: loginModel,
-  userLibModel: userLibModel,
+  userLibraryModel: userLibraryModel,
   registerUserLibModel: registerMyLibModel,
   deleteMyLibModel: deleteMyLibModel,
-  userPostModel: userBoardModel,
+  userBoardModel: userBoardModel,
   userCommentModel: userCommentModel,
   userReviewModel: userReviewModel,
-  reviseProfileModel: reviseProfileModel,
-  revisePhoneNumberModel: revisePhoneNumberModel,
-  revisePwModel: revisePwModel,
+  editProfileModel: editProfileModel,
+  editPhoneNumberModel: editPhoneNumberModel,
+  editPwModel: editPwModel,
 };

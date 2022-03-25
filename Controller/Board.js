@@ -20,7 +20,7 @@ const {
 // 1-1. 최신 자유게시판 글 5개/공부인증샷 글 4개 불러오기
 const getRecentBoard = async function (req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
-  const model_results = await board_model.getRecentPostModel(req.ip);
+  const model_results = await board_model.getRecentBoardModel(req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 성공적으로 최신글 정보 가져왔을 때
@@ -106,7 +106,7 @@ const writeBoard = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 게시글 작성 모델 실행 결과 변수
-  const model_results = await board_model.writePostModel(req.body.category, req.body, login_index, req.ip);
+  const model_results = await board_model.writeBoardModel(req.body.category, req.body, login_index, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -128,7 +128,7 @@ const getWrite = async function (req, res) {
   if (req.query.boardIndex === "") return res.status(OK).end();
   // 2. 기존의 글 수정하는 경우
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_index, req.ip);
+  const check_post = await check_data_or_authority_model.checkBoardModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(check_post);
   // 해당 게시글 정보가 없을 때
@@ -166,7 +166,7 @@ req.body
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_index, req.ip);
+  const check_post = await check_data_or_authority_model.checkBoardModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(check_post);
   // 해당 게시글 정보가 없을 때
@@ -176,7 +176,7 @@ req.body
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_post.state === "접근성공") {
     // 게시글 수정 모델 실행 결과
-    const model_results = await board_model.revisePost(req.body, req.query.boardIndex, login_index, req.ip);
+    const model_results = await board_model.editBoard(req.body, req.query.boardIndex, login_index, req.ip);
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
     // 성공적으로 게시글 수정 요청 수행
@@ -196,7 +196,7 @@ const deleteBoard = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const check_post = await check_data_or_authority_model.checkPostModel(req.query.boardIndex, login_index, req.ip);
+  const check_post = await check_data_or_authority_model.checkBoardModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (check_post.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(check_post);
   // 해당 게시글 정보가 없을 때
@@ -206,7 +206,7 @@ const deleteBoard = async function (req, res) {
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (check_post.state === "접근성공") {
     // 해당 인덱스 게시글 삭제
-    const model_results = await board_model.deletePostModel(req.query.boardIndex, login_index, req.ip);
+    const model_results = await board_model.deleteBoardModel(req.query.boardIndex, login_index, req.ip);
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
     // 성공적으로 게시글 삭제 요청 수행
@@ -225,7 +225,7 @@ const favoriteBoard = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 좋아요 모델 실행 결과
-  const model_results = await board_model.likePostModel(req.query.boardIndex, login_index, req.ip);
+  const model_results = await board_model.favoriteBoardModel(req.query.boardIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 좋아요를 이미 누른적이 있을 때
@@ -251,7 +251,7 @@ const searchBoard = async function (req, res) {
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 검색 모델 실행 결과
-  const model_results = await board_model.searchModel(req.query.searchOption, req.query.searchContent, req_category, page, req.ip);
+  const model_results = await board_model.searchBoardModel(req.query.searchOption, req.query.searchContent, req_category, page, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 검색결과가 없을 때

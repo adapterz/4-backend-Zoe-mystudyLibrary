@@ -24,7 +24,7 @@ router.patch(
   check.isExist,
   body("content").isLength({ min: 2, max: 500 }).isString(),
   check.isValidate,
-  controller.reviseComment,
+  controller.editComment,
 );
 // 댓글 삭제
 router.delete("/delete", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), check.isExist, controller.deleteComment);

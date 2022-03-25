@@ -5,7 +5,7 @@ const { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } = require("../CustomModule/Status
 // 전체 도서관 정보
 const allLibrary = async function (req, res) {
   // 전체 도서관 정보 가져오는 모델실행 결과
-  const model_results = await library_model.allLibModel(req.ip);
+  const model_results = await library_model.allLibraryModel(req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -21,7 +21,7 @@ const localLibrary = async function (req, res) {
     districts: 시군구명
    */
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 모델 실행 결과
-  const model_results = await library_model.localLibModel(req.query, req.ip);
+  const model_results = await library_model.localLibraryModel(req.query, req.ip);
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -35,7 +35,7 @@ const localLibrary = async function (req, res) {
 const detailLibrary = async function (req, res) {
   // req.params: libraryIndex
   // 특정 libraryIndex의 도서관 정보 자세히 보는 모델 실행 결과
-  const model_results = await library_model.particularLibModel(req.params.libraryIndex, req.ip);
+  const model_results = await library_model.detailLibraryModel(req.params.libraryIndex, req.ip);
   // 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
