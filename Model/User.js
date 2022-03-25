@@ -147,7 +147,7 @@ async function userLibraryModel(user_index, ip) {
 }
 
 // 3-2. 관심도서관 등록
-async function registerMyLibModel(library_index, user_index, ip) {
+async function registerUserLibraryModel(library_index, user_index, ip) {
   // 기존에 등록돼있는 관심도서관인지 확인하는 쿼리문
   let query =
     "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE userIndex=" +
@@ -180,7 +180,7 @@ async function registerMyLibModel(library_index, user_index, ip) {
   }
 }
 // 3-3. 관심도서관 삭제
-async function deleteMyLibModel(library_index, user_index, ip) {
+async function deleteUserLibraryModel(library_index, user_index, ip) {
   // 등록한 관심도서관이 존재하는지 확인하는 쿼리문
   let query =
     "SELECT userIndex FROM USERLIBRARY WHERE userIndex =" + mysql.escape(user_index) + "AND libraryIndex =" + mysql.escape(library_index);
@@ -405,8 +405,8 @@ module.exports = {
   dropOutModel: dropOutModel,
   loginModel: loginModel,
   userLibraryModel: userLibraryModel,
-  registerUserLibModel: registerMyLibModel,
-  deleteMyLibModel: deleteMyLibModel,
+  registerUserLibraryModel: registerUserLibraryModel,
+  deleteUserLibraryModel: deleteUserLibraryModel,
   userBoardModel: userBoardModel,
   userCommentModel: userCommentModel,
   userReviewModel: userReviewModel,

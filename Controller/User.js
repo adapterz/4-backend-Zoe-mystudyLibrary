@@ -68,7 +68,6 @@ const signUp = async function (req, res) {
 };
 
 // 1-4. 회원탈퇴 요청
-// TODO 메서드 명 일반적으로 회원탈퇴 signOut
 const dropOut = async function (req, res) {
   // 예시 바디
   const example_body = {
@@ -164,7 +163,6 @@ const userLibrary = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
-  // TODO Lib: 축약된 메서드 명 변경
   const model_results = await user_model.userLibraryModel(login_index, req.ip);
   // 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
@@ -186,8 +184,7 @@ const registerUserLibrary = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 관심도서관 항목 추가 모델 실행 결과
-  // TODO 메서드명 통일
-  const model_results = await user_model.registerUserLibModel(req.query.libraryIndex, login_index, req.ip);
+  const model_results = await user_model.registerUserLibraryModel(req.query.libraryIndex, login_index, req.ip);
   // mysql query 메서드 실패
   if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
   // 기존에 관심도서관으로 등록된 정보
@@ -206,7 +203,7 @@ const deleteUserLibrary = async function (req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 도서관 정보가 있는지, 해당 도서관이 관심도서관으로 등록돼있는지 확인해주는 메서드
-  const check_my_lib = await check_data_or_authority_model.checkMyLibraryModel(req.query.libraryIndex, login_index, req.ip);
+  const check_my_lib = await check_data_or_authority_model.checkUserLibraryModel(req.query.libraryIndex, login_index, req.ip);
   // 존재하지않는 도서관 정보
   if (check_my_lib.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(check_my_lib);
   // 관심도서관으로 등록되지 않은 도서관(도서관 정보는 있지만 해당 유저가 구독하지 않음)
@@ -216,7 +213,7 @@ const deleteUserLibrary = async function (req, res) {
   // 접근성공
   else if (check_my_lib.state === "접근성공") {
     // 해당 유저가 관심도서관으로 등록한 도서관 정보 삭제하는모델 실행결과
-    const model_results = await user_model.deleteMyLibModel(req.query.libraryIndex, login_index, req.ip);
+    const model_results = await user_model.deleteUserLibraryModel(req.query.libraryIndex, login_index, req.ip);
     // 실행결과에 따라 분기처리
     // mysql query 메서드 실패
     if (model_results.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(model_results);
@@ -314,7 +311,6 @@ const editProfile = async function (req, res) {
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 프로필 수정 요청 모델 실행결과
-  // TODO 메서드명 edit이라고 하는게 더 명확
   const model_results = await user_model.editProfileModel(req.body, req.ip, login_index);
 
   // 실행결과에 따라 분기처리

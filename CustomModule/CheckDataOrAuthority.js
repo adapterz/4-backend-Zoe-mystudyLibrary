@@ -128,7 +128,7 @@ async function checkReviewModel(library_index, review_index, user_index, ip) {
 }
 
 // 삭제할 관심도서관 정보가 있는지 체크 하는 함수
-async function checkMyLibraryModel(library_index, user_index, ip) {
+async function checkUserLibraryModel(library_index, user_index, ip) {
   // 해당 도서관이 존재하는지 확인
   let query = "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(library_index);
   // 성공시
@@ -165,5 +165,5 @@ module.exports = {
   checkBoardModel: checkBoardModel,
   checkCommentModel: checkCommentModel,
   checkReviewModel: checkReviewModel,
-  checkMyLibraryModel: checkMyLibraryModel,
+  checkUserLibraryModel: checkUserLibraryModel,
 };
