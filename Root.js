@@ -91,6 +91,16 @@ if (process.env.NODE_ENV !== "production") {
 }
  */
 
+// 디도스 방어 모듈
+const rateLimit = require("express-rate-limit");
+const apiLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use("/api", apiLimiter);
+
 // 경로별로 라우팅
 const board_router = require("./Router/Board");
 const comment_router = require("./Router/Comment");
