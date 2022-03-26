@@ -18,7 +18,7 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 
 -------------------------------------
 ## 프로젝트 구조
-![image](https://user-images.githubusercontent.com/98700133/160255925-f8995509-a9c1-4d2c-ae46-6a3f601c7a59.png)
+![image](https://user-images.githubusercontent.com/98700133/160259245-610fa7b2-04cb-4c93-afce-14249e816c9e.png)
 
 위의 구조대로 프로젝트를 구성했습니다.
 
@@ -47,7 +47,7 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 
 ### **기존 상태**
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/b976d7c7-310a-43c0-ba98-908196cdba90/Untitled.png)
+![image](https://user-images.githubusercontent.com/98700133/160259242-de01af36-704e-402e-b43e-bae03c813965.png)
 
 위의 패턴으로 프로그램 구조를 짜줬습니다.
 
@@ -87,6 +87,7 @@ const exampleController = async function (req, res) {
 ```
 
 ![오류](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/99402d47-d88e-457d-a5c9-8624e81ab102/Untitled.png)
+
 
 오류
 
