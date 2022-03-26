@@ -28,7 +28,7 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 ![image](https://user-images.githubusercontent.com/98700133/160256063-cbe1452d-d083-433a-bd81-c0e8d6749f9a.png)
 
 + Controller: 모델을 관리해주는 역할
-+ Routes: 경로 설정
++ Rout: 경로 설정
 + Model: DB에 직접적으로 접근하도록 나누어서 코드 작성
 + CustomModule: 해당 프로젝트에 필요한 모듈/메서드들이 정의 및 설정돼있는 파일들을 모아 둔 폴더
 + Terms: 이용약관 html 파일이 있는 폴더
