@@ -86,10 +86,8 @@ const exampleController = async function (req, res) {
 };
 ```
 
-![오류](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/99402d47-d88e-457d-a5c9-8624e81ab102/Untitled.png)
+![image](https://user-images.githubusercontent.com/98700133/160259330-f5dbb523-39c8-4453-b04f-b62528e1d55f.png)
 
-
-오류
 
 ### 문제 원인 파악
 
