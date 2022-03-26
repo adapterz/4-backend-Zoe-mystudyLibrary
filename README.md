@@ -18,7 +18,7 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 
 -------------------------------------
 ## 프로젝트 구조
-![image](https://user-images.githubusercontent.com/98700133/160259245-610fa7b2-04cb-4c93-afce-14249e816c9e.png)
+![image](https://user-images.githubusercontent.com/98700133/160259273-0556e259-ffd2-4c48-a97f-851f331522e4.png)
 
 위의 구조대로 프로젝트를 구성했습니다.
 
@@ -47,7 +47,7 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 
 ### **기존 상태**
 
-![image](https://user-images.githubusercontent.com/98700133/160259242-de01af36-704e-402e-b43e-bae03c813965.png)
+![image](https://user-images.githubusercontent.com/98700133/160259270-b09844a3-e107-4a6c-9b91-26f88fd6edae.png)
 
 위의 패턴으로 프로그램 구조를 짜줬습니다.
 
@@ -99,9 +99,8 @@ async/await이 작동하지 않는 것이라면 undefined가 떠야합니다.
 
 하지만 console.log(model_results)의 결과값은 아래와 같았습니다.
 
-![console.log(model_results); 의 출력값](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/a183e5ac-c52d-4ab3-ac31-d133de692f9e/Untitled.png)
+![image](https://user-images.githubusercontent.com/98700133/160259299-6544c8ba-42f4-4c04-8148-b4c9cda6225b.png)
 
-console.log(model_results); 의 출력값
 
 즉,  전달된 값은 모델에서 작성한 query 메서드의 결과값이 아니라 query메서드 자체의 정보에 관한 것이라는 것을 알 수 있었습니다. 
 
@@ -135,6 +134,6 @@ async function exampleModel(board_index, user_index, ip) {
 
 조회수를 관리해주는 VIEWPOST 라는 테이블을 추가해줬습니다.
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/8297a8fb-e119-428b-90ba-d206d3dcced8/Untitled.png)
+![image](https://user-images.githubusercontent.com/98700133/160259317-e298a65d-8e9c-4ece-916e-6d63d3998ea1.png)
 
 로그인한 유저가 게시글을 조회할 때  해당 VIEWPOST 테이블에  중복되는 ip나 userIndex로 조회한 적이 있는지 탐색해주도록 코드를 작성했습니다.  로그인하지 않은 유저가 게시글을 조회할 때 중복되는 ip로 조회한 적이 있는지 탐색해주도록 코드를 작성했습니다. 또한 기존에 테이블에 데이터가 없으면 조회수를 증가시켜주고 해당 데이터를 VIEWPOST 테이블에 추가해줬습니다. 또한 기존에 해당 게시글을 똑같은 유저가 조회한 기록이 있으면 조회수가 증가하지 않도록 코드를 작성했습니다.
