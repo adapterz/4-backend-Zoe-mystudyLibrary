@@ -17,8 +17,8 @@ export async function allLibrary(req, res) {
 export async function localLibrary(req, res) {
   /*
    *  req.query
-   *  nameOfCity: 시도명
-   *  districts: 시군구명
+   *    nameOfCity: 시도명
+   *    districts: 시군구명
    */
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 모델 실행 결과
   const modelResult = await libraryModel.localLibraryModel(req.query, req.ip);

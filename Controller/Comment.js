@@ -15,9 +15,10 @@ import {
 // 댓글 최초 작성
 export async function writeComment(req, res) {
   /*
-   * req.query : boardIndex
+   * req.query
+   *  boardIndex
    * req.body
-   * content: 댓글내용
+   *  content: 댓글내용
    */
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
@@ -40,7 +41,8 @@ export async function writeComment(req, res) {
 // 수정시 기존 댓글 정보 불러오기
 export async function getComment(req, res) {
   /*
-   * req.query : boardIndex,commentIndex
+   * req.query
+   *  boardIndex,commentIndex
    */
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
@@ -75,8 +77,10 @@ export async function getComment(req, res) {
 // 댓글 수정 요청
 export async function editComment(req, res) {
   /*
-   * req.query: boardIndex, commentIndex
-   * req.body - content (댓글내용)
+   * req.query
+   *  boardIndex, commentIndex
+   * req.body
+   *  content (댓글내용)
    */
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
@@ -110,7 +114,8 @@ export async function editComment(req, res) {
 // 댓글 삭제
 export async function deleteComment(req, res) {
   /*
-   * req.query: boardIndex, commentIndex
+   * req.query
+   *  boardIndex, commentIndex
    */
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
