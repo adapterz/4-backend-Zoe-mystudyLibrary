@@ -26,15 +26,7 @@ const getRecentBoard = async function (req, res) {
   // 성공적으로 최신글 정보 가져왔을 때
   else if (model_results.state === "최신글정보") return res.status(OK).json(model_results.data);
 };
-/*
-// 리드미용 예시모델
-const exampleController = async function (req, res) {
-  const model_results = await board_model.exampleModel();
-  //console.log(model_results);
-  res.status(200).end(model_results);
-};
 
- */
 // 1-2. 전체 게시물 보기
 const entireBoard = async function (req, res) {
   // req.params: category
