@@ -1,13 +1,17 @@
 // 도서관 라우터
-const express = require("express");
-const router = express.Router();
-const controller = require("../Controller/Library");
-// 유효성 검사를 위한 모듈
+// 외장모듈
+import express from "express";
 const { query, param } = require("express-validator");
-const check = require("../CustomModule/CheckValidation.js");
+
+// 내장모듈
+import { isExist, isValidate } from "../CustomModule/CheckValidation";
+import { allLibrary, detailLibrary, localLibrary } from "../Controller/Library";
+
+// 라우터 변수
+const router = express.Router();
 
 // 전체도서관 정보
-router.get("/", controller.allLibrary);
+router.get("/", allLibrary);
 // 내 지역의 도서관 정보(시도명, 시군구명 body 로 보내기)
 router.get(
   "/search",
@@ -21,10 +25,11 @@ router.get(
     .trim()
     .isLength({ min: 1, max: 15 })
     .matches(/^[가-힣]+$/),
-  check.isValidate,
-  controller.localLibrary,
+  isValidate,
+  localLibrary,
 );
 // 특정 도서관 자세히 보기
-router.get("/detail/:libraryIndex", param("libraryIndex").isInt(), check.isExist, controller.detailLibrary);
+router.get("/detail/:libraryIndex", param("libraryIndex").isInt(), isExist, detailLibrary);
+
 // 모듈화
-module.exports = router;
+export default router;

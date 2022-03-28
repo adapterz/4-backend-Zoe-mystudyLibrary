@@ -1,24 +1,32 @@
 // 게시판 라우터
-const express = require("express");
+// 외장모듈
+import express from "express";
+const { body, query, param } = require("express-validator");
+
+// 내장모듈
+import {
+  editBoard,
+  deleteBoard,
+  detailBoard,
+  entireBoard,
+  favoriteBoard,
+  getRecentBoard,
+  searchBoard,
+  writeBoard,
+  getWrite,
+} from "../Controller/Board";
+import { checkPageValidation, isCategory, isCategoryWhenWrite, isExist, isSearchOption, isValidate } from "../CustomModule/CheckValidation";
+
+// 라우터 변수
 const router = express.Router();
-const controller = require("../Controller/Board");
 
 // 유효성 검사를 위한 모듈
-const { body, query, param } = require("express-validator");
-const check = require("../CustomModule/CheckValidation");
 // 최신글 자유게시판 5개, 공부인증샷 4개 정보
-router.get("/board", check.isExist, controller.getRecentBoard);
+router.get("/board", isExist, getRecentBoard);
 // 전체 게시물 목록보기
-router.get("/board/:category", check.isCategory, check.checkPageValidation, controller.entireBoard);
+router.get("/board/:category", isCategory, checkPageValidation, entireBoard);
 // 각 게시물 상세보기
-router.get(
-  "/board/:category/:boardIndex",
-  param("boardIndex").isInt(),
-  check.isCategory,
-  check.isExist,
-  check.checkPageValidation,
-  controller.detailBoard,
-);
+router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, checkPageValidation, detailBoard);
 // 최초 게시글 작성 요청
 router.post(
   "/write",
@@ -30,17 +38,17 @@ router.post(
     .trim()
     .isString()
     .matches(/^[가-힣]+$/),
-  check.isValidate,
-  check.isCategoryWhenWrite,
-  controller.writeBoard,
+  isValidate,
+  isCategoryWhenWrite,
+  writeBoard,
 );
 // 수정시 기존 게시글 정보 가져오기
-router.get("/write", query("boardIndex").isInt(), check.isExist, controller.getWrite);
+router.get("/write", query("boardIndex").isInt(), isExist, getWrite);
 // 게시글 수정 요청
 router.patch(
   "/write",
   query("boardIndex").isInt(),
-  check.isExist,
+  isExist,
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
   body("postContent").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }),
@@ -49,23 +57,24 @@ router.patch(
     .trim()
     .isString()
     .matches(/^[가-힣]+$/),
-  check.isValidate,
-  check.isCategoryWhenWrite,
-  controller.editBoard,
+  isValidate,
+  isCategoryWhenWrite,
+  editBoard,
 );
 // 게시물 삭제 요청
-router.delete("/delete", query("boardIndex").isInt(), check.isExist, controller.deleteBoard);
+router.delete("/delete", query("boardIndex").isInt(), isExist, deleteBoard);
 // 좋아요 기능
-router.patch("/like", query("boardIndex").isInt(), check.isExist, controller.favoriteBoard);
+router.patch("/like", query("boardIndex").isInt(), isExist, favoriteBoard);
 // 검색관련 기능
 router.get(
   "/search/:category",
-  check.isCategory,
-  check.isSearchOption,
+  isCategory,
+  isSearchOption,
   query("searchContent").isString(),
-  check.isValidate,
-  check.checkPageValidation,
-  controller.searchBoard,
+  isValidate,
+  checkPageValidation,
+  searchBoard,
 );
+
 // 모듈화
-module.exports = router;
+export default router;

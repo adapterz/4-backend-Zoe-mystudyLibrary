@@ -1,27 +1,27 @@
 // 유저 모델
-const mysql = require("mysql2/promise");
-const db = require("../CustomModule/Db");
-const moment = require("../CustomModule/DateTime");
-const { hashPw } = require("../CustomModule/PwBcrypt");
-const bcrypt = require("bcrypt");
-const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
+import mysql from "mysql2/promise";
+import { myPool } from "../CustomModule/Db";
+import { moment } from "../CustomModule/DateTime";
+import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+import bcrypt from "bcrypt";
+import { hashPw } from "../CustomModule/PwBcrypt";
 /*
-1. 회원가입/탈퇴
-2. 로그인/(로그아웃 - 모델x)
-3. 유저 관심도서관 조회/등록/탈퇴
-4. 유저가 작성한 글/댓글/후기 조회
-5. 유저 정보 수정
+ * 1. 회원가입/탈퇴
+ * 2. 로그인/(로그아웃 - 모델x)
+ * 3. 유저 관심도서관 조회/등록/탈퇴
+ * 4. 유저가 작성한 글/댓글/후기 조회
+ * 5. 유저 정보 수정
  */
 
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입
-async function signUpModel(input_user, ip) {
+export async function signUpModel(input_user, ip) {
   // 유저가 입력한 아이디가 기존에 있는지 select 해올 쿼리문
   // TODO 무엇에 대한 쿼리문인지(변수명)
   let query = "SELECT id FROM USER WHERE id = " + mysql.escape(input_user.id);
   // 성공시
   try {
-    let [results, fields] = await db.pool.query(query);
+    let [results, fields] = await myPool.query(query);
     // 성공로그
     await querySuccessLog(ip, query);
     // 1. 유저가 입력한 id나 닉네임이 기존에 있을 때
@@ -32,7 +32,7 @@ async function signUpModel(input_user, ip) {
     // 유저가 입력한 닉네임이 기존에 존재하는 닉네임일 때
     // 유저가 입력한 닉네임이 기존에 있는지 select 해올 쿼리문
     query = "SELECT nickName FROM USER WHERE nickName = " + mysql.escape(input_user.nickName);
-    [results, fields] = await db.pool.query(query);
+    [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     if (results[0] !== undefined) {
       return { state: "존재하는 닉네임" };
@@ -65,7 +65,7 @@ async function signUpModel(input_user, ip) {
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) + // 계정 생성날짜
       ")";
 
-    await db.pool.query(query);
+    await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
 
@@ -78,12 +78,12 @@ async function signUpModel(input_user, ip) {
 }
 
 // 1-2. 회원탈퇴
-async function dropOutModel(ip, login_cookie) {
+export async function dropOutModel(ip, login_cookie) {
   // 해당 유저 데이터 삭제 쿼리문
   const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
   // 성공시
   try {
-    await db.pool.query(query);
+    await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
     // 성공적으로 회원탈퇴
@@ -96,12 +96,12 @@ async function dropOutModel(ip, login_cookie) {
 }
 
 // 2. 로그인
-async function loginModel(input_login, ip) {
+export async function loginModel(input_login, ip) {
   // 유저가 입력한 id의 유저 정보 가져오는 쿼리문
   const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(input_login.id);
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 성공로그
     await querySuccessLog(ip, query);
 
@@ -124,7 +124,7 @@ async function loginModel(input_login, ip) {
 
 // 3. 내 관심도서관 조회/등록/탈퇴
 // 3-1. 관심도서관 조회
-async function userLibraryModel(user_index, ip) {
+export async function userLibraryModel(user_index, ip) {
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade),COUNT(grade) FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
@@ -132,7 +132,7 @@ async function userLibraryModel(user_index, ip) {
     "GROUP BY libraryIndex";
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 쿼리 성공 로그
     await querySuccessLog(ip, query);
     if (results[0] === undefined) {
@@ -147,7 +147,7 @@ async function userLibraryModel(user_index, ip) {
 }
 
 // 3-2. 관심도서관 등록
-async function registerUserLibraryModel(library_index, user_index, ip) {
+export async function registerUserLibraryModel(library_index, user_index, ip) {
   // 기존에 등록돼있는 관심도서관인지 확인하는 쿼리문
   let query =
     "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE userIndex=" +
@@ -156,7 +156,7 @@ async function registerUserLibraryModel(library_index, user_index, ip) {
     mysql.escape(library_index);
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     if (results[0] !== undefined) {
       return { state: "중복된등록요청" };
     }
@@ -169,7 +169,7 @@ async function registerUserLibraryModel(library_index, user_index, ip) {
       "," +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       ")";
-    await db.pool.query(query);
+    await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
     return { state: "관심도서관추가" };
@@ -180,13 +180,13 @@ async function registerUserLibraryModel(library_index, user_index, ip) {
   }
 }
 // 3-3. 관심도서관 삭제
-async function deleteUserLibraryModel(library_index, user_index, ip) {
+export async function deleteUserLibraryModel(library_index, user_index, ip) {
   // 등록한 관심도서관이 존재하는지 확인하는 쿼리문
   let query =
     "SELECT userIndex FROM USERLIBRARY WHERE userIndex =" + mysql.escape(user_index) + "AND libraryIndex =" + mysql.escape(library_index);
 
   try {
-    let [results, fields] = await db.pool.query(query);
+    let [results, fields] = await myPool.query(query);
     // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     // 기존에 해당 유저 인덱스로 해당 관심도서관이 등록되지 않았을 때
@@ -199,7 +199,7 @@ async function deleteUserLibraryModel(library_index, user_index, ip) {
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       "WHERE libraryIndex =" +
       mysql.escape(library_index);
-    await db.pool.query(query);
+    await myPool.query(query);
     // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     return { state: "관심도서관삭제" };
@@ -212,7 +212,7 @@ async function deleteUserLibraryModel(library_index, user_index, ip) {
 
 // 4. 유저가 작성한 글/댓글/후기 조회
 // 4-1. 유저가 작성한 글
-async function userBoardModel(user_index, page, ip) {
+export async function userBoardModel(user_index, page, ip) {
   // 해당 유저가 작성한 게시글 정보 가져오기
   const query =
     "SELECT boardIndex,postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
@@ -222,7 +222,7 @@ async function userBoardModel(user_index, page, ip) {
     ", 10";
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
     // 요청한 데이터가 없을 때
@@ -239,7 +239,7 @@ async function userBoardModel(user_index, page, ip) {
 }
 
 // 4-2. 유저가 작성한 댓글
-async function userCommentModel(user_index, page, ip) {
+export async function userCommentModel(user_index, page, ip) {
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
     "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
@@ -250,7 +250,7 @@ async function userCommentModel(user_index, page, ip) {
 
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     // DB에 데이터가 없을 때
@@ -267,7 +267,7 @@ async function userCommentModel(user_index, page, ip) {
 }
 
 // 4-3. 유저가 작성한 후기
-async function userReviewModel(user_index, page, ip) {
+export async function userReviewModel(user_index, page, ip) {
   // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
   const query =
     "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
@@ -278,7 +278,7 @@ async function userReviewModel(user_index, page, ip) {
 
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
     // 데이터가 없을 때
@@ -295,12 +295,12 @@ async function userReviewModel(user_index, page, ip) {
 }
 // 5. 유저 정보 수정
 // 5-1. 프로필 변경
-async function editProfileModel(input_revise, ip, login_cookie) {
+export async function editProfileModel(input_revise, ip, login_cookie) {
   // 유저가 입력한 닉네임이 기존에 존재하는지 확인하기 위해 select 해올 쿼리문
   let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(input_revise.nickName);
   // 성공시
   try {
-    let [results, fields] = await db.pool.query(query);
+    let [results, fields] = await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
     // 유저가 입력한 닉네임이 기존에 존재할 때
@@ -319,7 +319,7 @@ async function editProfileModel(input_revise, ip, login_cookie) {
       " WHERE userIndex =" +
       mysql.escape(login_cookie);
 
-    await db.pool.query(query);
+    await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
 
@@ -331,7 +331,7 @@ async function editProfileModel(input_revise, ip, login_cookie) {
   }
 }
 // 5-2. 연락처 변경 모델
-async function editPhoneNumberModel(new_contact, ip, login_cookie) {
+export async function editPhoneNumberModel(new_contact, ip, login_cookie) {
   // 폰번호 변경 쿼리문
   const query =
     "UPDATE USER SET phoneNumber=" +
@@ -342,7 +342,7 @@ async function editPhoneNumberModel(new_contact, ip, login_cookie) {
     mysql.escape(login_cookie);
   // 성공시
   try {
-    await db.pool.query(query);
+    await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
 
@@ -351,19 +351,19 @@ async function editPhoneNumberModel(new_contact, ip, login_cookie) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
-    await db.pool.query("ROLLBACK");
+    await myPool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
 }
 
 // 5-3. 비밀번호 수정 요청 모델
-async function editPwModel(input_pw, ip, login_cookie) {
+export async function editPwModel(input_pw, ip, login_cookie) {
   // 해싱된 새비밀번호 변수 미리 선언
   let hashed_new_pw;
   // 기존에 비밀번호와 일치하나 확인하기 위한 쿼리문
   let query = "SELECT pw FROM USER WHERE userIndex = " + mysql.escape(login_cookie);
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
     // 유효성 검사
@@ -387,7 +387,7 @@ async function editPwModel(input_pw, ip, login_cookie) {
       " WHERE userIndex = " +
       mysql.escape(login_cookie);
 
-    await db.pool.query(query);
+    await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
 
@@ -399,18 +399,3 @@ async function editPwModel(input_pw, ip, login_cookie) {
     return { state: "mysql 사용실패" };
   }
 }
-
-module.exports = {
-  signUpModel: signUpModel,
-  dropOutModel: dropOutModel,
-  loginModel: loginModel,
-  userLibraryModel: userLibraryModel,
-  registerUserLibraryModel: registerUserLibraryModel,
-  deleteUserLibraryModel: deleteUserLibraryModel,
-  userBoardModel: userBoardModel,
-  userCommentModel: userCommentModel,
-  userReviewModel: userReviewModel,
-  editProfileModel: editProfileModel,
-  editPhoneNumberModel: editPhoneNumberModel,
-  editPwModel: editPwModel,
-};

@@ -2,16 +2,16 @@
 // 외장모듈
 import mysql from "mysql2/promise";
 // 내장모듈
-import db from "./Db";
+import { myPool } from "./Db";
 import { queryFailLog, querySuccessLog } from "./QueryLog";
 
 // 삭제/수정 요청시 해당 게시글의 존재유무 체크, 해당 게시글의 작성자인지 체크 하는 함수
-export async function checkBoardModel(boardIndex, userIndex, ip) {
+export async function checkBoardMethod(boardIndex, userIndex, ip) {
   // 해당 게시글 작성한 유저인덱스 select 해오는 쿼리문
   let query = "SELECT userIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex=" + mysql.escape(boardIndex);
   // 성공시
   try {
-    let [results, fields] = await db.pool.query(query);
+    let [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 요청한 게시글이 존재하지 않을 때
     if (results[0] === undefined) {
@@ -23,7 +23,7 @@ export async function checkBoardModel(boardIndex, userIndex, ip) {
       mysql.escape(boardIndex) +
       "AND userIndex=" +
       mysql.escape(userIndex);
-    [results, fields] = await db.pool.query(query);
+    [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 해당 게시글의 작성자와 요청유저가 일치하지 않을 때
     if (results[0] === undefined) {
@@ -39,13 +39,13 @@ export async function checkBoardModel(boardIndex, userIndex, ip) {
 }
 
 // 삭제/수정 요청시 해당 게시글,댓글의 존재유무 체크, 해당 댓글의 작성자인지 체크 하는 메서드
-export async function checkCommentModel(boardIndex, commentIndex, userIndex, ip) {
+export async function checkCommentMethod(boardIndex, commentIndex, userIndex, ip) {
   // 해당 게시글이 존재하는지 확인
   let query = "SELECT * FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex=" + mysql.escape(boardIndex);
   // 성공시
   try {
     // 게시글이 존재하는지 확인할 쿼리문 실행
-    let [results, fields] = await db.pool.query(query);
+    let [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 게시글이 존재하지 않을 때
     if (results[0] === undefined) {
@@ -57,7 +57,7 @@ export async function checkCommentModel(boardIndex, commentIndex, userIndex, ip)
       mysql.escape(boardIndex) +
       "AND commentIndex=" +
       mysql.escape(commentIndex);
-    [results, fields] = await db.pool.query(query);
+    [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 댓글이 존재하지 않을 때
     if (results[0] === undefined) {
@@ -70,7 +70,7 @@ export async function checkCommentModel(boardIndex, commentIndex, userIndex, ip)
       "AND userIndex=" +
       mysql.escape(userIndex);
     // 쿼리문 실행
-    [results, fields] = await db.pool.query(query);
+    [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 해당 댓글의 작성자와 요청유저가 일치하지 않을 때
     if (results[0] === undefined) {
@@ -86,13 +86,13 @@ export async function checkCommentModel(boardIndex, commentIndex, userIndex, ip)
 }
 
 // 삭제/수정 요청한 도서관정보가 있는지, 후기 정보가 있는지 유저가 해당 후기의 작성자인지 체크 하는 함수
-export async function checkReviewModel(libraryIndex, reviewIndex, userIndex, ip) {
+export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip) {
   // 해당 도서관이 존재하는지 확인
   let query = "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
   // 성공시
   try {
     // 쿼리문 실행
-    let [results, fields] = await db.pool.query(query);
+    let [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 도서관 정보가 존재하지 않을 때
     if (results[0] === undefined) {
@@ -100,7 +100,7 @@ export async function checkReviewModel(libraryIndex, reviewIndex, userIndex, ip)
     }
     // 해당 후기가 존재하는지 확인
     query = "SELECT userIndex FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex=" + mysql.escape(reviewIndex);
-    [results, fields] = await db.pool.query(query);
+    [results, fields] = await myPool.query(query);
     // 성공로그
     await querySuccessLog(ip, query);
     // 해당 후기가 존재하지 않을 때
@@ -113,7 +113,7 @@ export async function checkReviewModel(libraryIndex, reviewIndex, userIndex, ip)
       mysql.escape(reviewIndex) +
       "AND userIndex=" +
       mysql.escape(userIndex);
-    [results, fields] = await db.pool.query(query);
+    [results, fields] = await myPool.query(query);
     // 성공로그
     await querySuccessLog(ip, query);
     // 해당 후기의 작성자와 요청유저가 일치하지 않을 때
@@ -130,13 +130,13 @@ export async function checkReviewModel(libraryIndex, reviewIndex, userIndex, ip)
 }
 
 // 삭제할 관심도서관 정보가 있는지 체크 하는 함수
-export async function checkUserLibraryModel(libraryIndex, userIndex, ip) {
+export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
   // 해당 도서관이 존재하는지 확인
   let query = "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
   // 성공시
   try {
     // 쿼리문 실행
-    let [results, fields] = await db.pool.query(query);
+    let [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 관심도서관 등록한 적이 없을 때
     if (results[0] === undefined) {
@@ -148,7 +148,7 @@ export async function checkUserLibraryModel(libraryIndex, userIndex, ip) {
       mysql.escape(userIndex) +
       "AND libraryIndex=" +
       mysql.escape(libraryIndex);
-    [results, fields] = await db.pool.query(query);
+    [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     // 성공로그
     // 기존에 관심도서관으로 등록되지 않았을 때

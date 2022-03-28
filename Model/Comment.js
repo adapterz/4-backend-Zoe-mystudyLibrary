@@ -1,18 +1,18 @@
 // 댓글 모델
-const mysql = require("mysql2/promise");
-const db = require("../CustomModule/Db");
-const moment = require("../CustomModule/DateTime");
-const { queryFailLog, querySuccessLog } = require("../CustomModule/QueryLog");
+import mysql from "mysql2/promise";
+import { myPool } from "../CustomModule/Db";
+import { moment } from "../CustomModule/DateTime";
+import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
 
 // 새 댓글 작성 모델
-async function writeCommentModel(board_index, user_index, input_comment, ip) {
+export async function writeCommentModel(board_index, user_index, input_comment, ip) {
   // 해당 게시글이 존재하는지 체크
   let query = "SELECT boardIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex =" + mysql.escape(board_index);
   // 댓글 등록 쿼리문
 
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 쿼리문 메서드 성공
     await querySuccessLog(ip, query);
     console.log(results);
@@ -31,7 +31,7 @@ async function writeCommentModel(board_index, user_index, input_comment, ip) {
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       ")";
     // 쿼리문 메서드 성공
-    await db.pool.query(query);
+    await myPool.query(query);
     await querySuccessLog(ip, query);
     return { state: "댓글작성" };
     // 쿼리문 실행시 에러발생
@@ -41,11 +41,11 @@ async function writeCommentModel(board_index, user_index, input_comment, ip) {
   }
 }
 // 수정시 기존 댓글 정보 불러오는 모델
-async function getCommentModel(comment_index, login_cookie, ip) {
+export async function getCommentModel(comment_index, login_cookie, ip) {
   const query = "SELECT commentContent FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex =" + mysql.escape(comment_index);
   // 성공시
   try {
-    const [results, fields] = await db.pool.query(query);
+    const [results, fields] = await myPool.query(query);
     // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     // DB에 데이터가 없을 때
@@ -62,13 +62,13 @@ async function getCommentModel(comment_index, login_cookie, ip) {
 }
 
 // 댓글 수정
-async function editCommentModel(comment_index, login_cookie, input_comment, ip) {
+export async function editCommentModel(comment_index, login_cookie, input_comment, ip) {
   // 댓글 수정 쿼리문
   const query =
     "UPDATE COMMENT SET  commentContent=" + mysql.escape(input_comment.content) + "WHERE commentIndex =" + mysql.escape(comment_index);
   // 성공시
   try {
-    await db.pool.query(query);
+    await myPool.query(query);
     // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
     // DB에 해당 인덱스의 댓글이 있을 때
@@ -81,7 +81,7 @@ async function editCommentModel(comment_index, login_cookie, input_comment, ip) 
 }
 
 // 댓글 삭제
-async function deleteCommentModel(comment_index, user_index, ip) {
+export async function deleteCommentModel(comment_index, user_index, ip) {
   // 해당 인덱스 댓글 삭제
   // 댓글 삭제 쿼리문
   const query =
@@ -93,7 +93,7 @@ async function deleteCommentModel(comment_index, user_index, ip) {
     mysql.escape(user_index);
   // 성공시
   try {
-    await db.pool.query(query);
+    await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
     return { state: "댓글삭제" };
@@ -103,10 +103,3 @@ async function deleteCommentModel(comment_index, user_index, ip) {
     return { state: "mysql 사용실패" };
   }
 }
-
-module.exports = {
-  writeCommentModel: writeCommentModel,
-  getCommentModel: getCommentModel,
-  editCommentModel: editCommentModel,
-  deleteCommentModel: deleteCommentModel,
-};

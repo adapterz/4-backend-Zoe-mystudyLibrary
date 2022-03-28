@@ -2,8 +2,6 @@
 // 외장모듈
 import path from "path";
 // 내장모듈
-import userModel from "../Model/User";
-import checkDataOrAuthorityModel from "../CustomModule/CheckDataOrAuthority";
 import {
   BAD_REQUEST,
   INTERNAL_SERVER_ERROR,
@@ -15,6 +13,21 @@ import {
   CONFLICT,
   OK,
 } from "../CustomModule/StatusCode";
+import {
+  deleteUserLibraryModel,
+  dropOutModel,
+  editPhoneNumberModel,
+  editProfileModel,
+  editPwModel,
+  loginModel,
+  registerUserLibraryModel,
+  signUpModel,
+  userBoardModel,
+  userCommentModel,
+  userLibraryModel,
+  userReviewModel,
+} from "../Model/User";
+import { checkUserLibraryMethod } from "../CustomModule/CheckDataOrAuthority";
 /*
  * 1. 회원가입/탈퇴
  * 2. 로그인/로그아웃
@@ -54,7 +67,7 @@ export async function signUp(req, res) {
    *   gender : 성별(여 or 남)
    */
   // 회원가입 요청 모델 실행 결과
-  const modelResult = await userModel.signUpModel(req.body, req.ip);
+  const modelResult = await signUpModel(req.body, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -88,7 +101,7 @@ export async function dropOut(req, res) {
   // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
   if (!isAgreed) return res.status(BAD_REQUEST).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
   // 회원탈퇴 모델 실행결과
-  const modelResult = await userModel.dropOutModel(req.ip, loginIndex);
+  const modelResult = await dropOutModel(req.ip, loginIndex);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -113,7 +126,7 @@ export async function login(req, res) {
   // 기존에 로그인 돼있을 때
   if (req.session.user) return res.status(CONFLICT).json({ state: "이미 로그인했습니다." });
   // 로그인 모델 실행 결과
-  const modelResult = await userModel.loginModel(req.body, req.ip);
+  const modelResult = await loginModel(req.body, req.ip);
   // 로그인 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -166,7 +179,7 @@ export async function userLibrary(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
-  const modelResult = await userModel.userLibraryModel(loginIndex, req.ip);
+  const modelResult = await userLibraryModel(loginIndex, req.ip);
   // 모델 실행 결과에 따라 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -191,7 +204,7 @@ export async function registerUserLibrary(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 관심도서관 항목 추가 모델 실행 결과
-  const modelResult = await userModel.registerUserLibraryModel(req.query.libraryIndex, loginIndex, req.ip);
+  const modelResult = await registerUserLibraryModel(req.query.libraryIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 기존에 관심도서관으로 등록된 정보
@@ -210,7 +223,7 @@ export async function deleteUserLibrary(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 도서관 정보가 있는지, 해당 도서관이 관심도서관으로 등록돼있는지 확인해주는 메서드
-  const checkMyLib = await checkDataOrAuthorityModel.checkUserLibraryModel(req.query.libraryIndex, loginIndex, req.ip);
+  const checkMyLib = await checkUserLibraryMethod(req.query.libraryIndex, loginIndex, req.ip);
   // 존재하지않는 도서관 정보
   if (checkMyLib.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(checkMyLib);
   // 관심도서관으로 등록되지 않은 도서관(도서관 정보는 있지만 해당 유저가 구독하지 않음)
@@ -220,7 +233,7 @@ export async function deleteUserLibrary(req, res) {
   // 접근성공
   else if (checkMyLib.state === "접근성공") {
     // 해당 유저가 관심도서관으로 등록한 도서관 정보 삭제하는모델 실행결과
-    const modelResult = await userModel.deleteUserLibraryModel(req.query.libraryIndex, loginIndex, req.ip);
+    const modelResult = await deleteUserLibraryModel(req.query.libraryIndex, loginIndex, req.ip);
     // 실행결과에 따라 분기처리
     // mysql query 메서드 실패
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -246,7 +259,7 @@ export async function userBoard(req, res) {
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
-  const modelResult = await userModel.userBoardModel(loginIndex, page, req.ip);
+  const modelResult = await userBoardModel(loginIndex, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult.state);
@@ -270,7 +283,7 @@ export async function userComment(req, res) {
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 댓글 정보 가져올 모델 실행 결과
-  const modelResult = await userModel.userCommentModel(loginIndex, page, req.ip);
+  const modelResult = await userCommentModel(loginIndex, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -294,7 +307,7 @@ export async function userReview(req, res) {
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
-  const modelResult = await userModel.userReviewModel(login_index, page, req.ip);
+  const modelResult = await userReviewModel(login_index, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -322,7 +335,7 @@ export async function editProfile(req, res) {
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 프로필 수정 요청 모델 실행결과
-  const modelResult = await userModel.editProfileModel(req.body, req.ip, loginIndex);
+  const modelResult = await editProfileModel(req.body, req.ip, loginIndex);
 
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
@@ -348,7 +361,7 @@ export async function editPhoneNumber(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 연락처 수정 요청 모델 실행결과
-  const modelResult = await userModel.editPhoneNumberModel(req.body, req.ip, loginIndex);
+  const modelResult = await editPhoneNumberModel(req.body, req.ip, loginIndex);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -373,7 +386,7 @@ export async function editPw(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 비밀번호 수정 모델 실행결과
-  const modelResult = await userModel.editPwModel(req.body, req.ip, loginIndex);
+  const modelResult = await editPwModel(req.body, req.ip, loginIndex);
   // 실행결과에 따라 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);

@@ -1,33 +1,38 @@
 // 댓글 라우터
-const express = require("express");
-const router = express.Router();
-const controller = require("../Controller/Comment");
+// 외장모듈
+import express from "express";
 const { body, query } = require("express-validator");
-const check = require("../CustomModule/CheckValidation");
+
+// 내장모듈
+import { isExist, isValidate } from "../CustomModule/CheckValidation";
+import { deleteComment, editComment, getComment, writeComment } from "../Controller/Comment";
+
+// 라우터 변수
+const router = express.Router();
 
 // 댓글 작성
 router.post(
   "/post",
   query("boardIndex").isInt().trim(),
-  check.isExist,
+  isExist,
   body("content").isLength({ min: 2, max: 500 }).isString(),
-  check.isValidate,
-  controller.writeComment,
+  isValidate,
+  writeComment,
 );
 // 기존 댓글 정보 불러오기
-router.get("/", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), check.isExist, controller.getComment);
+router.get("/", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, getComment);
 // 댓글 수정 요청
 router.patch(
   "/patch",
   query("boardIndex").isInt().trim(),
   query("commentIndex").isInt().trim(),
-  check.isExist,
+  isExist,
   body("content").isLength({ min: 2, max: 500 }).isString(),
-  check.isValidate,
-  controller.editComment,
+  isValidate,
+  editComment,
 );
 // 댓글 삭제
-router.delete("/delete", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), check.isExist, controller.deleteComment);
+router.delete("/delete", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, deleteComment);
 
 // 모듈화
-module.exports = router;
+export default router;

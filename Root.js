@@ -20,13 +20,13 @@ require("dotenv").config();
 
 // 내장모듈
 // 날짜/시간 관련 모듈
-import moment from "./CustomModule/DateTime";
+import { moment } from "./CustomModule/DateTime";
 // 라우터
-const board_router = require("./Router/Board");
-const comment_router = require("./Router/Comment");
-const library_router = require("./Router/Library");
-const review_router = require("./Router/Review");
-const user_router = require("./Router/User");
+import boardRouter from "./Router/Board";
+import commentRouter from "./Router/Comment";
+import libraryRouter from "./Router/Library";
+import reviewRouter from "./Router/Review";
+import userRouter from "./Router/User";
 
 // 설정
 // 로그에 DB 저장하도록 할 설정
@@ -93,11 +93,11 @@ app.use(morgan("combined", { stream: logger.stream }));
 app.use("/api", apiLimiter);
 
 // 경로별로 라우팅
-app.use("/comment", comment_router);
-app.use("/library", library_router);
-app.use("/review", review_router);
-app.use("/user", user_router);
-app.use("/", board_router);
+app.use("/comment", commentRouter);
+app.use("/library", libraryRouter);
+app.use("/review", reviewRouter);
+app.use("/user", userRouter);
+app.use("/", boardRouter);
 
 // 404 에러처리
 app.get("/not_found", (req, res) => {

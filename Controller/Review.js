@@ -1,8 +1,8 @@
 // 도서관 후기 컨트롤러
 // 내장모듈
-import reviewModel from "../Model/Review";
-import checkDataOrAuthorityModel from "../CustomModule/CheckDataOrAuthority";
+import { checkReviewMethod } from "../CustomModule/CheckDataOrAuthority";
 import { FORBIDDEN, UNAUTHORIZED, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK, CREATED } from "../CustomModule/StatusCode";
+import { deleteReviewModel, editReviewModel, getReviewModel, registerReviewModel } from "../Model/Review";
 
 // 특정 도서관 이용 후 후기 등록
 export async function registerReview(req, res) {
@@ -21,7 +21,7 @@ export async function registerReview(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 후기 등록 모델 사용 결과
-  const modelResult = await reviewModel.registerReviewModel(req.query.libraryIndex, loginIndex, req.body, req.ip);
+  const modelResult = await registerReviewModel(req.query.libraryIndex, loginIndex, req.body, req.ip);
   // 모델 사용 후 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -46,7 +46,7 @@ export async function getReview(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 도서관, 후기 정보가 있는지 확인하고 해당 후기에 대한 유저의 권한 체크
-  const checkReview = await checkDataOrAuthorityModel.checkReviewModel(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
+  const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
   if (checkReview.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
   // 해당 도서관이 정보가 없을 때
@@ -58,7 +58,7 @@ export async function getReview(req, res) {
   // 해당 후기 작성 유저와 로그인한 유저가 일치할 때
   else if (checkReview.state === "접근성공") {
     // 해당 인덱스의 후기 정보 가져오기
-    const modelResults = await reviewModel.getReviewModel(req.query.reviewIndex, loginIndex, req.ip);
+    const modelResults = await getReviewModel(req.query.reviewIndex, loginIndex, req.ip);
     // mysql query 메서드 실패
     if (modelResults.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
     // 해당 후기 정보가 없을 때
@@ -84,7 +84,7 @@ export async function editReview(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 해당 도서관,후기가 있는제 확인하고 후기에 대한 유저의 권한 체크
-  const checkReview = await checkDataOrAuthorityModel.checkReviewModel(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
+  const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
   if (checkReview.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
   // 해당 도서관 정보가 없을 때
@@ -96,7 +96,7 @@ export async function editReview(req, res) {
   // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
   else if (checkReview.state === "접근성공") {
     // 댓글수정 모델 실행 결과
-    const modelResult = await reviewModel.editReviewModel(req.query.reviewIndex, loginIndex, req.body, req.ip);
+    const modelResult = await editReviewModel(req.query.reviewIndex, loginIndex, req.body, req.ip);
     // 모델 실행결과에 따른 분기처리
     // mysql query 메서드 실패
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -122,7 +122,7 @@ export async function deleteReview(req, res) {
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
 
   // 해당 도서관,후기 존재 유무와 해당 후기에 대한 유저의 권한 체크
-  const checkReview = await checkDataOrAuthorityModel.checkReviewModel(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
+  const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
   if (checkReview.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
   // 해당 도서관 정보가 없을 때
@@ -134,7 +134,7 @@ export async function deleteReview(req, res) {
   // 접근 성공
   else if (checkReview.state === "접근성공") {
     // 후기삭제 모델 실행 결과
-    const modelResult = await reviewModel.deleteReviewModel(req.query.reviewIndex, loginIndex, req.ip);
+    const modelResult = await deleteReviewModel(req.query.reviewIndex, loginIndex, req.ip);
     // 모델 실행결과에 따른 분기처리
     // mysql query 메서드 실패
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);

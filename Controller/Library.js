@@ -1,12 +1,12 @@
 // 도서관 컨트롤러
 // 내장모듈
-import libraryModel from "../Model/Library";
+import { allLibraryModel, detailLibraryModel, localLibraryModel } from "../Model/Library";
 import { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } from "../CustomModule/StatusCode";
 
 // 전체 도서관 정보
 export async function allLibrary(req, res) {
   // 전체 도서관 정보 가져오는 모델실행 결과
-  const modelResult = await libraryModel.allLibraryModel(req.ip);
+  const modelResult = await allLibraryModel(req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -22,7 +22,7 @@ export async function localLibrary(req, res) {
    *    districts: 시군구명
    */
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 모델 실행 결과
-  const modelResult = await libraryModel.localLibraryModel(req.query, req.ip);
+  const modelResult = await localLibraryModel(req.query, req.ip);
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -36,7 +36,7 @@ export async function localLibrary(req, res) {
 export async function detailLibrary(req, res) {
   // req.params: libraryIndex
   // 특정 libraryIndex의 도서관 정보 자세히 보는 모델 실행 결과
-  const modelResult = await libraryModel.detailLibraryModel(req.params.libraryIndex, req.ip);
+  const modelResult = await detailLibraryModel(req.params.libraryIndex, req.ip);
   // 결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
