@@ -44,6 +44,8 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 ## 문제사항과 해결방안
 
 ### 1
+
+첫번째 문제/해결방안 링크: 
 https://closed-glade-095.notion.site/myStudyLibrary-23cd8182b9674678a7025ce443f11df7
 
 ### 2
