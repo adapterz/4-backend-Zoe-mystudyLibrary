@@ -1,30 +1,43 @@
+// 외장모듈
 // express 모듈 가져오기
-const express = require("express");
-const app = express();
-
+import express from "express";
 // req.body 사용에 필요한 'body-parser' 미들웨어
-const bodyParser = require("body-parser");
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extends: false }));
-
+import bodyParser from "body-parser";
 // 컨텐츠 보안 정책에 따른 'helmet' 미들웨어 사용
-const helmet = require("helmet");
-app.use(helmet());
-app.disable("x-powered-by");
-
+import helmet from "helmet";
+// console 로그 예쁘게 쓰기
+import colors from "colors";
+// 쿠키&세션 모듈
+import cookieParser from "cookie-parser";
+import session from "express-session";
+// 로그 DB에 저장하는데 필요한 미들웨어
+import morgan from "morgan";
+import winston from "winston";
+import { SqlTransport } from "winston-sql-transport";
+// 디도스 방어 모듈
+import rateLimit from "express-rate-limit";
 // dotenv 모듈
 require("dotenv").config();
 
-// console 로그 예쁘게 쓰기
-const colors = require("colors");
-
+// 내장 모듈
 // 날짜/시간 관련 모듈
-const moment = require("./CustomModule/DateTime");
+import moment from "./CustomModule/DateTime";
+// 라우터
+import board_router from "./Router/Board";
+import comment_router from "./Router/Comment";
+import library_router from "./Router/Library";
+import review_router from "./Router/Review";
+import user_router from "./Router/User";
 
-// 쿠키&세션 모듈
-const cookieParser = require("cookie-parser");
+const app = express();
+// 바디파서
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extends: false }));
+// 헬멧
+app.use(helmet());
+app.disable("x-powered-by");
+// 쿠키/세션
 app.use(cookieParser("secret"));
-const session = require("express-session");
 app.use(
   session({
     secret: process.env.SESSION_PASSWORD,
@@ -34,10 +47,6 @@ app.use(
   }),
 );
 
-// 로그 DB에 저장하는데 필요한 미들웨어
-const morgan = require("morgan");
-const winston = require("winston");
-const { SqlTransport } = require("winston-sql-transport");
 // DB에 로그 작성
 // DB 설정
 const transportConfig = {
@@ -52,24 +61,13 @@ const transportConfig = {
 };
 
 const logger = new winston.createLogger({
-  transports: [
-    new SqlTransport(transportConfig),
-    // 로그 파일에 로그 작성
-    // new winston.transports.File({
-    //   level: "info",
-    //   filename: "./logs/all-logs.log",
-    //   handleExceptions: true,
-    //   json: true,
-    //   maxFiles: 5,
-    //   colorize: true,
-    // }),
-  ],
+  transports: [new SqlTransport(transportConfig)],
   exitOnError: false,
 });
 
 // morgan winston 설정
 logger.stream = {
-  write: function (message, encoding) {
+  write: (message, encoding) => {
     logger.info(message);
   },
 };
@@ -91,8 +89,7 @@ if (process.env.NODE_ENV !== "production") {
 }
  */
 
-// 디도스 방어 모듈
-const rateLimit = require("express-rate-limit");
+// 디도스 방어 모듈 설정
 const apiLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 100,
@@ -102,12 +99,6 @@ const apiLimiter = rateLimit({
 app.use("/api", apiLimiter);
 
 // 경로별로 라우팅
-const board_router = require("./Router/Board");
-const comment_router = require("./Router/Comment");
-const library_router = require("./Router/Library");
-const review_router = require("./Router/Review");
-const user_router = require("./Router/User");
-
 app.use("/comment", comment_router);
 app.use("/library", library_router);
 app.use("/review", review_router);
@@ -115,7 +106,7 @@ app.use("/user", user_router);
 app.use("/", board_router);
 
 // 404 에러처리
-app.get("/not_found", function (req, res) {
+app.get("/not_found", (req, res) => {
   res.status(404).send("not founded page");
 });
 
@@ -124,7 +115,6 @@ app.get("/not_found", function (req, res) {
 //const library_request = require("./CustomModule/open_api");
 //library_request.reqOpenData();
 
-//console.log(query);
 // 서버 시작
 app.listen(process.env.PORT, () => {
   console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
