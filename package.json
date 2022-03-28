@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "dependencies": {
     "-": "^0.0.1",
+    "@babel/node": "^7.16.8",
+    "babel-core": "^6.26.3",
     "bcrypt": "^5.0.1",
     "bluebird": "^3.7.2",
     "body-parser": "^1.19.2",
@@ -22,12 +24,16 @@
     "rate-limiter-flexible": "^2.3.6",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
+    "save-dev": "^0.0.1-security",
     "session-memory-store": "^1.0.0",
     "sync-mysql": "^3.0.1",
     "winston": "^3.6.0",
     "winston-sql-transport": "^3.1.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.8",
+    "@babel/preset-env": "^7.16.11",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-prettier": "^4.0.0",
@@ -36,6 +42,7 @@
   "description": "지역을 입력하면 주변 도서관이 검색되고 평점을 남길 수 있는 사이트입니다",
   "main": ".eslintrc.js",
   "scripts": {
+    "start": "babel-node Root.js --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
