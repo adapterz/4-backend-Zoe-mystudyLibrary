@@ -1,4 +1,5 @@
 // 댓글 컨트롤러
+// 내장 모듈
 import commentModel from "../Model/Comment";
 import checkDataOrAuthorityModel from "../CustomModule/CheckDataOrAuthority";
 import {
