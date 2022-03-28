@@ -48,7 +48,7 @@ const logger = new winston.createLogger({
 
 // morgan winston 설정
 logger.stream = {
-  write: function (message, encoding) {
+  write: (message, encoding) => {
     logger.info(message);
   },
 };
@@ -100,7 +100,7 @@ app.use("/user", user_router);
 app.use("/", board_router);
 
 // 404 에러처리
-app.get("/not_found", function (req, res) {
+app.get("/not_found", (req, res) => {
   res.status(404).send("not founded page");
 });
 
