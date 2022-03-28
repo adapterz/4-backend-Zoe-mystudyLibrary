@@ -14,41 +14,22 @@ import session from "express-session";
 import morgan from "morgan";
 import winston from "winston";
 import { SqlTransport } from "winston-sql-transport";
-// 디도스 방어 모듈
-import rateLimit from "express-rate-limit";
+import rateLimit from "express-rate-limit"; // 디도스 방어 모듈
 // dotenv 모듈
 require("dotenv").config();
 
-// 내장 모듈
+// 내장모듈
 // 날짜/시간 관련 모듈
 import moment from "./CustomModule/DateTime";
 // 라우터
-import board_router from "./Router/Board";
-import comment_router from "./Router/Comment";
-import library_router from "./Router/Library";
-import review_router from "./Router/Review";
-import user_router from "./Router/User";
+const board_router = require("./Router/Board");
+const comment_router = require("./Router/Comment");
+const library_router = require("./Router/Library");
+const review_router = require("./Router/Review");
+const user_router = require("./Router/User");
 
-const app = express();
-// 바디파서
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extends: false }));
-// 헬멧
-app.use(helmet());
-app.disable("x-powered-by");
-// 쿠키/세션
-app.use(cookieParser("secret"));
-app.use(
-  session({
-    secret: process.env.SESSION_PASSWORD,
-    resave: false,
-    saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 },
-  }),
-);
-
-// DB에 로그 작성
-// DB 설정
+// 설정
+// 로그에 DB 저장하도록 할 설정
 const transportConfig = {
   client: "mysql2",
   connection: {
@@ -67,14 +48,10 @@ const logger = new winston.createLogger({
 
 // morgan winston 설정
 logger.stream = {
-  write: (message, encoding) => {
+  write: function (message, encoding) {
     logger.info(message);
   },
 };
-
-// morgan 미들웨어 출력 winston 으로 전달
-app.use(morgan("combined", { stream: logger.stream }));
-
 // 개발단계 콘솔 출력
 /*
 if (process.env.NODE_ENV !== "production") {
@@ -89,13 +66,30 @@ if (process.env.NODE_ENV !== "production") {
 }
  */
 
-// 디도스 방어 모듈 설정
+// 디도스 방어 모듈 설정(요청 제한)
 const apiLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// 서버 설정
+const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extends: false }));
+app.use(helmet());
+app.disable("x-powered-by");
+app.use(cookieParser("secret"));
+app.use(
+  session({
+    secret: process.env.SESSION_PASSWORD,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 },
+  }),
+);
+app.use(morgan("combined", { stream: logger.stream }));
 app.use("/api", apiLimiter);
 
 // 경로별로 라우팅
@@ -106,7 +100,7 @@ app.use("/user", user_router);
 app.use("/", board_router);
 
 // 404 에러처리
-app.get("/not_found", (req, res) => {
+app.get("/not_found", function (req, res) {
   res.status(404).send("not founded page");
 });
 
