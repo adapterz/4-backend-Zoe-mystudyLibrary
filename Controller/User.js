@@ -295,19 +295,19 @@ export async function userComment(req, res) {
 // 4-3. 유저가 작성한 도서관 이용 후기 조회
 export async function userReview(req, res) {
   // 필요 변수 선언
-  const login_cookie = req.signedCookies.user;
-  let login_index;
+  const loginCookie = req.signedCookies.user;
+  let loginIndex;
   let page;
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   if (req.session.user) {
-    if (req.session.user.key === login_cookie) login_index = req.session.user.id;
+    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // page 값
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
-  const modelResult = await userReviewModel(login_index, page, req.ip);
+  const modelResult = await userReviewModel(loginIndex, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
