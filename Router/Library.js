@@ -10,6 +10,12 @@ import { allLibrary, detailLibrary, localLibrary } from "../Controller/Library";
 // 라우터 변수
 const router = express.Router();
 
+/*
+ * 1. 전체도서관 정보
+ * 2. 입력한 지역의 도서관 정보
+ * 3. 특정 인덱스의 도서관 정보
+ */
+
 // 전체도서관 정보
 router.get("/", allLibrary);
 // 내 지역의 도서관 정보(시도명, 시군구명 body 로 보내기)

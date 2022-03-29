@@ -3,6 +3,12 @@
 import { allLibraryModel, detailLibraryModel, localLibraryModel } from "../Model/Library";
 import { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } from "../CustomModule/StatusCode";
 
+/*
+ * 1. 전체도서관 정보
+ * 2. 입력한 지역의 도서관 정보
+ * 3. 특정 인덱스의 도서관 정보
+ */
+
 // 전체 도서관 정보
 export async function allLibrary(req, res) {
   // 전체 도서관 정보 가져오는 모델실행 결과
