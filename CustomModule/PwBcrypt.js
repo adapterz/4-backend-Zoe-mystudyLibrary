@@ -4,6 +4,6 @@ import bcrypt from "bcrypt";
 
 const saltRounds = 10;
 
-export async function hashPw(body_pw) {
-  return bcrypt.hashSync(body_pw, saltRounds).toString();
+export async function hashPw(bodyPw) {
+  return bcrypt.hashSync(bodyPw, saltRounds).toString();
 }
