@@ -97,7 +97,7 @@ export async function dropOut(req, res) {
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
   // 회원탈퇴 안내조항에 체크 했는지
-  const [isAgreed] = req.body;
+  const isAgreed = req.body.checkBox;
   // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
   if (!isAgreed) return res.status(BAD_REQUEST).json({ state: "회원탈퇴를 위해서는 안내조항에 동의해주세요." });
   // 회원탈퇴 모델 실행결과
