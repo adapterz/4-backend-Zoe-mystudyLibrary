@@ -4,6 +4,13 @@ import { checkReviewMethod } from "../CustomModule/CheckDataOrAuthority";
 import { FORBIDDEN, UNAUTHORIZED, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK, CREATED } from "../CustomModule/StatusCode";
 import { deleteReviewModel, editReviewModel, getReviewModel, registerReviewModel } from "../Model/Review";
 
+/*
+ * 1. 도서관 후기 등록
+ * 2. 수정시 기존 후기 정보 불러오기
+ * 3. 후기 수정 요청
+ * 4. 후기 삭제 요청
+ */
+
 // 특정 도서관 이용 후 후기 등록
 export async function registerReview(req, res) {
   /*  req.query

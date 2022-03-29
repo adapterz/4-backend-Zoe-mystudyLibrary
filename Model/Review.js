@@ -1,8 +1,16 @@
 // 후기 모델
+// 외장모듈
 import mysql from "mysql2/promise";
+// 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+/*
+ * 1. 도서관 후기 등록
+ * 2. 수정시 기존 후기 정보 불러오기
+ * 3. 후기 수정 요청
+ * 4. 후기 삭제 요청
+ */
 
 // 도서관 후기 등록하는 모델
 export async function registerReviewModel(library_index, user_index, input_comment, ip) {

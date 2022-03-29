@@ -9,6 +9,14 @@ import { deleteReview, editReview, getReview, registerReview } from "../Controll
 
 // 라우터 변수
 const router = express.Router();
+
+/*
+ * 1. 도서관 후기 등록
+ * 2. 수정시 기존 후기 정보 불러오기
+ * 3. 후기 수정 요청
+ * 4. 후기 삭제 요청
+ */
+
 // 후기 등록
 router.post(
   "/post",
