@@ -47,7 +47,7 @@ export async function signUpGuideConfirm(req, res) {
    *  checkBox: 약관동의 체크박스에 체크했는지 여부 - boolean값
    */
 
-  const [isAgreed] = req.body;
+  const isAgreed = req.body.checkBox;
   // 약관확인에서 체크박스에 모두 체크를 했을 때
   if (isAgreed) return res.status(OK).end();
   // 체크박스에 체크하지 않았을 때
