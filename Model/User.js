@@ -361,7 +361,7 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
 // 5-3. 비밀번호 수정 요청 모델
 export async function editPwModel(inputPw, ip, loginCookie) {
   // 해싱된 새비밀번호 변수 미리 선언
-  let hashed_new_pw;
+  let hashedNewPw;
   // 기존에 비밀번호와 일치하나 확인하기 위한 쿼리문
   let query = "SELECT pw FROM USER WHERE userIndex = " + mysql.escape(loginCookie);
   try {
@@ -375,15 +375,15 @@ export async function editPwModel(inputPw, ip, loginCookie) {
       return { state: "기존비밀번호 불일치" };
     }
     // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
-    hashed_new_pw = await hashPw(inputPw.newPw);
-    if (!bcrypt.compareSync(inputPw.confirmPw, hashed_new_pw)) {
+    hashedNewPw = await hashPw(inputPw.newPw);
+    if (!bcrypt.compareSync(inputPw.confirmPw, hashedNewPw)) {
       return { state: "비밀번호/비밀번호확인 불일치" };
     }
     // 유효성 검사 통과
     // 비밀번호 변경 요청 쿼리문
     query =
       "UPDATE USER SET pw= " +
-      mysql.escape(hashed_new_pw) + // 해싱한 새 암호 DB에 저장
+      mysql.escape(hashedNewPw) + // 해싱한 새 암호 DB에 저장
       ", updateDateTime=" +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       " WHERE userIndex = " +
