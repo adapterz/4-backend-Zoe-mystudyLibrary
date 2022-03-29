@@ -131,7 +131,7 @@ export async function userLibraryModel(userIndex, ip) {
   let query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade),COUNT(grade) FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
     mysql.escape(userIndex) +
-    "GROUP BY libraryIndex";
+    " GROUP BY libraryIndex";
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
@@ -154,7 +154,7 @@ export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
   let query =
     "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE userIndex=" +
     mysql.escape(userIndex) +
-    "AND libraryIndex=" +
+    " AND libraryIndex=" +
     mysql.escape(libraryIndex);
   // 성공시
   try {
@@ -185,7 +185,7 @@ export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
 export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
   // 등록한 관심도서관이 존재하는지 확인하는 쿼리문
   let query =
-    "SELECT userIndex FROM USERLIBRARY WHERE userIndex =" + mysql.escape(userIndex) + "AND libraryIndex =" + mysql.escape(libraryIndex);
+    "SELECT userIndex FROM USERLIBRARY WHERE userIndex = " + mysql.escape(userIndex) + " AND libraryIndex=" + mysql.escape(libraryIndex);
 
   try {
     let [results, fields] = await myPool.query(query);

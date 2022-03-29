@@ -146,7 +146,7 @@ export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
     query =
       "SELECT libraryIndex FROM USERLIBRARY WHERE deleteDateTime IS NULL AND userIndex=" +
       mysql.escape(userIndex) +
-      "AND libraryIndex=" +
+      " AND libraryIndex=" +
       mysql.escape(libraryIndex);
     [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
