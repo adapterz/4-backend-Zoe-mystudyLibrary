@@ -1,5 +1,7 @@
 // 유저 모델
+// 외장모듈
 import mysql from "mysql2/promise";
+// 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
@@ -15,10 +17,10 @@ import { hashPw } from "../CustomModule/PwBcrypt";
 
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입
-export async function signUpModel(input_user, ip) {
+export async function signUpModel(inputUser, ip) {
   // 유저가 입력한 아이디가 기존에 있는지 select 해올 쿼리문
   // TODO 무엇에 대한 쿼리문인지(변수명)
-  let query = "SELECT id FROM USER WHERE id = " + mysql.escape(input_user.id);
+  let query = "SELECT id FROM USER WHERE id = " + mysql.escape(inputUser.id);
   // 성공시
   try {
     let [results, fields] = await myPool.query(query);
@@ -31,7 +33,7 @@ export async function signUpModel(input_user, ip) {
     }
     // 유저가 입력한 닉네임이 기존에 존재하는 닉네임일 때
     // 유저가 입력한 닉네임이 기존에 있는지 select 해올 쿼리문
-    query = "SELECT nickName FROM USER WHERE nickName = " + mysql.escape(input_user.nickName);
+    query = "SELECT nickName FROM USER WHERE nickName = " + mysql.escape(inputUser.nickName);
     [results, fields] = await myPool.query(query);
     await querySuccessLog(ip, query);
     if (results[0] !== undefined) {
@@ -40,27 +42,27 @@ export async function signUpModel(input_user, ip) {
 
     // 2. 비밀번호 유효성 검사
     // 입력한 비밀번호와 비밀번호 확인이 다를 때
-    const hashed_pw = await hashPw(input_user.pw);
-    //const hashed_confirm_pw = await hashPw(input_user.confirmPw);
-    console.log("pw비교:" + bcrypt.compareSync(input_user.confirmPw, hashed_pw));
-    if (!bcrypt.compareSync(input_user.confirmPw, hashed_pw)) {
+    const hashedPw = await hashPw(inputUser.pw);
+    //const hashed_confirm_pw = await hashPw(inputUser.confirmPw);
+    console.log("pw비교:" + bcrypt.compareSync(inputUser.confirmPw, hashedPw));
+    if (!bcrypt.compareSync(inputUser.confirmPw, hashedPw)) {
       return { state: "비밀번호/비밀번호확인 불일치" };
     }
 
     // 모든 유효성 검사 통과 후 회원정보 추가해줄 새로운 쿼리문
     query =
       "INSERT INTO USER(id,pw,name,gender,phoneNumber,nickName,updateDateTime) VALUES (" +
-      mysql.escape(input_user.id) +
+      mysql.escape(inputUser.id) +
       "," +
-      mysql.escape(hashed_pw) + // 라우터에서 해싱된 pw값 insert
+      mysql.escape(hashedPw) + // 라우터에서 해싱된 pw값 insert
       "," +
-      mysql.escape(input_user.name) +
+      mysql.escape(inputUser.name) +
       "," +
-      mysql.escape(input_user.gender) +
+      mysql.escape(inputUser.gender) +
       "," +
-      mysql.escape(input_user.phoneNumber) +
+      mysql.escape(inputUser.phoneNumber) +
       "," +
-      mysql.escape(input_user.nickName) +
+      mysql.escape(inputUser.nickName) +
       "," +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) + // 계정 생성날짜
       ")";
@@ -78,9 +80,9 @@ export async function signUpModel(input_user, ip) {
 }
 
 // 1-2. 회원탈퇴
-export async function dropOutModel(ip, login_cookie) {
+export async function dropOutModel(ip, loginCookie) {
   // 해당 유저 데이터 삭제 쿼리문
-  const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(login_cookie);
+  const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(loginCookie);
   // 성공시
   try {
     await myPool.query(query);
@@ -96,9 +98,9 @@ export async function dropOutModel(ip, login_cookie) {
 }
 
 // 2. 로그인
-export async function loginModel(input_login, ip) {
+export async function loginModel(inputLogin, ip) {
   // 유저가 입력한 id의 유저 정보 가져오는 쿼리문
-  const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(input_login.id);
+  const query = "SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " + mysql.escape(inputLogin.id);
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
@@ -110,7 +112,7 @@ export async function loginModel(input_login, ip) {
       return { state: "일치하는 id 없음" };
     }
     // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
-    if (!bcrypt.compareSync(input_login.pw, results[0].pw)) {
+    if (!bcrypt.compareSync(inputLogin.pw, results[0].pw)) {
       return { state: "비밀번호 불일치" };
     }
     // 유효성 검사 통과 - 로그인 성공
@@ -124,11 +126,11 @@ export async function loginModel(input_login, ip) {
 
 // 3. 내 관심도서관 조회/등록/탈퇴
 // 3-1. 관심도서관 조회
-export async function userLibraryModel(user_index, ip) {
+export async function userLibraryModel(userIndex, ip) {
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade),COUNT(grade) FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
-    mysql.escape(user_index) +
+    mysql.escape(userIndex) +
     "GROUP BY libraryIndex";
   // 성공시
   try {
@@ -147,13 +149,13 @@ export async function userLibraryModel(user_index, ip) {
 }
 
 // 3-2. 관심도서관 등록
-export async function registerUserLibraryModel(library_index, user_index, ip) {
+export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
   // 기존에 등록돼있는 관심도서관인지 확인하는 쿼리문
   let query =
     "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE userIndex=" +
-    mysql.escape(user_index) +
+    mysql.escape(userIndex) +
     "AND libraryIndex=" +
-    mysql.escape(library_index);
+    mysql.escape(libraryIndex);
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
@@ -163,9 +165,9 @@ export async function registerUserLibraryModel(library_index, user_index, ip) {
     // USERLIBRARY 테이블에 유저인덱스와 해당 유저가 등록한 도서관인덱스 추가하는 쿼리문
     query =
       "INSERT INTO USERLIBRARY(userIndex,libraryIndex,updateDateTime) VALUES (" +
-      mysql.escape(user_index) +
+      mysql.escape(userIndex) +
       "," +
-      mysql.escape(library_index) +
+      mysql.escape(libraryIndex) +
       "," +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       ")";
@@ -180,10 +182,10 @@ export async function registerUserLibraryModel(library_index, user_index, ip) {
   }
 }
 // 3-3. 관심도서관 삭제
-export async function deleteUserLibraryModel(library_index, user_index, ip) {
+export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
   // 등록한 관심도서관이 존재하는지 확인하는 쿼리문
   let query =
-    "SELECT userIndex FROM USERLIBRARY WHERE userIndex =" + mysql.escape(user_index) + "AND libraryIndex =" + mysql.escape(library_index);
+    "SELECT userIndex FROM USERLIBRARY WHERE userIndex =" + mysql.escape(userIndex) + "AND libraryIndex =" + mysql.escape(libraryIndex);
 
   try {
     let [results, fields] = await myPool.query(query);
@@ -198,7 +200,7 @@ export async function deleteUserLibraryModel(library_index, user_index, ip) {
       "UPDATE USERLIBRARY SET deleteDateTime =" +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       "WHERE libraryIndex =" +
-      mysql.escape(library_index);
+      mysql.escape(libraryIndex);
     await myPool.query(query);
     // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
@@ -212,11 +214,11 @@ export async function deleteUserLibraryModel(library_index, user_index, ip) {
 
 // 4. 유저가 작성한 글/댓글/후기 조회
 // 4-1. 유저가 작성한 글
-export async function userBoardModel(user_index, page, ip) {
+export async function userBoardModel(userIndex, page, ip) {
   // 해당 유저가 작성한 게시글 정보 가져오기
   const query =
     "SELECT boardIndex,postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
-    mysql.escape(user_index) +
+    mysql.escape(userIndex) +
     " ORDER BY boardIndex DESC LIMIT " +
     10 * (page - 1) +
     ", 10";
@@ -239,11 +241,11 @@ export async function userBoardModel(user_index, page, ip) {
 }
 
 // 4-2. 유저가 작성한 댓글
-export async function userCommentModel(user_index, page, ip) {
+export async function userCommentModel(userIndex, page, ip) {
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
     "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
-    mysql.escape(user_index) +
+    mysql.escape(userIndex) +
     " ORDER BY commentIndex DESC LIMIT " +
     5 * (page - 1) +
     ", 5";
@@ -267,11 +269,11 @@ export async function userCommentModel(user_index, page, ip) {
 }
 
 // 4-3. 유저가 작성한 후기
-export async function userReviewModel(user_index, page, ip) {
+export async function userReviewModel(userIndex, page, ip) {
   // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
   const query =
     "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
-    mysql.escape(user_index) +
+    mysql.escape(userIndex) +
     " ORDER BY reviewIndex DESC LIMIT " +
     5 * (page - 1) +
     ",5";
@@ -295,9 +297,9 @@ export async function userReviewModel(user_index, page, ip) {
 }
 // 5. 유저 정보 수정
 // 5-1. 프로필 변경
-export async function editProfileModel(input_revise, ip, login_cookie) {
+export async function editProfileModel(inputRevise, ip, loginCookie) {
   // 유저가 입력한 닉네임이 기존에 존재하는지 확인하기 위해 select 해올 쿼리문
-  let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(input_revise.nickName);
+  let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(inputRevise.nickName);
   // 성공시
   try {
     let [results, fields] = await myPool.query(query);
@@ -311,13 +313,13 @@ export async function editProfileModel(input_revise, ip, login_cookie) {
     // 새 프로필 정보 수정해줄 쿼리문
     query =
       "UPDATE USER SET nickName=" +
-      mysql.escape(input_revise.nickName) +
+      mysql.escape(inputRevise.nickName) +
       ", profileShot =" +
-      mysql.escape(input_revise.profileShot) +
+      mysql.escape(inputRevise.profileShot) +
       ", updateDateTime =" +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       " WHERE userIndex =" +
-      mysql.escape(login_cookie);
+      mysql.escape(loginCookie);
 
     await myPool.query(query);
     // 성공 로그
@@ -331,15 +333,15 @@ export async function editProfileModel(input_revise, ip, login_cookie) {
   }
 }
 // 5-2. 연락처 변경 모델
-export async function editPhoneNumberModel(new_contact, ip, login_cookie) {
+export async function editPhoneNumberModel(newContact, ip, loginCookie) {
   // 폰번호 변경 쿼리문
   const query =
     "UPDATE USER SET phoneNumber=" +
-    mysql.escape(new_contact.phoneNumber) +
+    mysql.escape(newContact.phoneNumber) +
     ", updateDateTime =" +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     " WHERE userIndex = " +
-    mysql.escape(login_cookie);
+    mysql.escape(loginCookie);
   // 성공시
   try {
     await myPool.query(query);
@@ -357,11 +359,11 @@ export async function editPhoneNumberModel(new_contact, ip, login_cookie) {
 }
 
 // 5-3. 비밀번호 수정 요청 모델
-export async function editPwModel(input_pw, ip, login_cookie) {
+export async function editPwModel(inputPw, ip, loginCookie) {
   // 해싱된 새비밀번호 변수 미리 선언
   let hashed_new_pw;
   // 기존에 비밀번호와 일치하나 확인하기 위한 쿼리문
-  let query = "SELECT pw FROM USER WHERE userIndex = " + mysql.escape(login_cookie);
+  let query = "SELECT pw FROM USER WHERE userIndex = " + mysql.escape(loginCookie);
   try {
     const [results, fields] = await myPool.query(query);
     // 성공 로그
@@ -369,12 +371,12 @@ export async function editPwModel(input_pw, ip, login_cookie) {
     // 유효성 검사
     // DB의 유저 pw와 '현재 비밀번호'창에 입력한 pw 비교
     // 1. 입력한 '현재 비밀번호' DB에 있던 pw과 비교
-    if (!bcrypt.compareSync(input_pw.pw, results[0].pw)) {
+    if (!bcrypt.compareSync(inputPw.pw, results[0].pw)) {
       return { state: "기존비밀번호 불일치" };
     }
     // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
-    hashed_new_pw = await hashPw(input_pw.newPw);
-    if (!bcrypt.compareSync(input_pw.confirmPw, hashed_new_pw)) {
+    hashed_new_pw = await hashPw(inputPw.newPw);
+    if (!bcrypt.compareSync(inputPw.confirmPw, hashed_new_pw)) {
       return { state: "비밀번호/비밀번호확인 불일치" };
     }
     // 유효성 검사 통과
@@ -385,7 +387,7 @@ export async function editPwModel(input_pw, ip, login_cookie) {
       ", updateDateTime=" +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       " WHERE userIndex = " +
-      mysql.escape(login_cookie);
+      mysql.escape(loginCookie);
 
     await myPool.query(query);
     // 성공 로그

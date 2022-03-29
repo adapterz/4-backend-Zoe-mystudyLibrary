@@ -13,19 +13,19 @@ import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
  */
 
 // 도서관 후기 등록하는 모델
-export async function registerReviewModel(library_index, user_index, input_comment, ip) {
+export async function registerReviewModel(libraryIndex, userIndex, inputComment, ip) {
   // 후기 등록 쿼리문
   const query =
     "INSERT INTO REVIEW(libraryIndex,userIndex,reviewContent,createDateTime,grade) VALUES (" +
-    mysql.escape(library_index) +
+    mysql.escape(libraryIndex) +
     "," +
-    mysql.escape(user_index) +
+    mysql.escape(userIndex) +
     "," +
-    mysql.escape(input_comment.reviewContent) +
+    mysql.escape(inputComment.reviewContent) +
     "," +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     "," +
-    mysql.escape(input_comment.grade) +
+    mysql.escape(inputComment.grade) +
     ")";
   // 성공시
   try {
@@ -41,8 +41,8 @@ export async function registerReviewModel(library_index, user_index, input_comme
 }
 
 // 수정시 기존 후기 정보 불러오는 모델
-export async function getReviewModel(review_index, login_cookie, ip) {
-  const query = "SELECT reviewContent, grade FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex =" + mysql.escape(review_index);
+export async function getReviewModel(reviewIndex, loginCookie, ip) {
+  const query = "SELECT reviewContent, grade FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex =" + mysql.escape(reviewIndex);
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
@@ -63,15 +63,15 @@ export async function getReviewModel(review_index, login_cookie, ip) {
 }
 
 // 후기 수정 요청
-export async function editReviewModel(review_index, login_cookie, input_review, ip) {
+export async function editReviewModel(reviewIndex, loginCookie, inputReview, ip) {
   // 후기 수정 쿼리문
   const query =
     "UPDATE REVIEW SET reviewContent=" +
-    mysql.escape(input_review.reviewContent) +
+    mysql.escape(inputReview.reviewContent) +
     ",grade = " +
-    mysql.escape(input_review.grade) +
+    mysql.escape(inputReview.grade) +
     " WHERE reviewIndex =" +
-    mysql.escape(review_index);
+    mysql.escape(reviewIndex);
   // 성공시
   try {
     await myPool.query(query);
@@ -87,13 +87,13 @@ export async function editReviewModel(review_index, login_cookie, input_review, 
 }
 
 // 후기 삭제 요청
-export async function deleteReviewModel(review_index, user_index, ip) {
+export async function deleteReviewModel(reviewIndex, userIndex, ip) {
   // 후기삭제 쿼리문
   const query =
     "UPDATE REVIEW SET deleteDateTime=" +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     "  WHERE reviewIndex = " +
-    mysql.escape(review_index);
+    mysql.escape(reviewIndex);
   // 성공시
   try {
     await myPool.query(query);
