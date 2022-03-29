@@ -1,7 +1,15 @@
 // 도서관 모델
+// 외장모듈
 import mysql from "mysql2/promise";
+// 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+
+/*
+ * 1. 전체도서관 정보
+ * 2. 입력한 지역의 도서관 정보
+ * 3. 특정 인덱스의 도서관 정보
+ */
 
 // 전체 도서관 정보 불러오는 모델
 export async function allLibraryModel(ip) {
@@ -22,13 +30,13 @@ export async function allLibraryModel(ip) {
 }
 
 // 입력한 지역에 따라 도서관 정보주는 모델
-export async function localLibraryModel(input_local, ip) {
+export async function localLibraryModel(inputLocal, ip) {
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
   const query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.deleteDateTime=REVIEW.deleteDateTime WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND nameOfCity =" +
-    mysql.escape(input_local.nameOfCity) +
+    mysql.escape(inputLocal.nameOfCity) +
     " AND districts =" +
-    mysql.escape(input_local.districts) +
+    mysql.escape(inputLocal.districts) +
     "GROUP BY libraryIndex";
   try {
     const [results, fields] = await myPool.query(query);
@@ -48,14 +56,14 @@ export async function localLibraryModel(input_local, ip) {
 }
 
 // 특정 도서관 정보 가져오는 모델
-export async function detailLibraryModel(library_index, ip) {
+export async function detailLibraryModel(libraryIndex, ip) {
   // 특정 libraryIndex의 도서관 정보+ 해당 도서관인덱스의 후기 정보, 후기의 평균 평점/평점개수 가져오는 다중 쿼리문
   const query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade),AVG(grade) FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex=" +
-    mysql.escape(library_index) +
+    mysql.escape(libraryIndex) +
     " GROUP BY libraryIndex;" +
     "SELECT nickName,reviewContent,grade,createDateTime FROM REVIEW LEFT JOIN USER ON USER.userIndex=REVIEW.userIndex WHERE deleteDateTime IS NULL AND libraryIndex =" +
-    mysql.escape(library_index) +
+    mysql.escape(libraryIndex) +
     ";";
 
   // 성공시
