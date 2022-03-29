@@ -1,13 +1,22 @@
 // 댓글 모델
+// 외장모듈
 import mysql from "mysql2/promise";
+// 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
 
+/*
+ * 1. 댓글 작성
+ * 2. 수정시 기존댓글 불러오는 모듈
+ * 3. 댓글 수정
+ * 4. 댓글 삭제
+ */
+
 // 새 댓글 작성 모델
-export async function writeCommentModel(board_index, user_index, input_comment, ip) {
+export async function writeCommentModel(boardIndex, userIndex, inputComment, ip) {
   // 해당 게시글이 존재하는지 체크
-  let query = "SELECT boardIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex =" + mysql.escape(board_index);
+  let query = "SELECT boardIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex =" + mysql.escape(boardIndex);
   // 댓글 등록 쿼리문
 
   // 성공시
@@ -22,11 +31,11 @@ export async function writeCommentModel(board_index, user_index, input_comment, 
 
     query =
       "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,createDateTime) VALUES (" +
-      mysql.escape(board_index) +
+      mysql.escape(boardIndex) +
       "," +
-      mysql.escape(user_index) +
+      mysql.escape(userIndex) +
       "," +
-      mysql.escape(input_comment.content) +
+      mysql.escape(inputComment.content) +
       "," +
       mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
       ")";
@@ -41,8 +50,8 @@ export async function writeCommentModel(board_index, user_index, input_comment, 
   }
 }
 // 수정시 기존 댓글 정보 불러오는 모델
-export async function getCommentModel(comment_index, login_cookie, ip) {
-  const query = "SELECT commentContent FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex =" + mysql.escape(comment_index);
+export async function getCommentModel(commentIndex, loginCookie, ip) {
+  const query = "SELECT commentContent FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex =" + mysql.escape(commentIndex);
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
@@ -62,10 +71,10 @@ export async function getCommentModel(comment_index, login_cookie, ip) {
 }
 
 // 댓글 수정
-export async function editCommentModel(comment_index, login_cookie, input_comment, ip) {
+export async function editCommentModel(commentIndex, loginCookie, inputComment, ip) {
   // 댓글 수정 쿼리문
   const query =
-    "UPDATE COMMENT SET  commentContent=" + mysql.escape(input_comment.content) + "WHERE commentIndex =" + mysql.escape(comment_index);
+    "UPDATE COMMENT SET  commentContent=" + mysql.escape(inputComment.content) + "WHERE commentIndex =" + mysql.escape(commentIndex);
   // 성공시
   try {
     await myPool.query(query);
@@ -81,16 +90,16 @@ export async function editCommentModel(comment_index, login_cookie, input_commen
 }
 
 // 댓글 삭제
-export async function deleteCommentModel(comment_index, user_index, ip) {
+export async function deleteCommentModel(commentIndex, userIndex, ip) {
   // 해당 인덱스 댓글 삭제
   // 댓글 삭제 쿼리문
   const query =
     "UPDATE COMMENT SET deleteDateTime = " +
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     " WHERE commentIndex = " +
-    mysql.escape(comment_index) +
+    mysql.escape(commentIndex) +
     "AND userIndex = " +
-    mysql.escape(user_index);
+    mysql.escape(userIndex);
   // 성공시
   try {
     await myPool.query(query);
