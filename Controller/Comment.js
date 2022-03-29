@@ -13,6 +13,13 @@ import {
   OK,
 } from "../CustomModule/StatusCode";
 
+/*
+ * 1. 댓글 작성
+ * 2. 수정시 기존댓글 불러오는 모듈
+ * 3. 댓글 수정
+ * 4. 댓글 삭제
+ */
+
 // 댓글 최초 작성
 export async function writeComment(req, res) {
   /*

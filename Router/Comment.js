@@ -7,6 +7,13 @@ const { body, query } = require("express-validator");
 import { isExist, isValidate } from "../CustomModule/CheckValidation";
 import { deleteComment, editComment, getComment, writeComment } from "../Controller/Comment";
 
+/*
+ * 1. 댓글 작성
+ * 2. 수정시 기존댓글 불러오는 모듈
+ * 3. 댓글 수정
+ * 4. 댓글 삭제
+ */
+
 // 라우터 변수
 const router = express.Router();
 
