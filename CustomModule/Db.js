@@ -1,6 +1,6 @@
 // DB 연결을 위한 모듈 설치 및 DB connection 정보 설정
 import mysql from "mysql2/promise";
-const bluebird = require("bluebird");
+import bluebird from "bluebird";
 
 const config = {
   connectionLimit: 10, // 커넥션풀 적용
