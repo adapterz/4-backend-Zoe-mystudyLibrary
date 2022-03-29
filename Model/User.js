@@ -152,7 +152,7 @@ export async function userLibraryModel(userIndex, ip) {
 export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
   // 기존에 등록돼있는 관심도서관인지 확인하는 쿼리문
   let query =
-    "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE userIndex=" +
+    "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE deleteDateTime IS NULL AND userIndex=" +
     mysql.escape(userIndex) +
     " AND libraryIndex=" +
     mysql.escape(libraryIndex);
