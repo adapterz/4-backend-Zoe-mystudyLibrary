@@ -11,7 +11,6 @@ import {
   searchBoardModel,
   writeBoardModel,
 } from "../Model/Board";
-
 import {
   OK,
   INTERNAL_SERVER_ERROR,
