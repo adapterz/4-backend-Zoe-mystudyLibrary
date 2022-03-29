@@ -1,5 +1,5 @@
 // DB 연결을 위한 모듈 설치 및 DB connection 정보 설정
-import mysql from "mysql2/promise";
+import mysqlPromise from "mysql2/promise";
 const bluebird = require("bluebird");
 
 const config = {
@@ -13,6 +13,6 @@ const config = {
   Promise: bluebird,
 };
 
-const myPool = mysql.createPool(config);
+const myPool = mysqlPromise.createPool(config);
 
 export { myPool };
