@@ -20,14 +20,22 @@ import { checkPageValidation, isCategory, isCategoryWhenWrite, isExist, isSearch
 // 라우터 변수
 const router = express.Router();
 
+/*
+ * 1. 게시글 조회
+ * 2. 게시글 작성/수정/삭제
+ * 3. 좋아요/검색 기능
+ */
+
 // 유효성 검사를 위한 모듈
-// 최신글 자유게시판 5개, 공부인증샷 4개 정보
+// 1. 게시글 조회
+// 1-1. 최신글 자유게시판 5개, 공부인증샷 4개 정보
 router.get("/board", isExist, getRecentBoard);
-// 전체 게시물 목록보기
+// 1-2. 전체 게시물 목록보기
 router.get("/board/:category", isCategory, checkPageValidation, entireBoard);
-// 각 게시물 상세보기
+// 1-3. 각 게시물 상세보기
 router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, checkPageValidation, detailBoard);
-// 최초 게시글 작성 요청
+// 2. 게시글 작성/수정/삭제
+// 2-1. 최초 게시글 작성 요청
 router.post(
   "/write",
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
@@ -42,9 +50,9 @@ router.post(
   isCategoryWhenWrite,
   writeBoard,
 );
-// 수정시 기존 게시글 정보 가져오기
+// 2-2. 수정시 기존 게시글 정보 가져오기
 router.get("/write", query("boardIndex").isInt(), isExist, getWrite);
-// 게시글 수정 요청
+// 2-3. 게시글 수정 요청
 router.patch(
   "/write",
   query("boardIndex").isInt(),
@@ -61,11 +69,12 @@ router.patch(
   isCategoryWhenWrite,
   editBoard,
 );
-// 게시물 삭제 요청
+// 2-4. 게시물 삭제 요청
 router.delete("/delete", query("boardIndex").isInt(), isExist, deleteBoard);
-// 좋아요 기능
+// 3. 좋아요/검색기능
+// 3-1. 좋아요 기능
 router.patch("/like", query("boardIndex").isInt(), isExist, favoriteBoard);
-// 검색관련 기능
+// 3-2. 검색관련 기능
 router.get(
   "/search/:category",
   isCategory,
