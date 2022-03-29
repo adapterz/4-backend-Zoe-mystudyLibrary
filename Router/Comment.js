@@ -1,7 +1,7 @@
 // 댓글 라우터
 // 외장모듈
 import express from "express";
-const { body, query } = require("express-validator");
+import { body, query } from "express-validator";
 
 // 내장모듈
 import { isExist, isValidate } from "../CustomModule/CheckValidation";
