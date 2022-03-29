@@ -16,7 +16,7 @@ import winston from "winston";
 import { SqlTransport } from "winston-sql-transport";
 import rateLimit from "express-rate-limit"; // 디도스 방어 모듈
 // dotenv 모듈
-require("dotenv").config();
+import "dotenv/config.js";
 
 // 내장모듈
 // 날짜/시간 관련 모듈
