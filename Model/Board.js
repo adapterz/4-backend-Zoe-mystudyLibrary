@@ -72,7 +72,7 @@ export async function entireBoardModel(category, page, ip) {
 }
 
 // 1-3. 특정 게시글 상세보기
-export async function detailBoardModel(category, boardIndex, page, ip, userIndex) {
+export async function detailBoardModelController(category, boardIndex, page, ip, userIndex) {
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
     "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +

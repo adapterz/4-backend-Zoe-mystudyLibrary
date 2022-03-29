@@ -3,7 +3,7 @@
 import { checkBoardMethod } from "../CustomModule/CheckDataOrAuthority";
 import {
   deleteBoardModel,
-  detailBoardModel,
+  detailBoardModelController,
   editBoardModel,
   entireBoardModel,
   favoriteBoardModel,
@@ -31,7 +31,7 @@ import {
 
 // 1. 게시글 조회
 // 1-1. 최신 자유게시판 글 5개/공부인증샷 글 4개 불러오기
-export async function getRecentBoard(req, res) {
+export async function getRecentBoardController(req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
   const modelResult = await getRecentBoardModel(req.ip);
   // mysql query 메서드 실패
@@ -41,7 +41,7 @@ export async function getRecentBoard(req, res) {
 }
 
 // 1-2. 전체 게시물 보기
-export async function entireBoard(req, res) {
+export async function entireBoardController(req, res) {
   // req.params: category
   // 필요 변수 선언
   let reqCategory;
@@ -64,7 +64,7 @@ export async function entireBoard(req, res) {
 }
 
 // 1-3. 게시물 상세보기
-export async function detailBoard(req, res) {
+export async function detailBoardController(req, res) {
   // req.params: category,boardIndex
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
@@ -85,7 +85,7 @@ export async function detailBoard(req, res) {
   else page = 1;
 
   // 모델 결과 변수
-  const modelResult = await detailBoardModel(reqCategory, req.params.boardIndex, page, req.ip, loginIndex);
+  const modelResult = await detailBoardModelController(reqCategory, req.params.boardIndex, page, req.ip, loginIndex);
 
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
@@ -97,7 +97,7 @@ export async function detailBoard(req, res) {
 }
 // 2. 게시글 작성/수정/삭제
 // 2-1. 게시글 쓰기
-export async function writeBoard(req, res) {
+export async function writeBoardController(req, res) {
   /*
    *  req.body
    *  category: 게시판 카테고리
@@ -123,7 +123,7 @@ export async function writeBoard(req, res) {
 }
 
 // 2-2. 게시글 수정을 위해 기존 게시글 정보 불러오기
-export async function getWrite(req, res) {
+export async function getWriteController(req, res) {
   // req.query : boardIndex
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
@@ -158,7 +158,7 @@ export async function getWrite(req, res) {
   }
 }
 // 2-3. 게시글 수정요청
-export async function editBoard(req, res) {
+export async function editBoardController(req, res) {
   /*
    *  req.body
    *  category: 카테고리(자유게시판/공부인증샷)
@@ -195,7 +195,7 @@ export async function editBoard(req, res) {
 }
 
 // 2-4. 게시글 삭제하기
-export async function deleteBoard(req, res) {
+export async function deleteBoardController(req, res) {
   // req.query: boardIndex
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
@@ -225,7 +225,7 @@ export async function deleteBoard(req, res) {
 }
 // 3. 좋아요/검색기능
 // 3-1. 게시글 좋아요 요청
-export async function favoriteBoard(req, res) {
+export async function favoriteBoardController(req, res) {
   // req.query: boardIndex
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
@@ -245,7 +245,7 @@ export async function favoriteBoard(req, res) {
   else if (modelResult.state === "좋아요+1") return res.status(OK).json(modelResult);
 }
 // 3-2. 게시글 검색기능
-export async function searchBoard(req, res) {
+export async function searchBoardController(req, res) {
   /*
    *  req.query
    *  searchOption (ex. 제목만, 내용만, 닉네임, 제목 + 내용)

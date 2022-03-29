@@ -10,7 +10,7 @@ import { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } from "../CustomModule/StatusCode
  */
 
 // 전체 도서관 정보
-export async function allLibrary(req, res) {
+export async function allLibraryController(req, res) {
   // 전체 도서관 정보 가져오는 모델실행 결과
   const modelResult = await allLibraryModel(req.ip);
   // 모델 실행결과에 따른 분기처리
@@ -21,7 +21,7 @@ export async function allLibrary(req, res) {
 }
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 메서드
-export async function localLibrary(req, res) {
+export async function localLibraryController(req, res) {
   /*
    *  req.query
    *    nameOfCity: 시도명
@@ -39,7 +39,7 @@ export async function localLibrary(req, res) {
 }
 
 // 특정 도서관인덱스의 도서관 정보 응답
-export async function detailLibrary(req, res) {
+export async function detailLibraryController(req, res) {
   // req.params: libraryIndex
   // 특정 libraryIndex의 도서관 정보 자세히 보는 모델 실행 결과
   const modelResult = await detailLibraryModel(req.params.libraryIndex, req.ip);

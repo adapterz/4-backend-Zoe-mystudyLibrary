@@ -5,15 +5,15 @@ const { body, query, param } = require("express-validator");
 
 // 내장모듈
 import {
-  editBoard,
-  deleteBoard,
-  detailBoard,
-  entireBoard,
-  favoriteBoard,
-  getRecentBoard,
-  searchBoard,
-  writeBoard,
-  getWrite,
+  editBoardController,
+  deleteBoardController,
+  detailBoardController,
+  entireBoardController,
+  favoriteBoardController,
+  getRecentBoardController,
+  searchBoardController,
+  writeBoardController,
+  getWriteController,
 } from "../Controller/Board";
 import { checkPageValidation, isCategory, isCategoryWhenWrite, isExist, isSearchOption, isValidate } from "../CustomModule/CheckValidation";
 
@@ -29,11 +29,11 @@ const router = express.Router();
 // 유효성 검사를 위한 모듈
 // 1. 게시글 조회
 // 1-1. 최신글 자유게시판 5개, 공부인증샷 4개 정보
-router.get("/board", isExist, getRecentBoard);
+router.get("/board", isExist, getRecentBoardController);
 // 1-2. 전체 게시물 목록보기
-router.get("/board/:category", isCategory, checkPageValidation, entireBoard);
+router.get("/board/:category", isCategory, checkPageValidation, entireBoardController);
 // 1-3. 각 게시물 상세보기
-router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, checkPageValidation, detailBoard);
+router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, checkPageValidation, detailBoardController);
 // 2. 게시글 작성/수정/삭제
 // 2-1. 최초 게시글 작성 요청
 router.post(
@@ -48,10 +48,10 @@ router.post(
     .matches(/^[가-힣]+$/),
   isValidate,
   isCategoryWhenWrite,
-  writeBoard,
+  writeBoardController,
 );
 // 2-2. 수정시 기존 게시글 정보 가져오기
-router.get("/write", query("boardIndex").isInt(), isExist, getWrite);
+router.get("/write", query("boardIndex").isInt(), isExist, getWriteController);
 // 2-3. 게시글 수정 요청
 router.patch(
   "/write",
@@ -67,13 +67,13 @@ router.patch(
     .matches(/^[가-힣]+$/),
   isValidate,
   isCategoryWhenWrite,
-  editBoard,
+  editBoardController,
 );
 // 2-4. 게시물 삭제 요청
-router.delete("/delete", query("boardIndex").isInt(), isExist, deleteBoard);
+router.delete("/delete", query("boardIndex").isInt(), isExist, deleteBoardController);
 // 3. 좋아요/검색기능
 // 3-1. 좋아요 기능
-router.patch("/like", query("boardIndex").isInt(), isExist, favoriteBoard);
+router.patch("/like", query("boardIndex").isInt(), isExist, favoriteBoardController);
 // 3-2. 검색관련 기능
 router.get(
   "/search/:category",
@@ -82,7 +82,7 @@ router.get(
   query("searchContent").isString(),
   isValidate,
   checkPageValidation,
-  searchBoard,
+  searchBoardController,
 );
 
 // 모듈화

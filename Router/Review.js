@@ -5,7 +5,7 @@ const { body, query } = require("express-validator");
 
 // 내장모듈
 import { isExist, isValidate } from "../CustomModule/CheckValidation";
-import { deleteReview, editReview, getReview, registerReview } from "../Controller/Review";
+import { deleteReviewController, editReviewController, getReviewController, registerReviewController } from "../Controller/Review";
 
 // 라우터 변수
 const router = express.Router();
@@ -25,10 +25,10 @@ router.post(
   body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
   body("grade").isFloat({ min: 1, max: 5 }),
   isValidate,
-  registerReview,
+  registerReviewController,
 );
 // 수정 시 기존 후기 정보 불러오기
-router.get("/", query("libraryIndex").isInt(), query("reviewIndex").isInt(), isExist, getReview);
+router.get("/", query("libraryIndex").isInt(), query("reviewIndex").isInt(), isExist, getReviewController);
 // 후기 수정 요청
 router.patch(
   "/patch",
@@ -38,10 +38,10 @@ router.patch(
   body("reviewContent").isLength({ min: 2, max: 100 }).isString(),
   body("grade").isInt({ min: 1, max: 5 }),
   isValidate,
-  editReview,
+  editReviewController,
 );
 // 후기 삭제
-router.delete("/delete", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), query("reviewIndex").isInt(), isExist, deleteReview);
+router.delete("/delete", query("libraryIndex").isInt().isLength({ min: 1, max: 4 }), query("reviewIndex").isInt(), isExist, deleteReviewController);
 
 // 모듈화
 export default router;

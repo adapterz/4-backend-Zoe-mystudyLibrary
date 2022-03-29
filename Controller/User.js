@@ -37,7 +37,7 @@ import { checkUserLibraryMethod } from "../CustomModule/CheckDataOrAuthority";
  */
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인
-export async function signUpGuide(req, res) {
+export async function signUpGuideController(req, res) {
   return res.status(OK).sendFile(path.join(__dirname, "..", "Terms/SignUpGuide.html"));
 }
 // 1-2. 회원가입 약관 확인 요청
@@ -55,7 +55,7 @@ export async function signUpGuideConfirm(req, res) {
 }
 
 // 1-3. 회원가입 요청
-export async function signUp(req, res) {
+export async function signUpController(req, res) {
   /*
    * req.body
    *   id: 아이디
@@ -82,7 +82,7 @@ export async function signUp(req, res) {
 }
 
 // 1-4. 회원탈퇴 요청
-export async function dropOut(req, res) {
+export async function dropOutController(req, res) {
   /*
    * req.body
    *  checkBox: 회원탈퇴 동의 체크박스에 체크했는지 여부 - boolean값
@@ -117,7 +117,7 @@ export async function dropOut(req, res) {
 
 // 2. 로그인/로그아웃
 // 2-1. 로그인
-export async function login(req, res) {
+export async function loginController(req, res) {
   /*
    * req.body
    *  id: 아이디
@@ -152,7 +152,7 @@ export async function login(req, res) {
   }
 }
 // 2-2. 로그아웃
-export async function logout(req, res) {
+export async function logoutController(req, res) {
   // 기존에 로그인 돼있을 때 성공적으로 로그아웃 요청 수행
   if (req.session.user) {
     req.session.destroy(function (err) {
@@ -169,7 +169,7 @@ export async function logout(req, res) {
 
 // 3. 관심도서관 조회/등록/삭제
 // 3-1. 관심도서관 조회
-export async function userLibrary(req, res) {
+export async function userLibraryController(req, res) {
   //  필요 변수 선언
   const loginCookie = req.signedCookies.user;
   let loginIndex;
@@ -190,7 +190,7 @@ export async function userLibrary(req, res) {
 }
 
 // 3-2. 관심도서관 등록
-export async function registerUserLibrary(req, res) {
+export async function registerUserLibraryController(req, res) {
   /*
    * req.query
    *  libraryIndex
@@ -214,7 +214,7 @@ export async function registerUserLibrary(req, res) {
 }
 
 // 3-3. 관심도서관 삭제
-export async function deleteUserLibrary(req, res) {
+export async function deleteUserLibraryController(req, res) {
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   const loginCookie = req.signedCookies.user;
   let loginIndex;
@@ -245,7 +245,7 @@ export async function deleteUserLibrary(req, res) {
 }
 // 4. 유저가 작성한 글/댓글/후기 조회
 // 4-1. 유저가 작성한 글 조회
-export async function userBoard(req, res) {
+export async function userBoardController(req, res) {
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
   let loginIndex;
@@ -269,7 +269,7 @@ export async function userBoard(req, res) {
   else if (modelResult.state === "내작성글조회") return res.status(OK).json(modelResult.data);
 }
 // 4-2. 유저가 작성한 댓글 조회
-export async function userComment(req, res) {
+export async function userCommentController(req, res) {
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
   let loginIndex;
@@ -293,7 +293,7 @@ export async function userComment(req, res) {
   else if (modelResult.state === "성공적조회") return res.status(OK).json(modelResult.data);
 }
 // 4-3. 유저가 작성한 도서관 이용 후기 조회
-export async function userReview(req, res) {
+export async function userReviewController(req, res) {
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
   let loginIndex;
@@ -319,7 +319,7 @@ export async function userReview(req, res) {
 
 // 5. 유저 정보 수정
 // 5-1. 유저 프로필 수정
-export async function editProfile(req, res) {
+export async function editProfileController(req, res) {
   /*
    * req.body
    *  profileShot: 프로필 사진 uri
@@ -347,7 +347,7 @@ export async function editProfile(req, res) {
 }
 
 // 5-2. 회원정보 수정(연락처 수정)
-export async function editPhoneNumber(req, res) {
+export async function editPhoneNumberController(req, res) {
   /*
    * req.body
    *  phoneNumber: 폰 번호
@@ -370,7 +370,7 @@ export async function editPhoneNumber(req, res) {
 }
 
 // 5-3. 비밀번호 수정
-export async function editPw(req, res) {
+export async function editPwController(req, res) {
   /*
    * req.body
    *  pw: 기존 비밀번호

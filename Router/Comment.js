@@ -5,7 +5,7 @@ import { body, query } from "express-validator";
 
 // 내장모듈
 import { isExist, isValidate } from "../CustomModule/CheckValidation";
-import { deleteComment, editComment, getComment, writeComment } from "../Controller/Comment";
+import { deleteCommentController, editCommentController, getCommentController, writeCommentController } from "../Controller/Comment";
 
 /*
  * 1. 댓글 작성
@@ -24,10 +24,10 @@ router.post(
   isExist,
   body("content").isLength({ min: 2, max: 500 }).isString(),
   isValidate,
-  writeComment,
+  writeCommentController,
 );
 // 기존 댓글 정보 불러오기
-router.get("/", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, getComment);
+router.get("/", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, getCommentController);
 // 댓글 수정 요청
 router.patch(
   "/patch",
@@ -36,10 +36,10 @@ router.patch(
   isExist,
   body("content").isLength({ min: 2, max: 500 }).isString(),
   isValidate,
-  editComment,
+  editCommentController,
 );
 // 댓글 삭제
-router.delete("/delete", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, deleteComment);
+router.delete("/delete", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, deleteCommentController);
 
 // 모듈화
 export default router;

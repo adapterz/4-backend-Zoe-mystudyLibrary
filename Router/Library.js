@@ -5,7 +5,7 @@ const { query, param } = require("express-validator");
 
 // 내장모듈
 import { isExist, isValidate } from "../CustomModule/CheckValidation";
-import { allLibrary, detailLibrary, localLibrary } from "../Controller/Library";
+import { allLibraryController, detailLibraryController, localLibraryController } from "../Controller/Library";
 
 // 라우터 변수
 const router = express.Router();
@@ -17,7 +17,7 @@ const router = express.Router();
  */
 
 // 전체도서관 정보
-router.get("/", allLibrary);
+router.get("/", allLibraryController);
 // 내 지역의 도서관 정보(시도명, 시군구명 body 로 보내기)
 router.get(
   "/search",
@@ -32,10 +32,10 @@ router.get(
     .isLength({ min: 1, max: 15 })
     .matches(/^[가-힣]+$/),
   isValidate,
-  localLibrary,
+  localLibraryController,
 );
 // 특정 도서관 자세히 보기
-router.get("/detail/:libraryIndex", param("libraryIndex").isInt(), isExist, detailLibrary);
+router.get("/detail/:libraryIndex", param("libraryIndex").isInt(), isExist, detailLibraryController);
 
 // 모듈화
 export default router;

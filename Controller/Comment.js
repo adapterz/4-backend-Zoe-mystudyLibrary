@@ -21,7 +21,7 @@ import {
  */
 
 // 댓글 최초 작성
-export async function writeComment(req, res) {
+export async function writeCommentController(req, res) {
   /*
    * req.query
    *  boardIndex
@@ -47,7 +47,7 @@ export async function writeComment(req, res) {
   else if (modelResult.state === "댓글작성") return res.status(CREATED).end();
 }
 // 수정시 기존 댓글 정보 불러오기
-export async function getComment(req, res) {
+export async function getCommentController(req, res) {
   /*
    * req.query
    *  boardIndex,commentIndex
@@ -83,7 +83,7 @@ export async function getComment(req, res) {
   }
 }
 // 댓글 수정 요청
-export async function editComment(req, res) {
+export async function editCommentController(req, res) {
   /*
    * req.query
    *  boardIndex, commentIndex
@@ -120,7 +120,7 @@ export async function editComment(req, res) {
   }
 }
 // 댓글 삭제
-export async function deleteComment(req, res) {
+export async function deleteCommentController(req, res) {
   /*
    * req.query
    *  boardIndex, commentIndex

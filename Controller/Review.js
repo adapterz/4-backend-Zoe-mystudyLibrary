@@ -12,7 +12,7 @@ import { deleteReviewModel, editReviewModel, getReviewModel, registerReviewModel
  */
 
 // 특정 도서관 이용 후 후기 등록
-export async function registerReview(req, res) {
+export async function registerReviewController(req, res) {
   /*  req.query
    *   libraryIndex
    *  req.body
@@ -37,7 +37,7 @@ export async function registerReview(req, res) {
 }
 
 // 수정시 기존 댓글 정보 불러오기
-export async function getReview(req, res) {
+export async function getReviewController(req, res) {
   /*
    * req.query
    *  libraryIndex
@@ -75,7 +75,7 @@ export async function getReview(req, res) {
   }
 }
 // 후기 수정 요청
-export async function editReview(req, res) {
+export async function editReviewController(req, res) {
   /*
    * req.body
    *  reviewContent: 댓글내용
@@ -112,7 +112,7 @@ export async function editReview(req, res) {
   }
 }
 // 후기 삭제
-export async function deleteReview(req, res) {
+export async function deleteReviewController(req, res) {
   /*
    * req.query
    *  libraryIndex
