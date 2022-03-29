@@ -1,12 +1,14 @@
 // 공공데이터 OPEN API 에서 전국 도서관정보 가져오는 모듈
-const lib_request = require("request");
-const db = require("./Db");
+// 외장모듈
+import request from "request";
+// 내장모듈
+import { myPool } from "./Db";
 const { querySuccessLog, queryFailLog } = require("./QueryLog");
 
 // 공공데이터 요청
-async function reqOpenData() {
+export async function reqOpenData() {
   let info;
-  await db.pool.query("START TRANSACTION");
+  await myPool.query("START TRANSACTION");
   // 해당 공공데이터 api 총 페이지 수가 346 개라서 346번 반복문 돌려주기
   for (let page = 1; page <= 346; ++page) {
     const libList = [];
@@ -15,33 +17,33 @@ async function reqOpenData() {
     console.log(info);
     for (const index in info["response"]["body"]["items"]) {
       // 해당 로우의 데이터 컬럼값들 저장
-      const library_name = info["response"]["body"]["items"][index]["lbrryNm"];
-      const name_of_city = info["response"]["body"]["items"][index]["ctprvnNm"];
+      const libraryName = info["response"]["body"]["items"][index]["lbrryNm"];
+      const nameOfCity = info["response"]["body"]["items"][index]["ctprvnNm"];
       const districts = info["response"]["body"]["items"][index]["signguNm"];
-      const library_type = info["response"]["body"]["items"][index]["lbrrySe"];
-      const close_day = info["response"]["body"]["items"][index]["closeDay"];
-      const open_weekday = info["response"]["body"]["items"][index]["weekdayOperOpenHhmm"];
-      const close_weekday = info["response"]["body"]["items"][index]["weekdayOperColseHhmm"];
-      const open_saturday = info["response"]["body"]["items"][index]["satOperOperOpenHhmm"];
-      const close_saturday = info["response"]["body"]["items"][index]["satOperCloseHhmm"];
-      const open_holiday = info["response"]["body"]["items"][index]["holidayOperOpenHhmm"];
-      const close_holiday = info["response"]["body"]["items"][index]["holidayCloseOpenHhmm"];
+      const libraryType = info["response"]["body"]["items"][index]["lbrrySe"];
+      const closeDay = info["response"]["body"]["items"][index]["closeDay"];
+      const openWeekday = info["response"]["body"]["items"][index]["weekdayOperOpenHhmm"];
+      const closeWeekday = info["response"]["body"]["items"][index]["weekdayOperColseHhmm"];
+      const openSaturday = info["response"]["body"]["items"][index]["satOperOperOpenHhmm"];
+      const closeSaturday = info["response"]["body"]["items"][index]["satOperCloseHhmm"];
+      const openHoliday = info["response"]["body"]["items"][index]["holidayOperOpenHhmm"];
+      const closeHoliday = info["response"]["body"]["items"][index]["holidayCloseOpenHhmm"];
       const address = info["response"]["body"]["items"][index]["rdnmadr"];
-      const library_contact = info["response"]["body"]["items"][index]["phoneNumber"];
+      const libraryContact = info["response"]["body"]["items"][index]["phoneNumber"];
       libList.push([
-        library_name,
-        library_type,
-        close_day,
-        open_weekday,
-        close_weekday,
-        open_saturday,
-        close_saturday,
-        open_holiday,
-        close_holiday,
-        name_of_city,
+        libraryName,
+        libraryType,
+        closeDay,
+        openWeekday,
+        closeWeekday,
+        openSaturday,
+        closeSaturday,
+        openHoliday,
+        closeHoliday,
+        nameOfCity,
         districts,
         address,
-        library_contact,
+        libraryContact,
       ]);
     }
     // 도서관 배열 정보 query문으로 추가해줄 메서드에 전달
@@ -50,11 +52,10 @@ async function reqOpenData() {
     }
   }
 
-  await db.pool.query("COMMIT");
+  await myPool.query("COMMIT");
 }
 // 페이지 단위로 공공데이터 가져오기
 async function requestData(page) {
-  let libList = [];
   const default_options = {
     method: "GET",
     url:
@@ -64,7 +65,7 @@ async function requestData(page) {
   };
 
   return new Promise(function (resolve, reject) {
-    lib_request(default_options, function (error, res, body) {
+    request(default_options, function (error, res, body) {
       try {
         resolve(body);
       } catch (error) {
@@ -78,14 +79,12 @@ async function queryData([values]) {
   const query =
     "INSERT INTO LIBRARY(libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact) VALUES ?";
   try {
-    const [postLibraryRow] = await db.pool.query(query, [values]);
+    const [postLibraryRow] = await myPool.query(query, [values]);
     await querySuccessLog(null, query);
     return postLibraryRow;
   } catch (err) {
     // 쿼리문 실행시 에러발생
     await queryFailLog(err, null, query);
-    await db.pool.query("ROLLBACK");
+    await myPool.query("ROLLBACK");
   }
 }
-
-module.exports = { reqOpenData: reqOpenData };

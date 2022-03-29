@@ -100,14 +100,16 @@ app.use("/user", userRouter);
 app.use("/", boardRouter);
 
 // 404 에러처리
-app.get("/not_found", (req, res) => {
+app.get("/not-found", (req, res) => {
   res.status(404).send("not founded page");
 });
 
-// 도서관 정보 테이블에 넣기
-
-//const library_request = require("./CustomModule/open_api");
-//library_request.reqOpenData();
+/*
+ * 도서관 정보 테이블에 넣기
+ *
+ * import { reqOpenData } from "./CustomModule/RequestOpenApi";
+ * reqOpenData();
+ */
 
 // 서버 시작
 app.listen(process.env.PORT, () => {
