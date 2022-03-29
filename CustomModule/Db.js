@@ -1,4 +1,5 @@
 // DB 연결을 위한 모듈 설치 및 DB connection 정보 설정
+// 외장모듈
 import mysql from "mysql2/promise";
 import bluebird from "bluebird";
 
