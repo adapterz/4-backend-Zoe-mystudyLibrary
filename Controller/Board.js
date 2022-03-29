@@ -4,6 +4,7 @@ import { checkBoardMethod } from "../CustomModule/CheckDataOrAuthority";
 import {
   deleteBoardModel,
   detailBoardModel,
+  editBoardModel,
   entireBoardModel,
   favoriteBoardModel,
   getRecentBoardModel,
