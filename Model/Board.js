@@ -172,10 +172,8 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
     // 태그가 5개 이하라면 비어있는 태그 sequence 만들어줌 (tagCount 는 마지막 (tagIndex(범위: 0~4) + 1)(범위: 1~5) +1)
     for (; tagCount <= 5; ++tagCount) {
       tagQuery +=
-        "INSERT INTO TAG(boardIndex,tag,tagSequence,updateDateTime) VALUES (" +
+        "INSERT INTO TAG(boardIndex,tagSequence,updateDateTime) VALUES (" +
         mysql.escape(results.insertId) + // 생성될 게시글의 인덱스
-        "," +
-        mysql.escape("") +
         "," +
         mysql.escape(tagCount) +
         "," +
