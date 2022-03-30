@@ -240,9 +240,9 @@ export async function favoriteBoardController(req, res) {
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 좋아요를 이미 누른적이 있을 때
-  else if (modelResult.state === "좋아요 취소") return res.status(OK).json(modelResult);
+  else if (modelResult.state === "좋아요 취소") return res.status(OK).end();
   // 성공적으로 좋아요 요청 수행
-  else if (modelResult.state === "좋아요+1") return res.status(OK).json(modelResult);
+  else if (modelResult.state === "좋아요+1") return res.status(OK).end();
 }
 // 3-2. 게시글 검색기능
 export async function searchBoardController(req, res) {
