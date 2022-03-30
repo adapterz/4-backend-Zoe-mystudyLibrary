@@ -299,36 +299,67 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
 export async function favoriteBoardModel(boardIndex, userIndex, ip) {
   // 좋아요한 유저 테이블에 해당게시글에 좋아요 누른 유저인덱스 추가하는 쿼리문
   let query =
-    "SELECT userIndex FROM FAVORITEPOST WHERE boardIndex=" + mysql.escape(boardIndex) + "AND userIndex = " + mysql.escape(userIndex);
+    "SELECT isFavorite FROM FAVORITEPOST WHERE boardIndex=" + mysql.escape(boardIndex) + "AND userIndex = " + mysql.escape(userIndex);
   // 성공시
   try {
-    await myPool.query("START TRANSACTION");
     const [results, fields] = await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
-    // 좋아요를 이미 누른 경우
-    if (results[0] !== undefined) {
-      await myPool.query("ROLLBACK");
-      return { state: "좋아요 중복요청" };
+    // 좋아요 최초 요청
+    if (results[0] === undefined) {
+      // 해당 게시글에 좋아요를 한번도 누르지 않은 유저의 경우 좋아요 1 증가, 좋아요 누른 사람 목록에 해당 유저 추가
+      query =
+        " Update BOARD SET favoriteCount = favoriteCount + 1 WHERE boardIndex = " +
+        mysql.escape(boardIndex) +
+        ";" +
+        "INSERT INTO favoritePost(boardIndex,userIndex,isFavorite,updateDateTime) VALUES(?,?,?,?)";
+      // 쿼리문 실행
+      await myPool.query(query, [boardIndex, userIndex, 1, moment().format("YYYY-MM-DD HH:mm:ss")]);
+      // 성공 로그찍기
+      await querySuccessLog(ip, query);
+      // 정상적으로 좋아요 수 1증가
+      return { state: "좋아요+1" };
+      // 좋아요를 이미 누른 적이 있고 isFavorite 컬럼값이 TRUE 일 때, isFavorite 컬럼값 FALSE 로 바꿔주기 (게시글 조회시 isFavorite의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
+    } else if (results[0] !== undefined) {
+      console.log("외않되" + results[0]);
+      if (results[0].isFavorite === 1) {
+        query =
+          "UPDATE FAVORITEPOST SET updateDateTime =" +
+          mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+          ", isFavorite = " +
+          mysql.escape(0) +
+          " WHERE boardIndex =" +
+          mysql.escape(boardIndex) +
+          " AND userIndex = " +
+          mysql.escape(userIndex);
+        // 쿼리문 실행
+        await myPool.query(query, [boardIndex, userIndex, 1, moment().format("YYYY-MM-DD HH:mm:ss")]);
+        // 성공 로그찍기
+        await querySuccessLog(ip, query);
+        // 좋아요 취소
+        return { state: "좋아요 취소" };
+        // 좋아요를 이미 누른 적이 있고 isFavorite 컬럼값이 FALSE 일 때, isFavorite 컬럼값 TRUE 로 바꿔주기 (게시글 조회시 isFavorite의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
+      } else if (results[0].isFavorite === 0) {
+        query =
+          "UPDATE FAVORITEPOST SET updateDateTime =" +
+          mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+          ", isFavorite = " +
+          mysql.escape(1) +
+          " WHERE boardIndex =" +
+          mysql.escape(boardIndex) +
+          " AND userIndex = " +
+          mysql.escape(userIndex);
+        // 쿼리문 실행
+        await myPool.query(query, [boardIndex, userIndex, 1, moment().format("YYYY-MM-DD HH:mm:ss")]);
+        // 성공 로그찍기
+        await querySuccessLog(ip, query);
+        // 좋아요 +1
+        return { state: "좋아요+1" };
+      }
     }
-
-    // 해당 게시글에 좋아요를 한번도 누르지 않은 유저의 경우 좋아요 1 증가, 좋아요 누른 사람 목록에 해당 유저 추가
-    query =
-      " Update BOARD SET favoriteCount = favoriteCount + 1 WHERE boardIndex = " +
-      mysql.escape(boardIndex) +
-      ";" +
-      "INSERT INTO favoritePost(boardIndex,userIndex,updateDateTime) VALUES(?,?,?)";
-    // 쿼리문 실행
-    await myPool.query(query, [boardIndex, userIndex, moment().format("YYYY-MM-DD HH:mm:ss")]);
-    // 성공 로그찍기
-    await querySuccessLog(ip, query);
-    // 정상적으로 좋아요 수 1증가
-    await myPool.query("COMMIT");
-    return { state: "좋아요+1" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
-    await myPool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
 }
