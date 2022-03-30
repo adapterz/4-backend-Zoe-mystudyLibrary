@@ -132,7 +132,7 @@ export async function detailBoardModelController(category, boardIndex, page, ip,
 export async function writeBoardModel(category, inputWrite, userIndex, ip) {
   let query;
   let tagQuery = "";
-  let tagCount;
+  let tagSequence = 1;
   // 게시글 작성 쿼리문
   query =
     "INSERT INTO BOARD(category,userIndex,postTitle,postContent,createDateTime,viewCount,favoriteCount) VALUES (" +
@@ -155,7 +155,6 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
     // 태그 추가 쿼리문
     // 태그 쿼리문 추가, 태그 배열이 비어있으면 해당 반복문은 작동하지 않음
     for (const tagIndex in inputWrite.tags) {
-      const tagSequence = Number(tagIndex) + 1;
       tagQuery +=
         "INSERT INTO TAG(boardIndex,tag,tagSequence,updateDateTime) VALUES (" +
         mysql.escape(results.insertId) + // 생성될 게시글의 인덱스
@@ -166,16 +165,15 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
         "," +
         mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
         ");";
-      tagCount = Number(tagIndex) + 2;
+      ++tagSequence;
     }
-    console.log(tagCount);
     // 태그가 5개 이하라면 비어있는 태그 sequence 만들어줌 (tagCount 는 마지막 (tagIndex(범위: 0~4) + 1)(범위: 1~5) +1)
-    for (; tagCount <= 5; ++tagCount) {
+    for (; tagSequence <= 5; ++tagSequence) {
       tagQuery +=
         "INSERT INTO TAG(boardIndex,tagSequence,updateDateTime) VALUES (" +
         mysql.escape(results.insertId) + // 생성될 게시글의 인덱스
         "," +
-        mysql.escape(tagCount) +
+        mysql.escape(tagSequence) +
         "," +
         mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
         ");";
@@ -235,34 +233,49 @@ export async function editBoardModel(inputWrite, boardIndex, userIndex, ip) {
     mysql.escape(inputWrite.category) +
     ";";
   let tagQuery = "";
-  // 기존 태그 삭제
-  query += "DELETE FROM TAG WHERE boardIndex = " + mysql.escape(boardIndex) + ";";
+  let tagSequence = 1;
   // 성공시
   try {
     await myPool.query("START TRANSACTION");
     await myPool.query(query);
     // 쿼리 성공로그
     await querySuccessLog(ip, query);
-    // 태그 추가 쿼리문
+    // 태그 변경 쿼리문
     // 태그 쿼리문 추가, 태그 배열이 비어있으면 해당 반복문은 작동하지 않음
-    for (const tempTag of inputWrite.tags) {
+    for (const tagIndex in inputWrite.tags) {
       tagQuery +=
-        "INSERT INTO TAG(boardIndex,tag,updateDateTime) VALUES (" +
-        mysql.escape(boardIndex) +
-        "," +
-        mysql.escape(tempTag.content) +
-        "," +
+        "UPDATE TAG SET tag = " +
+        mysql.escape(inputWrite.tags[tagIndex].content) +
+        ",updateDateTime =" +
         mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-        ");";
+        " WHERE boardIndex =" +
+        mysql.escape(boardIndex) +
+        " AND tagSequence = " +
+        mysql.escape(tagSequence) +
+        ";";
+      ++tagSequence;
     }
-    // 태그가 있다면 DB에 태그 정보 추가
-    if (tagQuery !== "") await myPool.query(tagQuery);
+    // 태그가 5개 이하라면 비어있는 태그 sequence 만들어줌
+    for (; tagSequence <= 5; ++tagSequence) {
+      tagQuery +=
+        "UPDATE TAG SET tag = NULL, tagSequence =" +
+        mysql.escape(tagSequence) +
+        ",updateDateTime =" +
+        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+        " WHERE boardIndex =" +
+        mysql.escape(boardIndex) +
+        "AND tagSequence =" +
+        mysql.escape(tagSequence) +
+        ";";
+    }
+    // 태그 정보 변경
+    await myPool.query(tagQuery);
     // 성공 로그찍기, 커밋하기
     await querySuccessLog(ip, tagQuery);
     await myPool.query("COMMIT");
     return { state: "게시글수정" };
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await queryFailLog(err, ip, query + tagQuery);
     await myPool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
