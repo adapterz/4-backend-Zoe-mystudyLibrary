@@ -132,6 +132,7 @@ export async function detailBoardModelController(category, boardIndex, page, ip,
 export async function writeBoardModel(category, inputWrite, userIndex, ip) {
   let query;
   let tagQuery = "";
+  let tagCount;
   // 게시글 작성 쿼리문
   query =
     "INSERT INTO BOARD(category,userIndex,postTitle,postContent,createDateTime,viewCount,favoriteCount) VALUES (" +
@@ -165,9 +166,22 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
         "," +
         mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
         ");";
+      tagCount = Number(tagIndex) + 2;
     }
-    // 태그가 5개 이하라면 비어있는 태그 sequence 만들어줌
-
+    console.log(tagCount);
+    // 태그가 5개 이하라면 비어있는 태그 sequence 만들어줌 (tagCount 는 마지막 (tagIndex(범위: 0~4) + 1)(범위: 1~5) +1)
+    for (; tagCount <= 5; ++tagCount) {
+      tagQuery +=
+        "INSERT INTO TAG(boardIndex,tag,tagSequence,updateDateTime) VALUES (" +
+        mysql.escape(results.insertId) + // 생성될 게시글의 인덱스
+        "," +
+        mysql.escape("") +
+        "," +
+        mysql.escape(tagCount) +
+        "," +
+        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+        ");";
+    }
     // 태그가 있다면 DB에 태그 정보 추가
     if (tagQuery !== "") await myPool.query(tagQuery);
     // 성공 로그찍기, 커밋하기
@@ -273,12 +287,12 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
     "WHERE boardIndex=" +
     mysql.escape(boardIndex) +
     ";" +
-    "UPDATE FAVORITEPOST SET deleteDateTime = " + // 해당 게시글인덱스에 해당하는 좋아요 누른 유저 정보 삭제 쿼리문
+    "UPDATE FAVORITEPOST SET boardDeleteDateTime = " + // 해당 게시글의 좋아요 정보의 게시글 삭제여부 쿼리문
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     "WHERE boardIndex=" +
     mysql.escape(boardIndex) +
     ";" +
-    "UPDATE COMMENT SET deleteDateTime = " + // 해당 게시글인덱스에 해당하는 댓글 삭제 쿼리문
+    "UPDATE COMMENT SET boardDeleteDateTime = " + // 해당 게시글의 댓글 정보의 게시글 삭제여부 쿼리문
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     "WHERE boardIndex=" +
     mysql.escape(boardIndex) +
