@@ -92,16 +92,19 @@ export async function detailBoardModelController(category, boardIndex, page, ip,
     }
     query =
       "SELECT boardIndex,postTitle,USER.nickName,postContent,viewCount,favoriteCount,BOARD.createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
-      mysql.escape(category) +
+      mysql.escape(category) + // 해당 게시글 정보
       "AND boardIndex =" +
       mysql.escape(boardIndex) +
       ";" +
-      "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" +
+      "SELECT COUNT(isFavorite) FROM FAVORITEPOST WHERE boardIndex = " + // 좋아요 수
+      mysql.escape(boardIndex) +
+      " AND isFavorite = 1;" +
+      "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" + // 태그 정보
       mysql.escape(boardIndex) +
       ";" +
       "SELECT commentContent,User.nickName, createDateTime FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE deleteDateTime IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
       mysql.escape(boardIndex) +
-      "ORDER BY commentIndex DESC LIMIT " +
+      "ORDER BY commentIndex DESC LIMIT " + // 해당 게시글의 댓글 정보
       5 * (page - 1) +
       ",5;";
 
@@ -326,9 +329,7 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         query =
           "UPDATE FAVORITEPOST SET updateDateTime =" +
           mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-          ", isFavorite = " +
-          mysql.escape(0) +
-          " WHERE boardIndex =" +
+          ", isFavorite = 0 WHERE boardIndex =" +
           mysql.escape(boardIndex) +
           " AND userIndex = " +
           mysql.escape(userIndex);
@@ -343,9 +344,7 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         query =
           "UPDATE FAVORITEPOST SET updateDateTime =" +
           mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-          ", isFavorite = " +
-          mysql.escape(1) +
-          " WHERE boardIndex =" +
+          ", isFavorite = 1 WHERE boardIndex =" +
           mysql.escape(boardIndex) +
           " AND userIndex = " +
           mysql.escape(userIndex);
