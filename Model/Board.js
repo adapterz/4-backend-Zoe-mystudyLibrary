@@ -190,7 +190,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
     ";" +
     "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND boardIndex=" +
     mysql.escape(boardIndex) +
-    ";";
+    " ORDER BY tagSequence ASC;";
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
