@@ -153,16 +153,20 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
     await querySuccessLog(ip, query);
     // 태그 추가 쿼리문
     // 태그 쿼리문 추가, 태그 배열이 비어있으면 해당 반복문은 작동하지 않음
-    for (const tempTag of inputWrite.tags) {
+    for (const tagIndex in inputWrite.tags) {
+      const tagSequence = Number(tagIndex) + 1;
       tagQuery +=
-        "INSERT INTO TAG(boardIndex,tag,updateDateTime) VALUES (" +
+        "INSERT INTO TAG(boardIndex,tag,tagSequence,updateDateTime) VALUES (" +
         mysql.escape(results.insertId) + // 생성될 게시글의 인덱스
         "," +
-        mysql.escape(tempTag.content) +
+        mysql.escape(inputWrite.tags[tagIndex].content) +
+        "," +
+        mysql.escape(tagSequence) +
         "," +
         mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
         ");";
     }
+    // 태그가 5개 이하라면 비어있는 태그 sequence 만들어줌
 
     // 태그가 있다면 DB에 태그 정보 추가
     if (tagQuery !== "") await myPool.query(tagQuery);
