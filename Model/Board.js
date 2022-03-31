@@ -298,12 +298,12 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
     "WHERE boardIndex=" +
     mysql.escape(boardIndex) +
     ";" +
-    "UPDATE FAVORITEPOST SET boardDeleteDateTime = " + // 해당 게시글의 좋아요 정보의 게시글 삭제여부 쿼리문
+    "UPDATE FAVORITEPOST SET boardDeleteDateTime = " + // 좋아요 테이블의 게시글 삭제날짜 컬럼에 값 넣는 쿼리문
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     "WHERE boardIndex=" +
     mysql.escape(boardIndex) +
     ";" +
-    "UPDATE COMMENT SET boardDeleteDateTime = " + // 해당 게시글의 댓글 정보의 게시글 삭제여부 쿼리문
+    "UPDATE COMMENT SET boardDeleteDateTime = " + // 댓글 테이블의 게시글 삭제날짜 컬럼에 값 넣는 쿼리문
     mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
     "WHERE boardIndex=" +
     mysql.escape(boardIndex) +
