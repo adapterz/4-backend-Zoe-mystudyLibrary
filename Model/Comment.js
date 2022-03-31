@@ -92,7 +92,9 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
 }
 // 수정시 기존 댓글 정보 불러오는 모델
 export async function getCommentModel(commentIndex, loginCookie, ip) {
-  const query = "SELECT commentContent FROM COMMENT WHERE deleteDateTime IS NULL AND commentIndex =" + mysql.escape(commentIndex);
+  const query =
+    "SELECT commentContent FROM COMMENT WHERE deleteDateTime IS NULL AND boardDeleteDateTime IS NULL AND commentIndex =" +
+    mysql.escape(commentIndex);
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
@@ -115,7 +117,7 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
 export async function editCommentModel(commentIndex, loginCookie, inputComment, ip) {
   // 댓글 수정 쿼리문
   const query =
-    "UPDATE COMMENT SET  commentContent=" + mysql.escape(inputComment.content) + "WHERE commentIndex =" + mysql.escape(commentIndex);
+    "UPDATE COMMENT SET commentContent=" + mysql.escape(inputComment.content) + "WHERE commentIndex =" + mysql.escape(commentIndex);
   // 성공시
   try {
     await myPool.query(query);
