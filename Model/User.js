@@ -244,7 +244,7 @@ export async function userBoardModel(userIndex, page, ip) {
 export async function userCommentModel(userIndex, page, ip) {
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
-    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle FROM COMMENT INNER JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE BOARD.deleteDateTime IS NULL AND COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
+    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle,COMMENT.boardDeleteDateTime FROM COMMENT LEFT JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
     mysql.escape(userIndex) +
     " ORDER BY commentIndex DESC LIMIT " +
     5 * (page - 1) +
@@ -259,6 +259,13 @@ export async function userCommentModel(userIndex, page, ip) {
     if (results[0] === undefined) {
       return { state: "등록된댓글없음" };
     }
+
+    for (let i = 0; i < 5; ++i) {
+      if (results[i].boardDeleteDateTime !== null) results[i].postTitle = "삭제된 게시글입니다";
+    }
+
+    console.log(results[0]);
+
     // DB에 데이터가 있을 때
     return { state: "성공적조회", data: results };
     // 쿼리문 실행시 에러발생
