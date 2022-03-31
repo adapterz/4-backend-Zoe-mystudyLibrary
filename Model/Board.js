@@ -6,6 +6,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+import comment from "../Router/Comment";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -72,7 +73,8 @@ export async function entireBoardModel(category, page, ip) {
 }
 
 // 1-3. 특정 게시글 상세보기
-export async function detailBoardModelController(category, boardIndex, page, ip, userIndex) {
+export async function detailBoardModel(category, boardIndex, ip, userIndex) {
+  let tagData = [];
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
     "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
@@ -91,23 +93,23 @@ export async function detailBoardModelController(category, boardIndex, page, ip,
       return { state: "존재하지않는게시글" };
     }
     query =
-      "SELECT boardIndex,postTitle,USER.nickName,postContent,viewCount,favoriteCount,BOARD.createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+      "SELECT postTitle,USER.nickName,postContent,viewCount,favoriteCount,BOARD.createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
       mysql.escape(category) + // 해당 게시글 정보
       "AND boardIndex =" +
       mysql.escape(boardIndex) +
       ";" +
-      "SELECT COUNT(isFavorite) FROM FAVORITEPOST WHERE boardIndex = " + // 좋아요 수
-      mysql.escape(boardIndex) +
-      " AND isFavorite = 1;" +
       "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" + // 태그 정보
       mysql.escape(boardIndex) +
-      ";" +
-      "SELECT commentIndex, commentContent,User.nickName, createDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE deleteDateTime IS NULL AND boardDeleteDateTIme IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
+      ";";
+    /*
+      "SELECT commentContent,User.nickName, createDateTime,deleteDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
       mysql.escape(boardIndex) +
       "ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT " + // 해당 게시글의 댓글 정보
-      10 * (page - 1) +
-      ",10;";
-
+      5 * (page - 1) +
+      ",5;";
+    +
+    
+       */
     // 게시글 정보가져오는 쿼리 메서드
     [results, fields] = await myPool.query(query);
     // 성공 로그찍기
@@ -116,8 +118,24 @@ export async function detailBoardModelController(category, boardIndex, page, ip,
     await increaseViewCount(boardIndex, userIndex, ip);
 
     await myPool.query("COMMIT");
+
+    // 해당 게시글의 데이터 파싱
+    // 게시글 데이터
+    const boardData = {
+      글제목: results[0][0].postTitle,
+      닉네임: results[0][0].nickName,
+      글내용: results[0][0].postContent,
+      조회수: results[0][0].viewCount,
+      좋아요: results[0][0].favoriteCount,
+      작성날짜: results[0][0].createDateTime,
+    };
+    // 태그 데이터
+    for (let tagIndex in results[1]) {
+      tagData.push(results[1][tagIndex].tag);
+    }
+
     // 성공적으로 게시글 정보 조회
-    return { state: "게시글상세보기", data: results };
+    return { state: "게시글상세보기", dataOfBoard: boardData, dataOfTag: tagData };
 
     // 쿼리문 실행시 에러발생
   } catch (err) {
@@ -353,9 +371,11 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
       return { state: "좋아요+1" };
       // 좋아요를 이미 누른 적이 있고 isFavorite 컬럼값이 TRUE 일 때, isFavorite 컬럼값 FALSE 로 바꿔주기 (게시글 조회시 isFavorite의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
     } else if (results[0] !== undefined) {
-      console.log("외않되" + results[0]);
       if (results[0].isFavorite === 1) {
         query =
+          " Update BOARD SET favoriteCount = favoriteCount - 1 WHERE boardIndex = " +
+          mysql.escape(boardIndex) +
+          ";" +
           "UPDATE FAVORITEPOST SET updateDateTime =" +
           mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
           ", isFavorite = 0 WHERE boardIndex =" +
@@ -371,6 +391,9 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         // 좋아요를 이미 누른 적이 있고 isFavorite 컬럼값이 FALSE 일 때, isFavorite 컬럼값 TRUE 로 바꿔주기 (게시글 조회시 isFavorite의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
       } else if (results[0].isFavorite === 0) {
         query =
+          " Update BOARD SET favoriteCount = favoriteCount + 1 WHERE boardIndex = " +
+          mysql.escape(boardIndex) +
+          ";" +
           "UPDATE FAVORITEPOST SET updateDateTime =" +
           mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
           ", isFavorite = 1 WHERE boardIndex =" +

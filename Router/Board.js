@@ -33,7 +33,7 @@ router.get("/board", isExist, getRecentBoardController);
 // 1-2. 전체 게시물 목록보기
 router.get("/board/:category", isCategory, checkPageValidation, entireBoardController);
 // 1-3. 각 게시물 상세보기
-router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, checkPageValidation, detailBoardController);
+router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, detailBoardController);
 // 2. 게시글 작성/수정/삭제
 // 2-1. 최초 게시글 작성 요청
 router.post(

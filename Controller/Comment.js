@@ -1,7 +1,7 @@
 // 댓글 컨트롤러
 // 내장 모듈
 import { checkBoardMethod, checkCommentMethod } from "../CustomModule/CheckDataOrAuthority";
-import { deleteCommentModel, editCommentModel, getCommentModel, writeCommentModel } from "../Model/Comment";
+import { deleteCommentModel, detailCommentModel, editCommentModel, getCommentModel, writeCommentModel } from "../Model/Comment";
 import {
   FORBIDDEN,
   UNAUTHORIZED,
@@ -12,12 +12,14 @@ import {
   CREATED,
   OK,
 } from "../CustomModule/StatusCode";
+import { detailBoardModel } from "../Model/Board";
 
 /*
  * 1. 댓글 작성
- * 2. 수정시 기존댓글 불러오는 모듈
- * 3. 댓글 수정
- * 4. 댓글 삭제
+ * 2. 게시글의 댓글정보
+ * 3. 수정시 기존댓글 불러오는 모듈
+ * 4. 댓글 수정
+ * 5. 댓글 삭제
  */
 
 // 댓글 최초 작성
@@ -66,6 +68,31 @@ export async function writeCommentController(req, res) {
     // 성공적으로 대댓글 작성 요청 수행
     else if (modelResult.state === "대댓글작성") return res.status(CREATED).end();
   }
+}
+// 게시글의 댓글 정보
+export async function detailCommentController(req, res) {
+  /*
+   * req.query
+   *  boardIndex
+   *  page
+   */
+  // 댓글 페이지
+  let page;
+  // 댓글 page 값
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
+  // 모델 결과 변수
+  const modelResult = await detailCommentModel(req.query.boardIndex, page, req.ip);
+
+  // 모델 실행 결과에 따른 분기처리
+  // mysql query 메서드 실패
+  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // 해당 게시글 정보가 없을 때
+  else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
+  // 댓글이 없을 때
+  else if (modelResult.state === "댓글없음") return res.status(OK).json(modelResult);
+  // 해당 게시글 정보 가져오기
+  else if (modelResult.state === "게시글의댓글정보") return res.status(OK).json(modelResult.data);
 }
 // 수정시 기존 댓글 정보 불러오기
 export async function getCommentController(req, res) {

@@ -4,16 +4,22 @@ import express from "express";
 import { body, query } from "express-validator";
 
 // 내장모듈
-import { isExist, isValidate } from "../CustomModule/CheckValidation";
-import { deleteCommentController, editCommentController, getCommentController, writeCommentController } from "../Controller/Comment";
+import { checkCommentValidation, checkPageValidation, isExist, isValidate } from "../CustomModule/CheckValidation";
+import {
+  deleteCommentController,
+  detailCommentController,
+  editCommentController,
+  getCommentController,
+  writeCommentController,
+} from "../Controller/Comment";
 
 /*
  * 1. 댓글 작성
- * 2. 수정시 기존댓글 불러오는 모듈
- * 3. 댓글 수정
- * 4. 댓글 삭제
+ * 2. 게시글의 댓글정보
+ * 3. 수정시 기존댓글 불러오는 모듈
+ * 4. 댓글 수정
+ * 5. 댓글 삭제
  */
-
 // 라우터 변수
 const router = express.Router();
 
@@ -22,10 +28,13 @@ router.post(
   "/post",
   query("boardIndex").isInt().trim(),
   isExist,
+  checkCommentValidation,
   body("content").isLength({ min: 2, max: 500 }).isString(),
   isValidate,
   writeCommentController,
 );
+// 게시글에서 댓글 상세 조회
+router.get("/detail", query("boardIndex").isInt().trim(), isExist, checkPageValidation, detailCommentController);
 // 기존 댓글 정보 불러오기
 router.get("/", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, getCommentController);
 // 댓글 수정 요청

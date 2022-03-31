@@ -3,7 +3,7 @@
 import { checkBoardMethod } from "../CustomModule/CheckDataOrAuthority";
 import {
   deleteBoardModel,
-  detailBoardModelController,
+  detailBoardModel,
   editBoardModel,
   entireBoardModel,
   favoriteBoardModel,
@@ -70,7 +70,6 @@ export async function detailBoardController(req, res) {
   const loginCookie = req.signedCookies.user;
   let loginIndex;
   let reqCategory;
-  let page;
   // 로그인 여부 검사
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   if (req.session.user) {
@@ -80,12 +79,9 @@ export async function detailBoardController(req, res) {
   // 요청 category 값이 자유게시판이면 자유게시판의 글 정보, 공부인증샷면 공부인증샷 게시판의 글 정보 가져오기
   if (req.params.category === "free-bulletin") reqCategory = "자유게시판";
   if (req.params.category === "proof-shot") reqCategory = "공부인증샷";
-  // 댓글 page 값
-  if (req.query.page !== undefined) page = req.query.page;
-  else page = 1;
 
   // 모델 결과 변수
-  const modelResult = await detailBoardModelController(reqCategory, req.params.boardIndex, page, req.ip, loginIndex);
+  const modelResult = await detailBoardModel(reqCategory, req.params.boardIndex, req.ip, loginIndex);
 
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패
@@ -93,7 +89,9 @@ export async function detailBoardController(req, res) {
   // 해당 게시글 정보가 없을 때
   else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
   // 해당 게시글 정보 가져오기
-  else if (modelResult.state === "게시글상세보기") return res.status(OK).json(modelResult.data);
+  else if (modelResult.state === "게시글상세보기") {
+    return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag, modelResult.dataOfComment]);
+  }
 }
 // 2. 게시글 작성/수정/삭제
 // 2-1. 게시글 쓰기

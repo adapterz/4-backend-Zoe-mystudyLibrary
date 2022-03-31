@@ -5,13 +5,14 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+
 /*
  * 1. 댓글 작성
- * 2. 수정시 기존댓글 불러오는 모듈
- * 3. 댓글 수정
- * 4. 댓글 삭제
+ * 2. 게시글의 댓글정보
+ * 3. 수정시 기존댓글 불러오는 모듈
+ * 4. 댓글 수정
+ * 5. 댓글 삭제
  */
-
 // 새 댓글 작성 모델
 export async function writeCommentModel(boardIndex, parentIndex, userIndex, inputComment, ip) {
   let query;
@@ -90,6 +91,78 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
     return { state: "mysql 사용실패" };
   }
 }
+// 게시글에서 댓글 상세 조회
+export async function detailCommentModel(boardIndex, page, ip) {
+  let commentData = [];
+  let childCommentQuery;
+  let query = "SELECT boardIndex FROM BOARD WHERE BOARD.deleteDateTime IS NULL AND boardIndex =" + mysql.escape(boardIndex);
+  try {
+    let [results, field] = await myPool.query(query);
+    if (results[0] === undefined) return { state: "존재하지않는게시글" };
+    // 해당 게시글의 루트 댓글만 가져오는 쿼리문
+    const rootCommentQuery =
+      "SELECT commentIndex,commentContent,User.nickName, createDateTime,deleteDateTime FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND parentIndex IS NULL AND boardIndex =" +
+      mysql.escape(boardIndex) +
+      "ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT " + // 해당 게시글의 댓글 정보
+      5 * (page - 1) +
+      ",5;";
+    const [rootResult, field1] = await myPool.query(rootCommentQuery);
+    if (rootResult[0] === undefined) return { state: "댓글없음" };
+    // 쿼리문 성공로그
+    await querySuccessLog(ip, rootCommentQuery);
+    // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
+    childCommentQuery =
+      "SELECT commentContent,User.nickName, createDateTime,deleteDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND boardIndex =" +
+      mysql.escape(boardIndex);
+    for (let commentIndex in rootResult) {
+      childCommentQuery += " OR parentIndex =" + mysql.escape(rootResult[commentIndex].commentIndex);
+    }
+
+    childCommentQuery += " ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence"; // 해당 게시글의 댓글 정보
+
+    const [childResult, field2] = await myPool.query(childCommentQuery);
+    // 쿼리문 성공로그
+    await querySuccessLog(ip, childCommentQuery);
+    // 댓글 정보 데이터
+    for (let rootIndex in rootResult) {
+      let tempRoot = [
+        "닉네임: " + rootResult[rootIndex].nickName,
+        "댓글내용: " + rootResult[rootIndex].commentContent,
+        "작성날짜: " + rootResult[rootIndex].createDateTime,
+      ];
+      // 루트댓글이면서 삭제된 댓글일 때
+      if (rootResult[rootIndex].deleteDateTime !== null) tempRoot = ["삭제된 댓글입니다"];
+
+      commentData.push(tempRoot);
+      // 해당 댓글의 대댓글 정보 추가
+      for (let childIndex in childResult) {
+        let tempChild;
+        // 대댓글의 parentIndex 가 해당 댓글일 때 commentData에 대댓글 정보 추가
+        if (childResult[childIndex].parentIndex === rootResult[rootIndex].commentIndex) {
+          if (childResult[childIndex].parentIndex !== null) {
+            tempChild = [
+              "        닉네임: " + childResult[childIndex].nickName,
+              "        댓글내용: " + childResult[childIndex].commentContent,
+              "        작성날짜: " + childResult[childIndex].createDateTime,
+            ];
+            // 대댓글이면서 삭제된 댓글일 때
+            if (childResult[childIndex].deleteDateTime !== null) tempChild = ["        삭제된 댓글입니다"];
+          }
+
+          commentData.push(tempChild);
+        }
+      }
+    }
+    console.log(commentData);
+    return { state: "게시글의댓글정보", data: commentData };
+
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await queryFailLog(err, ip, childCommentQuery);
+    return { state: "mysql 사용실패" };
+  }
+}
+
 // 수정시 기존 댓글 정보 불러오는 모델
 export async function getCommentModel(commentIndex, loginCookie, ip) {
   const query =
