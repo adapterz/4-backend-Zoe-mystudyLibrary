@@ -102,11 +102,11 @@ export async function detailBoardModelController(category, boardIndex, page, ip,
       "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" + // 태그 정보
       mysql.escape(boardIndex) +
       ";" +
-      "SELECT commentContent,User.nickName, createDateTime FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE deleteDateTime IS NULL AND boardDeleteDateTIme IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
+      "SELECT commentIndex, commentContent,User.nickName, createDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE deleteDateTime IS NULL AND boardDeleteDateTIme IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
       mysql.escape(boardIndex) +
       "ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT " + // 해당 게시글의 댓글 정보
-      5 * (page - 1) +
-      ",5;";
+      10 * (page - 1) +
+      ",10;";
 
     // 게시글 정보가져오는 쿼리 메서드
     [results, fields] = await myPool.query(query);
