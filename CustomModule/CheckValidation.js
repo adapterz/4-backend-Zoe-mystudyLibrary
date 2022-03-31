@@ -52,9 +52,16 @@ export function isSearchOption(req, res, next) {
     return res.status(400).json({ state: "유효하지않은검색옵션" });
   next();
 }
-// 페이지 유효성 체크
+// req.query.page가 있을 때 유효성 체크
 export function checkPageValidation(req, res, next) {
   if (req.query.page !== undefined) query("page").isInt();
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(404).json({ state: "존재하지 않는 정보입니다." });
+  next();
+}
+// 대댓글 달 때 req.query.parentIndex 유효성 체크
+export function checkCommentValidation(req, res, next) {
+  if (req.query.parentIndex !== undefined) query("parentIndex").isInt();
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(404).json({ state: "존재하지 않는 정보입니다." });
   next();

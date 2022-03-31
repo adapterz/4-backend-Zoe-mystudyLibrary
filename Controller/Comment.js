@@ -1,6 +1,6 @@
 // 댓글 컨트롤러
 // 내장 모듈
-import { checkCommentMethod } from "../CustomModule/CheckDataOrAuthority";
+import { checkBoardMethod, checkCommentMethod } from "../CustomModule/CheckDataOrAuthority";
 import { deleteCommentModel, editCommentModel, getCommentModel, writeCommentModel } from "../Model/Comment";
 import {
   FORBIDDEN,
@@ -31,20 +31,39 @@ export async function writeCommentController(req, res) {
   // 필요 변수 선언
   const loginCookie = req.signedCookies.user;
   let loginIndex;
+  let parentIndex;
+  let checkComment;
   // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
   if (req.session.user) {
     if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
     else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
   } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 댓글 작성 모델 실행 결과
-  const modelResult = await writeCommentModel(req.query.boardIndex, loginIndex, req.body, req.ip);
-  // 모델 실행결과에 따른 분기처리
+  if (req.query.parentIndex !== undefined) parentIndex = req.query.parentIndex;
+  else parentIndex = "NULL";
+  // 대댓글 작성 시 해당 대댓글의 루트댓글 유무 체크 및 유저의 권한 체크
+  if (req.query.parentIndex !== undefined) checkComment = await checkCommentMethod(req.query.boardIndex, parentIndex, loginIndex, req.ip);
+  // 댓글 작성시 게시글의 유무 체크 및 유저의 권한 체크
+  else checkComment = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
   // 게시글이 존재하지 않을 때
-  else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
-  // 성공적으로 댓글 작성 요청 수행
-  else if (modelResult.state === "댓글작성") return res.status(CREATED).end();
+  else if (checkComment.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkComment);
+  // 댓글이 존재하지 않을 때
+  else if (checkComment.state === "존재하지않는댓글") return res.status(NOT_FOUND).json(checkComment);
+  // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
+  else if (checkComment.state === "접근권한없음") return res.status(FORBIDDEN).json(checkComment);
+  // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
+  else if (checkComment.state === "접근성공") {
+    // 댓글 작성 모델 실행 결과
+    const modelResult = await writeCommentModel(req.query.boardIndex, parentIndex, loginIndex, req.body, req.ip);
+    // 모델 실행결과에 따른 분기처리
+    // mysql query 메서드 실패
+    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 성공적으로 댓글 작성 요청 수행
+    else if (modelResult.state === "댓글작성") return res.status(CREATED).end();
+    // 성공적으로 대댓글 작성 요청 수행
+    else if (modelResult.state === "대댓글작성") return res.status(CREATED).end();
+  }
 }
 // 수정시 기존 댓글 정보 불러오기
 export async function getCommentController(req, res) {

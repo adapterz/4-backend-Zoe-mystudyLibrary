@@ -5,6 +5,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+import comment from "../Router/Comment";
 
 /*
  * 1. 댓글 작성
@@ -14,35 +15,68 @@ import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
  */
 
 // 새 댓글 작성 모델
-export async function writeCommentModel(boardIndex, userIndex, inputComment, ip) {
-  // 해당 게시글이 존재하는지 체크
-  let query = "SELECT boardIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex =" + mysql.escape(boardIndex);
-  // 댓글 등록 쿼리문
-
+export async function writeCommentModel(boardIndex, parentIndex, userIndex, inputComment, ip) {
+  let query;
+  let commentSequence;
   // 성공시
   try {
-    const [results, fields] = await myPool.query(query);
-    // 쿼리문 메서드 성공
-    await querySuccessLog(ip, query);
-    console.log(results);
-    if (results[0] === undefined) {
-      return { state: "존재하지않는게시글" };
+    // 댓글 작성시 쿼리문
+    if (parentIndex === "NULL") {
+      query =
+        "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,commentSequence,createDateTime) VALUES (" +
+        mysql.escape(boardIndex) +
+        "," +
+        mysql.escape(userIndex) +
+        "," +
+        mysql.escape(inputComment.content) +
+        "," +
+        mysql.escape(1) +
+        "," +
+        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+        ")";
+      // 쿼리문 메서드 성공
+      await myPool.query(query);
+      await querySuccessLog(ip, query);
+      return { state: "댓글작성" };
     }
+    // 대댓글 작성시 쿼리문
+    else {
+      // 해당 댓글 묶음의 마지막 commentSequence 구하기
+      query =
+        "SELECT commentSequence FROM COMMENT WHERE deleteDateTime IS NULL AND parentIndex =" +
+        mysql.escape(parentIndex) +
+        " ORDER BY commentSequence desc limit 1";
+      // 쿼리문 메서드 성공
+      const [results, fields] = await myPool.query(query);
+      await querySuccessLog(ip, query);
 
-    query =
-      "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,createDateTime) VALUES (" +
-      mysql.escape(boardIndex) +
-      "," +
-      mysql.escape(userIndex) +
-      "," +
-      mysql.escape(inputComment.content) +
-      "," +
-      mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-      ")";
-    // 쿼리문 메서드 성공
-    await myPool.query(query);
-    await querySuccessLog(ip, query);
-    return { state: "댓글작성" };
+      // 검색되는게 없을 때 루트댓글에 대댓글이 없다는 뜻이므로 commentSequence = 2
+      if (results[0] === undefined) commentSequence = 2;
+      // 검색되는게 있다면 그 다음 commentSequence는 +1 해주기
+      else {
+        commentSequence = results[0].commentSequence + 1;
+      }
+
+      query =
+        "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,parentIndex,commentSequence,createDateTime) VALUES (" +
+        mysql.escape(boardIndex) +
+        "," +
+        mysql.escape(userIndex) +
+        "," +
+        mysql.escape(inputComment.content) +
+        "," +
+        mysql.escape(parentIndex) +
+        "," +
+        mysql.escape(commentSequence) +
+        "," +
+        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+        ")";
+      // 쿼리문 메서드 성공
+      await myPool.query(query);
+      await querySuccessLog(ip, query);
+
+      return { state: "대댓글작성" };
+    }
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
