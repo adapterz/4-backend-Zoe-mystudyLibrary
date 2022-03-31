@@ -61,6 +61,8 @@ export async function writeCommentController(req, res) {
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 성공적으로 댓글 작성 요청 수행
     else if (modelResult.state === "댓글작성") return res.status(CREATED).end();
+    // 대댓글에 대댓글 달기 시도했을 때
+    else if (modelResult.state === "대댓글에대댓글달기시도") return res.status(BAD_REQUEST).json(modelResult);
     // 성공적으로 대댓글 작성 요청 수행
     else if (modelResult.state === "대댓글작성") return res.status(CREATED).end();
   }

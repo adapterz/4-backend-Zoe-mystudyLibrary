@@ -53,7 +53,7 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, ip
     }
     // 해당 댓글이 존재하는지 확인
     query =
-      "SELECT * FROM COMMENT WHERE deleteDateTime IS NULL AND boardIndex=" +
+      "SELECT * FROM COMMENT WHERE deleteDateTime IS NULL AND boardDeleteDateTime IS NULL AND boardIndex=" +
       mysql.escape(boardIndex) +
       "AND commentIndex=" +
       mysql.escape(commentIndex);
