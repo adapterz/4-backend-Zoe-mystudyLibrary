@@ -33,7 +33,7 @@ export function isCategory(req, res, next) {
 // body.category가 게시판 카테고리가 아닐때
 export function isCategoryWhenWrite(req, res, next) {
   // 유효하지 않은 게시판 카테고리
-  if (!(req.body.category === "자유게시판" || req.params.category === "공부인증샷"))
+  if (!(req.body.category === "자유게시판" || req.body.category === "공부인증샷"))
     return res.status(400).json({ state: "존재하지않는카테고리" });
 
   next();
