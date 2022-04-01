@@ -6,7 +6,6 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import comment from "../Router/Comment";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -101,15 +100,6 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
       "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" + // 태그 정보
       mysql.escape(boardIndex) +
       ";";
-    /*
-      "SELECT commentContent,User.nickName, createDateTime,deleteDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND commentIndex IS NOT NULL AND boardIndex =" +
-      mysql.escape(boardIndex) +
-      "ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT " + // 해당 게시글의 댓글 정보
-      5 * (page - 1) +
-      ",5;";
-    +
-    
-       */
     // 게시글 정보가져오는 쿼리 메서드
     [results, fields] = await myPool.query(query);
     // 성공 로그찍기

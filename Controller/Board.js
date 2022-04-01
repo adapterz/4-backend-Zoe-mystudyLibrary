@@ -12,16 +12,7 @@ import {
   searchBoardModel,
   writeBoardModel,
 } from "../Model/Board";
-import {
-  OK,
-  INTERNAL_SERVER_ERROR,
-  FORBIDDEN,
-  NOT_FOUND,
-  CREATED,
-  UNAUTHORIZED,
-  NO_CONTENT,
-  BAD_REQUEST,
-} from "../CustomModule/StatusCode";
+import { OK, INTERNAL_SERVER_ERROR, FORBIDDEN, NOT_FOUND, CREATED, UNAUTHORIZED, NO_CONTENT } from "../CustomModule/StatusCode";
 
 /*
  * 1. 게시글 조회
