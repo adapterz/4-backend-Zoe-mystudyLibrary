@@ -27,7 +27,6 @@ export async function getRecentBoardModel(ip) {
     // 성공 로그찍기
     await querySuccessLog(ip, query);
 
-    console.log(await changeUnit(190000000));
     // 자유게시판 최신글 파싱
     for (const index in results[0]) {
       // 게시글 제목의 글자수가 15자 미만일 때
