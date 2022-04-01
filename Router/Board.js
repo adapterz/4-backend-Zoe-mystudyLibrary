@@ -79,7 +79,7 @@ router.get(
   "/search/:category",
   isCategory,
   isSearchOption,
-  query("searchContent").isString(),
+  query("searchContent").isLength({ min: 1 }).isString(),
   isValidate,
   checkPageValidation,
   searchBoardController,
