@@ -28,7 +28,7 @@ export async function getRecentBoardController(req, res) {
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 성공적으로 최신글 정보 가져왔을 때
-  else if (modelResult.state === "최신글정보") return res.status(OK).json(modelResult.data);
+  else if (modelResult.state === "최신글정보") return res.status(OK).json([modelResult.freeBoard, modelResult.studyBoard]);
 }
 
 // 1-2. 전체 게시물 보기
