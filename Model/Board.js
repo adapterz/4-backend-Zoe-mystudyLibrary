@@ -11,17 +11,12 @@ import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
  * 2. 게시글 작성/수정/삭제
  * 3. 좋아요/검색 기능
  */
-/* TODO 조회수 좋아요 수 데이터 가공
-async function changeCount(count) {
-  let results;
-  let len;
-  // Count 가 1억 이상일 때
-  if (count > 100000000) return count;
-}
- */
+
 // 1. 게시글 조회
 // 1-1. 최신글 정보 가져오기
 export async function getRecentBoardModel(ip) {
+  const freeBoardData = [];
+  const studyBoardData = [];
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
   const query =
     "SELECT postTitle,nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
@@ -31,14 +26,51 @@ export async function getRecentBoardModel(ip) {
     const [results, fields] = await myPool.query(query, ["자유게시판", "공부인증샷"]);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
-    /* TODO 조회수 좋아요 수 데이터 가공
-    // 공부인증샷 조회수 확인
-    for (let index in results[1]) {
-      results[1][index].viewCount = await changeCount(results[1][index].viewCount);
-    }
-     */
 
-    return { state: "최신글정보", data: results };
+    // 자유게시판 최신글 파싱
+    for (const index in results[0]) {
+      // 게시글 제목의 글자수가 15자 미만일 때
+      if (results[0][index].postTitle.length < 15) {
+        const tempData = {
+          글제목: results[0][index].postTitle,
+          닉네임: results[0][index].nickName,
+        };
+        freeBoardData.push(tempData);
+      }
+      // 게시글 제목의 글자수가 15자 이상일 때
+      else if (results[0][index].postTitle.length >= 15) {
+        const tempData = {
+          글제목: results[0][index].postTitle.substring(0, 15) + "...",
+          닉네임: results[0][index].nickName,
+        };
+        freeBoardData.push(tempData);
+      }
+    }
+
+    // 공부인증샷 최신글 파싱
+    for (const index in results[1]) {
+      // 게시글 제목의 글자수가 10자 미만일 때
+      if (results[0][index].postTitle.length < 10) {
+        const tempData = {
+          글제목: results[1][index].postTitle,
+          닉네임: results[1][index].nickName,
+          조회수: results[1][index].viewCount,
+          좋아요: results[1][index].favoriteCount,
+        };
+        studyBoardData.push(tempData);
+        // 게시글 제목의 글자수가 10자 이상일 때
+      } else if (results[0][index].postTitle.length >= 10) {
+        const tempData = {
+          글제목: results[1][index].postTitle.substring(0, 10) + "...",
+          닉네임: results[1][index].nickName,
+          조회수: results[1][index].viewCount,
+          좋아요: results[1][index].favoriteCount,
+        };
+        studyBoardData.push(tempData);
+      }
+    }
+
+    return { state: "최신글정보", freeBoard: freeBoardData, studyBoard: studyBoardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
@@ -73,7 +105,7 @@ export async function entireBoardModel(category, page, ip) {
 
 // 1-3. 특정 게시글 상세보기
 export async function detailBoardModel(category, boardIndex, ip, userIndex) {
-  let tagData = [];
+  const tagData = [];
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
     "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
@@ -547,3 +579,47 @@ const increaseViewCount = async function (boardIndex, userIndex, ip) {
     return { state: "mysql 사용실패" };
   }
 };
+
+// 조회수/좋아요 수 단위바꿔주기
+async function changeUnit(viewOrFavoriteCount) {
+  const length = viewOrFavoriteCount.length;
+  // 1억이상일 때
+  if (viewOrFavoriteCount >= 100000000) {
+    // 천만 단위에서 반올림
+    const roundCount = Math.round(viewOrFavoriteCount / 10000000) * 10000000;
+    // '억'으로 단위변경
+    return roundCount.substring(0, length - 9) + " 억";
+  }
+  // 1억 이하 1000만 이상일 때
+  else if (viewOrFavoriteCount < 100000000 && viewOrFavoriteCount >= 10000000) {
+    // 백만 단위에서 반올림
+    const roundCount = Math.round(viewOrFavoriteCount / 1000000) * 1000000;
+    return roundCount.substring(0, length - 8) + " 천만";
+  }
+  // 1000만 이하 100만 이상일 때
+  else if (viewOrFavoriteCount < 10000000 && viewOrFavoriteCount >= 1000000) {
+    // 십만 단위에서 반올림
+    const roundCount = Math.round(viewOrFavoriteCount / 100000) * 100000;
+    return roundCount.substring(0, length - 7) + " 백만";
+  }
+  // 100만 이하 10만 이상일 때
+  else if (viewOrFavoriteCount < 1000000 && viewOrFavoriteCount >= 100000) {
+    // 만 단위에서 반올림
+    const roundCount = Math.round(viewOrFavoriteCount / 10000) * 10000;
+    return roundCount.substring(0, length - 6) + " 십만";
+  }
+  // 10만 이하 만 이상일 때
+  else if (viewOrFavoriteCount < 100000 && viewOrFavoriteCount >= 10000) {
+    // 천 단위에서 반올림
+    const roundCount = Math.round(viewOrFavoriteCount / 1000) * 1000;
+    return roundCount.substring(0, length - 5) + " 만";
+  }
+  // 만 이하 천 이상일 때
+  else if (viewOrFavoriteCount < 10000 && viewOrFavoriteCount >= 1000) {
+    // 백 단위에서 반올림
+    const roundCount = Math.round(viewOrFavoriteCount / 100) * 100;
+    return roundCount.substring(0, length - 4) + " 천";
+  }
+  // 천 이하는 단위변경 x
+  else return viewOrFavoriteCount;
+}
