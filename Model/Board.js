@@ -6,6 +6,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+import { changeDateTimeForm, changeUnit } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -29,16 +30,16 @@ export async function getRecentBoardModel(ip) {
 
     // 자유게시판 최신글 파싱
     for (const index in results[0]) {
-      // 게시글 제목의 글자수가 15자 미만일 때
-      if (results[0][index].postTitle.length < 15) {
+      // 게시글 제목의 글자수가 15자 이하일 때
+      if (results[0][index].postTitle.length <= 15) {
         const tempData = {
           글제목: results[0][index].postTitle,
           닉네임: results[0][index].nickName,
         };
         freeBoardData.push(tempData);
       }
-      // 게시글 제목의 글자수가 15자 이상일 때
-      else if (results[0][index].postTitle.length >= 15) {
+      // 게시글 제목의 글자수가 15자 초과일 때
+      else if (results[0][index].postTitle.length > 15) {
         const tempData = {
           글제목: results[0][index].postTitle.substring(0, 15) + "...",
           닉네임: results[0][index].nickName,
@@ -49,8 +50,8 @@ export async function getRecentBoardModel(ip) {
 
     // 공부인증샷 최신글 파싱
     for (const index in results[1]) {
-      // 게시글 제목의 글자수가 10자 미만일 때
-      if (results[0][index].postTitle.length < 10) {
+      // 게시글 제목의 글자수가 10자 이하일 때
+      if (results[0][index].postTitle.length <= 10) {
         const tempData = {
           글제목: results[1][index].postTitle,
           닉네임: results[1][index].nickName,
@@ -58,8 +59,8 @@ export async function getRecentBoardModel(ip) {
           좋아요: await changeUnit(results[1][index].favoriteCount),
         };
         studyBoardData.push(tempData);
-        // 게시글 제목의 글자수가 10자 이상일 때
-      } else if (results[0][index].postTitle.length >= 10) {
+        // 게시글 제목의 글자수가 10자 초과일 때
+      } else if (results[0][index].postTitle.length > 10) {
         const tempData = {
           글제목: results[1][index].postTitle.substring(0, 10) + "...",
           닉네임: results[1][index].nickName,
@@ -70,7 +71,7 @@ export async function getRecentBoardModel(ip) {
       }
     }
 
-    return { state: "최신글정보", freeBoard: freeBoardData, studyBoard: studyBoardData };
+    return { state: "최신글정보", dataOfFreeBoard: freeBoardData, dataOfStudyBoard: studyBoardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
@@ -79,9 +80,10 @@ export async function getRecentBoardModel(ip) {
 }
 // 1-2. 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
 export async function entireBoardModel(category, page, ip) {
+  const boardData = [];
   // 카테고리에 맞는 전체 게시글 정보 가져오기
   const query =
-    "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+    "SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
     mysql.escape(category) +
     "ORDER BY boardIndex DESC LIMIT " +
     10 * (page - 1) +
@@ -89,13 +91,40 @@ export async function entireBoardModel(category, page, ip) {
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
+    // 성공 로그찍기
+    await querySuccessLog(ip, query);
+    // 게시글 정보가 없을 때
     if (results[0] === undefined) {
       return { state: "존재하지않는정보" };
     }
-    // 성공 로그찍기
-    await querySuccessLog(ip, query);
+    // 게시글 정보 파싱
+    for (const index in results) {
+      // 게시글 제목의 글자수가 25자 미만일 때
+      if (results[index].postTitle.length <= 25) {
+        const tempData = {
+          글제목: results[index].postTitle,
+          닉네임: results[index].nickName,
+          조회수: await changeUnit(results[index].viewCount),
+          좋아요: await changeUnit(results[index].favoriteCount),
+          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+        };
+        boardData.push(tempData);
+      }
+      // 게시글 제목의 글자수가 25자 이상일 때
+      else if (results[index].postTitle.length > 25) {
+        const tempData = {
+          글제목: results[index].postTitle.substring(0, 25) + "...",
+          닉네임: results[index].nickName,
+          조회수: await changeUnit(results[index].viewCount),
+          좋아요: await changeUnit(results[index].favoriteCount),
+          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+        };
+        boardData.push(tempData);
+      }
+    }
+
     // 가져온 게시글 정보 return
-    return { state: "전체게시글", data: results };
+    return { state: "전체게시글", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
@@ -106,9 +135,10 @@ export async function entireBoardModel(category, page, ip) {
 // 1-3. 특정 게시글 상세보기
 export async function detailBoardModel(category, boardIndex, ip, userIndex) {
   const tagData = [];
+  let boardData;
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
-    "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+    "SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
     mysql.escape(category) +
     "AND boardIndex =" +
     mysql.escape(boardIndex);
@@ -143,14 +173,30 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 
     // 해당 게시글의 데이터 파싱
     // 게시글 데이터
-    const boardData = {
-      글제목: results[0][0].postTitle,
-      닉네임: results[0][0].nickName,
-      글내용: results[0][0].postContent,
-      조회수: results[0][0].viewCount,
-      좋아요: results[0][0].favoriteCount,
-      작성날짜: results[0][0].createDateTime,
-    };
+    // 제목 글자수가 25 이하일 때
+    if (results[0][0].postTitle.length <= 25) {
+      boardData = {
+        글제목: results[0][0].postTitle,
+        닉네임: results[0][0].nickName,
+        글내용: results[0][0].postContent,
+        조회수: await changeUnit(results[0][0].viewCount),
+        좋아요: await changeUnit(results[0][0].favoriteCount),
+        작성날짜: await changeDateTimeForm(results[0][0].createDateTime),
+      };
+      // 제목 글자수가 25 초과일 때
+    } else if (results[0][0].postTitle.length > 25) {
+      const tempTitle = results[0][0].postTitle.substring(0, 25);
+      const tempTitle2 = results[0][0].postTitle.substring(25, 50);
+      const boardTitle = tempTitle + "\n" + tempTitle2;
+      boardData = {
+        글제목: boardTitle,
+        닉네임: results[0][0].nickName,
+        글내용: results[0][0].postContent,
+        조회수: await changeUnit(results[0][0].viewCount),
+        좋아요: await changeUnit(results[0][0].favoriteCount),
+        작성날짜: await changeDateTimeForm(results[0][0].createDateTime),
+      };
+    }
     // 태그 데이터
     for (let tagIndex in results[1]) {
       tagData.push(results[1][tagIndex].tag);
@@ -233,12 +279,13 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
 }
 // 2-2. 게시글 수정시 기존 게시글 정보 불러오기
 export async function getWriteModel(boardIndex, userIndex, ip) {
+  const tagData = [];
   // 해당 인덱스의 게시글 정보 가져오기 + 해당 게시글인덱스의 태그 가져오기
   const query =
-    "SELECT postTitle,postContent,viewCount,favoriteCount,createDateTime FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex = " +
+    "SELECT category,postTitle,postContent FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex = " +
     mysql.escape(boardIndex) +
     ";" +
-    "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND boardIndex=" +
+    "SELECT tag FROM TAG WHERE tag IS NOT NULL AND deleteDateTime IS NULL AND boardIndex = " +
     mysql.escape(boardIndex) +
     " ORDER BY tagSequence ASC;";
   // 성공시
@@ -250,7 +297,19 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
     if (results[0] === undefined) {
       return { state: "존재하지않는게시글" };
     }
-    return { state: "게시글정보로딩", data: results };
+
+    // 게시글 데이터
+    const boardData = {
+      카테고리: results[0][0].category,
+      글제목: results[0][0].postTitle,
+      글내용: results[0][0].postContent,
+    };
+    // 태그 데이터
+    for (let tagIndex in results[1]) {
+      tagData.push(results[1][tagIndex].tag);
+    }
+
+    return { state: "게시글정보로딩", dataOfBoard: boardData, dataOfTag: tagData };
   } catch (err) {
     // 쿼리문 실행시 에러발생
     await queryFailLog(err, ip, query);
@@ -439,12 +498,13 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
 
 // 3-2. 게시글 검색 기능
 export async function searchBoardModel(searchOption, searchContent, category, page, ip) {
+  const boardData = [];
   // 검색 옵션에 맞는 게시글 정보 select 해오는 쿼리문 작성 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
   let query;
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (searchOption === "제목만") {
     query =
-      "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postTitle LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -454,7 +514,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "내용만") {
     query =
-      "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postContent LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -465,7 +525,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 제목+내용 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "제목 + 내용") {
     query =
-      "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postContent LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -477,7 +537,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "닉네임") {
     query =
-      "SELECT boardIndex,postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND nickName LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -493,8 +553,33 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     if (results[0] === undefined) {
       return { state: "검색결과없음" };
     }
+    // 게시글 정보 파싱
+    for (const index in results) {
+      // 게시글 제목의 글자수가 25자 미만일 때
+      if (results[index].postTitle.length <= 25) {
+        const tempData = {
+          글제목: results[index].postTitle,
+          닉네임: results[index].nickName,
+          조회수: await changeUnit(results[index].viewCount),
+          좋아요: await changeUnit(results[index].favoriteCount),
+          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+        };
+        boardData.push(tempData);
+      }
+      // 게시글 제목의 글자수가 25자 이상일 때
+      else if (results[index].postTitle.length > 25) {
+        const tempData = {
+          글제목: results[index].postTitle.substring(0, 25) + "...",
+          닉네임: results[index].nickName,
+          조회수: await changeUnit(results[index].viewCount),
+          좋아요: await changeUnit(results[index].favoriteCount),
+          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+        };
+        boardData.push(tempData);
+      }
+    }
     // 검색결과가 있을 때
-    return { state: "검색글정보", data: results };
+    return { state: "검색글정보", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
@@ -579,47 +664,3 @@ const increaseViewCount = async function (boardIndex, userIndex, ip) {
     return { state: "mysql 사용실패" };
   }
 };
-
-// 조회수/좋아요 수 단위바꿔주기
-async function changeUnit(viewOrFavoriteCount) {
-  const length = viewOrFavoriteCount.toString().length;
-  // 1억이상일 때
-  if (viewOrFavoriteCount >= 100000000) {
-    // 천만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 100000000) * 100000000;
-    // '억'으로 단위변경
-    return roundCount.toString().substring(0, length - 8) + " 억";
-  }
-  // 1억 이하 1000만 이상일 때
-  else if (viewOrFavoriteCount < 100000000 && viewOrFavoriteCount >= 10000000) {
-    // 백만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 10000000) * 10000000;
-    return roundCount.toString().substring(0, length - 7) + " 천만";
-  }
-  // 1000만 이하 100만 이상일 때
-  else if (viewOrFavoriteCount < 10000000 && viewOrFavoriteCount >= 1000000) {
-    // 십만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 1000000) * 1000000;
-    return roundCount.toString().substring(0, length - 6) + " 백만";
-  }
-  // 100만 이하 10만 이상일 때
-  else if (viewOrFavoriteCount < 1000000 && viewOrFavoriteCount >= 100000) {
-    // 만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 100000) * 100000;
-    return roundCount.toString().substring(0, length - 5) + " 십만";
-  }
-  // 10만 이하 만 이상일 때
-  else if (viewOrFavoriteCount < 100000 && viewOrFavoriteCount >= 10000) {
-    // 천 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 10000) * 10000;
-    return roundCount.toString().substring(0, length - 4) + " 만";
-  }
-  // 만 이하 천 이상일 때
-  else if (viewOrFavoriteCount < 10000 && viewOrFavoriteCount >= 1000) {
-    // 백 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 1000) * 1000;
-    return roundCount.toString().substring(0, length - 3) + " 천";
-  }
-  // 천 이하는 단위변경 x
-  else return viewOrFavoriteCount;
-}
