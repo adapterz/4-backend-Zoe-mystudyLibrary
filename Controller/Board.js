@@ -28,7 +28,7 @@ export async function getRecentBoardController(req, res) {
   // mysql query 메서드 실패
   if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 성공적으로 최신글 정보 가져왔을 때
-  else if (modelResult.state === "최신글정보") return res.status(OK).json([modelResult.freeBoard, modelResult.studyBoard]);
+  else if (modelResult.state === "최신글정보") return res.status(OK).json([modelResult.dataOfFreeBoard, modelResult.dataOfStudyBoard]);
 }
 
 // 1-2. 전체 게시물 보기
@@ -51,7 +51,7 @@ export async function entireBoardController(req, res) {
   // return 해줄 게시글이 없을 때
   else if (modelResult.state === "존재하지않는정보") return res.status(OK).json(modelResult);
   // 성공적으로 게시판 정보 가져오기 수행
-  else if (modelResult.state === "전체게시글") return res.status(OK).json(modelResult.data);
+  else if (modelResult.state === "전체게시글") return res.status(OK).json(modelResult.dataOfBoard);
 }
 
 // 1-3. 게시물 상세보기
@@ -143,7 +143,7 @@ export async function getWriteController(req, res) {
     // 해당 게시글 정보가 없을 때
     else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
     // 성공적으로 게시글 정보 가져왔을 때
-    else if (modelResult.state === "게시글정보로딩") return res.status(OK).json(modelResult.data);
+    else if (modelResult.state === "게시글정보로딩") return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag]);
   }
 }
 // 2-3. 게시글 수정요청
@@ -258,5 +258,5 @@ export async function searchBoardController(req, res) {
   // 검색결과가 없을 때
   else if (modelResult.state === "검색결과없음") return res.status(OK).json(modelResult);
   // 검색결과가 있을 때
-  else if (modelResult.state === "검색글정보") return res.status(OK).json(modelResult);
+  else if (modelResult.state === "검색글정보") return res.status(OK).json(modelResult.dataOfBoard);
 }
