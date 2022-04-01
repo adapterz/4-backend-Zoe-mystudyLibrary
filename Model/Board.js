@@ -27,6 +27,7 @@ export async function getRecentBoardModel(ip) {
     // 성공 로그찍기
     await querySuccessLog(ip, query);
 
+    console.log(await changeUnit(190000000));
     // 자유게시판 최신글 파싱
     for (const index in results[0]) {
       // 게시글 제목의 글자수가 15자 미만일 때
@@ -54,8 +55,8 @@ export async function getRecentBoardModel(ip) {
         const tempData = {
           글제목: results[1][index].postTitle,
           닉네임: results[1][index].nickName,
-          조회수: results[1][index].viewCount,
-          좋아요: results[1][index].favoriteCount,
+          조회수: await changeUnit(results[1][index].viewCount),
+          좋아요: await changeUnit(results[1][index].favoriteCount),
         };
         studyBoardData.push(tempData);
         // 게시글 제목의 글자수가 10자 이상일 때
@@ -63,8 +64,8 @@ export async function getRecentBoardModel(ip) {
         const tempData = {
           글제목: results[1][index].postTitle.substring(0, 10) + "...",
           닉네임: results[1][index].nickName,
-          조회수: results[1][index].viewCount,
-          좋아요: results[1][index].favoriteCount,
+          조회수: await changeUnit(results[1][index].viewCount),
+          좋아요: await changeUnit(results[1][index].favoriteCount),
         };
         studyBoardData.push(tempData);
       }
@@ -582,43 +583,43 @@ const increaseViewCount = async function (boardIndex, userIndex, ip) {
 
 // 조회수/좋아요 수 단위바꿔주기
 async function changeUnit(viewOrFavoriteCount) {
-  const length = viewOrFavoriteCount.length;
+  const length = viewOrFavoriteCount.toString().length;
   // 1억이상일 때
   if (viewOrFavoriteCount >= 100000000) {
     // 천만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 10000000) * 10000000;
+    const roundCount = Math.round(viewOrFavoriteCount / 100000000) * 100000000;
     // '억'으로 단위변경
-    return roundCount.substring(0, length - 9) + " 억";
+    return roundCount.toString().substring(0, length - 8) + " 억";
   }
   // 1억 이하 1000만 이상일 때
   else if (viewOrFavoriteCount < 100000000 && viewOrFavoriteCount >= 10000000) {
     // 백만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 1000000) * 1000000;
-    return roundCount.substring(0, length - 8) + " 천만";
+    const roundCount = Math.round(viewOrFavoriteCount / 10000000) * 10000000;
+    return roundCount.toString().substring(0, length - 7) + " 천만";
   }
   // 1000만 이하 100만 이상일 때
   else if (viewOrFavoriteCount < 10000000 && viewOrFavoriteCount >= 1000000) {
     // 십만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 100000) * 100000;
-    return roundCount.substring(0, length - 7) + " 백만";
+    const roundCount = Math.round(viewOrFavoriteCount / 1000000) * 1000000;
+    return roundCount.toString().substring(0, length - 6) + " 백만";
   }
   // 100만 이하 10만 이상일 때
   else if (viewOrFavoriteCount < 1000000 && viewOrFavoriteCount >= 100000) {
     // 만 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 10000) * 10000;
-    return roundCount.substring(0, length - 6) + " 십만";
+    const roundCount = Math.round(viewOrFavoriteCount / 100000) * 100000;
+    return roundCount.toString().substring(0, length - 5) + " 십만";
   }
   // 10만 이하 만 이상일 때
   else if (viewOrFavoriteCount < 100000 && viewOrFavoriteCount >= 10000) {
     // 천 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 1000) * 1000;
-    return roundCount.substring(0, length - 5) + " 만";
+    const roundCount = Math.round(viewOrFavoriteCount / 10000) * 10000;
+    return roundCount.toString().substring(0, length - 4) + " 만";
   }
   // 만 이하 천 이상일 때
   else if (viewOrFavoriteCount < 10000 && viewOrFavoriteCount >= 1000) {
     // 백 단위에서 반올림
-    const roundCount = Math.round(viewOrFavoriteCount / 100) * 100;
-    return roundCount.substring(0, length - 4) + " 천";
+    const roundCount = Math.round(viewOrFavoriteCount / 1000) * 1000;
+    return roundCount.toString().substring(0, length - 3) + " 천";
   }
   // 천 이하는 단위변경 x
   else return viewOrFavoriteCount;
