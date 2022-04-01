@@ -127,7 +127,7 @@ export async function getCommentController(req, res) {
     // 해당 댓글이 존재하지 않을 때
     else if (modelResult.state === "존재하지않는댓글") return res.status(NOT_FOUND).json(modelResult);
     // 성공적으로 댓글 정보 가져왔을 때
-    else if (modelResult.state === "댓글정보로딩") return res.status(OK).json(modelResult.data);
+    else if (modelResult.state === "댓글정보로딩") return res.status(OK).json(modelResult.dataOfComment);
   }
 }
 // 댓글 수정 요청

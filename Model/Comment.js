@@ -5,6 +5,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+import { changeDateTimeForm } from "../CustomModule/ChangeDataForm";
 
 /*
  * 1. 댓글 작성
@@ -128,7 +129,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
       let tempRoot = [
         "닉네임: " + rootResult[rootIndex].nickName,
         "댓글내용: " + rootResult[rootIndex].commentContent,
-        "작성날짜: " + rootResult[rootIndex].createDateTime,
+        "작성날짜: " + (await changeDateTimeForm(rootResult[rootIndex].createDateTime)),
       ];
       // 루트댓글이면서 삭제된 댓글일 때
       if (rootResult[rootIndex].deleteDateTime !== null) tempRoot = ["삭제된 댓글입니다"];
@@ -143,7 +144,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
             tempChild = [
               "        닉네임: " + childResult[childIndex].nickName,
               "        댓글내용: " + childResult[childIndex].commentContent,
-              "        작성날짜: " + childResult[childIndex].createDateTime,
+              "        작성날짜: " + (await changeDateTimeForm(childResult[childIndex].createDateTime)),
             ];
             // 대댓글이면서 삭제된 댓글일 때
             if (childResult[childIndex].deleteDateTime !== null) tempChild = ["        삭제된 댓글입니다"];
@@ -153,7 +154,6 @@ export async function detailCommentModel(boardIndex, page, ip) {
         }
       }
     }
-    console.log(commentData);
     return { state: "게시글의댓글정보", data: commentData };
 
     // 쿼리문 실행시 에러발생
@@ -177,8 +177,11 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
     if (results[0] === undefined) {
       return { state: "존재하지않는댓글" };
     }
+    const commentData = {
+      댓글내용: results[0].commentContent,
+    };
     // DB에 데이터가 있을 때
-    return { state: "댓글정보로딩", data: results };
+    return { state: "댓글정보로딩", dataOfComment: commentData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
