@@ -56,3 +56,11 @@ export async function changeDateTimeForm(dateTime) {
     "일";
   return stringDateTime;
 }
+
+export async function changeGradeForm(grade) {
+  if (grade === 0) return "후기없음";
+  // 평점이 일의자리수만 있으면 .0 붙여주기
+  else if (grade.toString().length === 1) return "★ " + grade.toString() + ".0 / 5 점";
+  // 평점의 소수점 1의자리까지 있다면 문자열화만 해주기
+  else return "★ " + grade.toString() + " / 5점";
+}
