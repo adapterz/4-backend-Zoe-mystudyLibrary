@@ -98,8 +98,14 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
       return { state: "존재하지않는후기" };
     }
 
+    // 리뷰 데이터 가공
+    const reviewData = {
+      후기내용: results[0].reviewContent,
+      평점: Math.round(results[0].grade),
+    };
+
     // DB에 데이터가 있을 때
-    return { state: "후기정보로딩", data: results };
+    return { state: "후기정보로딩", dataOfReview: reviewData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);

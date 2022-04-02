@@ -97,7 +97,7 @@ export async function getReviewController(req, res) {
     // 해당 후기 정보가 없을 때
     else if (modelResults.state === "존재하지않는후기") return res.status(NOT_FOUND).json(modelResults);
     // 성공적으로 후기 정보 가져왔을 때
-    else if (modelResults.state === "후기정보로딩") return res.status(OK).json(modelResults.data);
+    else if (modelResults.state === "후기정보로딩") return res.status(OK).json(modelResults.dataOfReview);
   }
 }
 // 후기 수정 요청
