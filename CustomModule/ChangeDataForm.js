@@ -57,10 +57,42 @@ export async function changeDateTimeForm(dateTime) {
   return stringDateTime;
 }
 
+// 도서관 후기 평균 평점 정보 가공
 export async function changeGradeForm(grade) {
+  // 후기가 없을 때
   if (grade === 0) return "후기없음";
   // 평점이 일의자리수만 있으면 .0 붙여주기
   else if (grade.toString().length === 1) return "★ " + grade.toString() + ".0 / 5 점";
   // 평점의 소수점 1의자리까지 있다면 문자열화만 해주기
   else return "★ " + grade.toString() + " / 5점";
+}
+// 도서관 정보 글자수 자르기
+export async function changeLibraryDataForm(libraryData) {
+  // 도서관명이 15글자 이상일 때 자르기
+  if (libraryData.libraryName.length >= 15) {
+    libraryData.libraryName = libraryData.libraryName.substring(0, 15) + "...";
+  }
+  // 도서관 유형이 10글자 이상일때 자르기
+  if (libraryData.libraryType.length >= 10) {
+    libraryData.libraryType = libraryData.libraryType.substring(0, 10) + "...";
+  }
+  // 휴관일이 15글자 이상일때 자르기
+  if (libraryData.closeDay.length >= 15) {
+    libraryData.closeDay = libraryData.closeDay.substring(0, 15) + "...";
+  }
+  // 시작, 종료시간 5글자까지일떄 자르기(00:00 형태)
+  libraryData.openWeekday = libraryData.openWeekday.toString().substring(0, 5);
+  libraryData.endWeekday = libraryData.endWeekday.toString().substring(0, 5);
+  libraryData.openSaturday = libraryData.openSaturday.toString().substring(0, 5);
+  libraryData.endSaturday = libraryData.endSaturday.toString().substring(0, 5);
+  libraryData.openHoliday = libraryData.openHoliday.toString().substring(0, 5);
+  libraryData.endHoliday = libraryData.endHoliday.toString().substring(0, 5);
+
+  // 주소 20글자까지 자르기
+
+  if (libraryData.address.length >= 20) {
+    libraryData.address = libraryData.address.substring(0, 20) + "...";
+  }
+
+  return libraryData;
 }

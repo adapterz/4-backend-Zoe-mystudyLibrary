@@ -4,7 +4,7 @@ import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeGradeForm } from "../CustomModule/ChangeDataForm";
+import { changeDetailLibraryData, changeGradeForm, changeLibraryDataForm } from "../CustomModule/ChangeDataForm";
 
 /*
  * 1. 전체도서관 정보
@@ -27,21 +27,22 @@ export async function allLibraryModel(ip) {
     for (const index in results) {
       // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
       const grade = await changeGradeForm(Math.round(results[index].avgOfGrade * 10) / 10);
-
+      // 글자수 너무길어지면 잘라주는 메서드
+      const tempResult = await changeLibraryDataForm(results[index]);
       const tempData = {
         도서관인덱스: results[index].libraryIndex,
-        도서관이름: results[index].libraryName,
-        도서관종류: results[index].libraryType,
-        휴관일: results[index].closeDay,
-        평일오픈시간: results[index].openWeekday,
-        평일종료시간: results[index].endWeekday,
-        토요일오픈시간: results[index].openSaturday,
-        토요일종료시간: results[index].endSaturday,
-        공휴일오픈시간: results[index].openHoliday,
-        공휴일종료시간: results[index].endHoliday,
+        도서관이름: tempResult.libraryName,
+        도서관종류: tempResult.libraryType,
+        휴관일: tempResult.closeDay,
+        평일오픈시간: tempResult.openWeekday,
+        평일종료시간: tempResult.endWeekday,
+        토요일오픈시간: tempResult.openSaturday,
+        토요일종료시간: tempResult.endSaturday,
+        공휴일오픈시간: tempResult.openHoliday,
+        공휴일종료시간: tempResult.endHoliday,
         시도명: results[index].nameOfCity,
         시군구명: results[index].districts,
-        상세주소: results[index].address,
+        상세주소: tempResult.address,
         연락처: results[index].libraryContact,
         평점: grade,
       };
@@ -77,21 +78,22 @@ export async function localLibraryModel(inputLocal, ip) {
     for (const index in results) {
       // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
       const grade = await changeGradeForm(Math.round(results[index].avgOfGrade * 10) / 10);
-
+      // 글자수 너무길어지면 잘라주는 메서드
+      const tempResult = await changeLibraryDataForm(results[index]);
       const tempData = {
         도서관인덱스: results[index].libraryIndex,
-        도서관이름: results[index].libraryName,
-        도서관종류: results[index].libraryType,
-        휴관일: results[index].closeDay,
-        평일오픈시간: results[index].openWeekday,
-        평일종료시간: results[index].endWeekday,
-        토요일오픈시간: results[index].openSaturday,
-        토요일종료시간: results[index].endSaturday,
-        공휴일오픈시간: results[index].openHoliday,
-        공휴일종료시간: results[index].endHoliday,
+        도서관이름: tempResult.libraryName,
+        도서관종류: tempResult.libraryType,
+        휴관일: tempResult.closeDay,
+        평일오픈시간: tempResult.openWeekday,
+        평일종료시간: tempResult.endWeekday,
+        토요일오픈시간: tempResult.openSaturday,
+        토요일종료시간: tempResult.endSaturday,
+        공휴일오픈시간: tempResult.openHoliday,
+        공휴일종료시간: tempResult.endHoliday,
         시도명: results[index].nameOfCity,
         시군구명: results[index].districts,
-        상세주소: results[index].address,
+        상세주소: tempResult.address,
         연락처: results[index].libraryContact,
         평점: grade,
       };
@@ -110,7 +112,7 @@ export async function localLibraryModel(inputLocal, ip) {
 export async function detailLibraryModel(libraryIndex, ip) {
   // 특정 libraryIndex의 도서관 정보 후기의 평균 평점/평점개수 가져오는 다중 쿼리문
   const query =
-    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade) countOfGrade,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex=" +
+    "SELECT Library.libraryIndex, libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade) countOfGrade,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex=" +
     mysql.escape(libraryIndex) +
     " GROUP BY libraryIndex";
 
@@ -126,20 +128,23 @@ export async function detailLibraryModel(libraryIndex, ip) {
     // 해당 도서관인덱스의 데이터 가공
     // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
     const grade = await changeGradeForm(Math.round(results[0].avgOfGrade * 10) / 10);
+    // 연락처가 빈문자열일 때 연락처 없다고 표기해주기
+    if (results[0].libraryContact === "") {
+      results[0].libraryContact = "연락처 없음";
+    }
+    // 휴관일 글자수 너무 길 경우 글자수 잘라주기
+    if (results[0].closeDay.length >= 50) {
+      results[0].closeDay = results[0].closeDay.substring(0, 50);
+    }
     const libraryData = {
-      도서관인덱스: results[0].libraryIndex,
       도서관이름: results[0].libraryName,
       도서관종류: results[0].libraryType,
-      휴관일: results[0].closeDay,
-      평일오픈시간: results[0].openWeekday,
-      평일종료시간: results[0].endWeekday,
-      토요일오픈시간: results[0].openSaturday,
-      토요일종료시간: results[0].endSaturday,
-      공휴일오픈시간: results[0].openHoliday,
-      공휴일종료시간: results[0].endHoliday,
-      시도명: results[0].nameOfCity,
-      시군구명: results[0].districts,
+      지역: results[0].nameOfCity + " " + results[0].districts,
       상세주소: results[0].address,
+      휴관일: results[0].closeDay,
+      평일운영시간: results[0].openWeekday.toString().substring(0, 5) + " ~ " + results[0].endWeekday.toString().substring(0, 5),
+      토요일운영시간: results[0].openSaturday.toString().substring(0, 5) + " ~ " + results[0].endSaturday.toString().substring(0, 5),
+      공휴일운영시간: results[0].openHoliday.toString().substring(0, 5) + " ~ " + results[0].endHoliday.toString().substring(0, 5),
       연락처: results[0].libraryContact,
       후기개수: results[0].countOfGrade + " 개",
       평점: grade,
