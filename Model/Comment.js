@@ -99,6 +99,8 @@ export async function detailCommentModel(boardIndex, page, ip) {
   let query = "SELECT boardIndex FROM BOARD WHERE BOARD.deleteDateTime IS NULL AND boardIndex =" + mysql.escape(boardIndex);
   try {
     let [results, field] = await myPool.query(query);
+    await querySuccessLog(ip, query);
+    // 게시글이 존재하지 않을 때
     if (results[0] === undefined) return { state: "존재하지않는게시글" };
     // 해당 게시글의 루트 댓글만 가져오는 쿼리문
     const rootCommentQuery =
