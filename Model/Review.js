@@ -5,11 +5,13 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+import { changeDateTimeForm } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 도서관 후기 등록
- * 2. 수정시 기존 후기 정보 불러오기
- * 3. 후기 수정 요청
- * 4. 후기 삭제 요청
+ * 2. 도서관의 후기 정보
+ * 3. 수정시 기존 후기 정보 불러오기
+ * 4. 후기 수정 요청
+ * 5. 후기 삭제 요청
  */
 
 // 도서관 후기 등록하는 모델
@@ -40,6 +42,49 @@ export async function registerReviewModel(libraryIndex, userIndex, inputComment,
   }
 }
 
+// 도서관 후기 조회
+export async function detailReviewModel(libraryIndex, page, ip) {
+  let reviewData = [];
+  // 도서관 정보가 있나 체크
+  let query = "SELECT libraryIndex FROM LIBRARY WHERE LIBRARY.deleteDateTime IS NULL AND libraryIndex =" + mysql.escape(libraryIndex);
+  try {
+    let [results, field] = await myPool.query(query);
+    // 쿼리문 성공로그
+    await querySuccessLog(ip, query);
+    if (results[0] === undefined) return { state: "존재하지않는도서관" };
+    // 해당 도서관의 후기 가져오는 쿼리문
+    query =
+      "SELECT nickName,reviewContent,grade,createDateTime FROM REVIEW LEFT JOIN USER ON USER.userIndex = REVIEW.userIndex WHERE deleteDateTime IS NULL AND libraryIndex =" +
+      mysql.escape(libraryIndex) +
+      " ORDER BY reviewIndex DESC LIMIT " +
+      5 * (page - 1) +
+      ",5";
+
+    [results, field] = await myPool.query(query);
+    // 쿼리문 성공로그
+    await querySuccessLog(ip, query);
+    if (results[0] === undefined) return { state: "후기없음" };
+    // 쿼리문 성공로그
+    await querySuccessLog(ip, query);
+    // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
+    // 댓글 정보 데이터
+    for (let index in results) {
+      const tempData = {
+        닉네임: results[index].nickName,
+        후기내용: results[index].reviewContent,
+        평점: results[index].grade.toString().substring(0, 1) + " 점",
+        작성날짜: await changeDateTimeForm(results[index].createDateTime),
+      };
+      reviewData.push(tempData);
+    }
+    return { state: "도서관의후기정보", dataOfReview: reviewData };
+
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await queryFailLog(err, ip, query);
+    return { state: "mysql 사용실패" };
+  }
+}
 // 수정시 기존 후기 정보 불러오는 모델
 export async function getReviewModel(reviewIndex, loginCookie, ip) {
   const query = "SELECT reviewContent, grade FROM REVIEW WHERE deleteDateTime IS NULL AND reviewIndex =" + mysql.escape(reviewIndex);

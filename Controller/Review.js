@@ -2,13 +2,14 @@
 // 내장모듈
 import { checkReviewMethod } from "../CustomModule/CheckDataOrAuthority";
 import { FORBIDDEN, UNAUTHORIZED, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK, CREATED } from "../CustomModule/StatusCode";
-import { deleteReviewModel, editReviewModel, getReviewModel, registerReviewModel } from "../Model/Review";
+import { deleteReviewModel, detailReviewModel, editReviewModel, getReviewModel, registerReviewModel } from "../Model/Review";
 
 /*
  * 1. 도서관 후기 등록
- * 2. 수정시 기존 후기 정보 불러오기
- * 3. 후기 수정 요청
- * 4. 후기 삭제 요청
+ * 2. 도서관의 후기 정보
+ * 3. 수정시 기존 후기 정보 불러오기
+ * 4. 후기 수정 요청
+ * 5. 후기 삭제 요청
  */
 
 // 특정 도서관 이용 후 후기 등록
@@ -36,6 +37,31 @@ export async function registerReviewController(req, res) {
   else if (modelResult.state === "도서관후기등록") return res.status(CREATED).end();
 }
 
+// 도서관의 후기 정보
+export async function detailReviewController(req, res) {
+  /*
+   * req.query
+   *  libraryIndex
+   *  page
+   */
+  // 댓글 페이지
+  let page;
+  // 댓글 page 값
+  if (req.query.page !== undefined) page = req.query.page;
+  else page = 1;
+  // 모델 결과 변수
+  const modelResult = await detailReviewModel(req.query.libraryIndex, page, req.ip);
+
+  // 모델 실행 결과에 따른 분기처리
+  // mysql query 메서드 실패
+  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // 해당 게시글 정보가 없을 때
+  else if (modelResult.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(modelResult);
+  // 댓글이 없을 때
+  else if (modelResult.state === "후기없음") return res.status(OK).json(modelResult);
+  // 해당 게시글 정보 가져오기
+  else if (modelResult.state === "도서관의후기정보") return res.status(OK).json(modelResult.dataOfReview);
+}
 // 수정시 기존 댓글 정보 불러오기
 export async function getReviewController(req, res) {
   /*
