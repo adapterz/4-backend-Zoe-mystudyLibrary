@@ -1,6 +1,9 @@
 // 내부모듈
 import { moment } from "./DateTime";
-
+/*
+ * 1. 조회수/좋아요 수 단위 바꿔주는 메서드
+ * 2.
+ */
 // 조회수/좋아요 수 단위 바꿔주는 메서드
 export async function changeUnit(viewOrFavoriteCount) {
 	const length = viewOrFavoriteCount.toString().length;
@@ -169,22 +172,30 @@ export async function changeLibraryDataForm(libraryData) {
 	if (libraryData.libraryContact === "") {
 		libraryData.libraryContact = "연락처 없음";
 	}
-	// 휴관일 글자수 너무 길 경우 개행기호 넣어주기
-	libraryData.closeDay =
-		libraryData.closeDay.substring(0, 50) +
-		"\n" +
-		libraryData.closeDay.substring(50, 100) +
-		"\n" +
-		libraryData.closeDay.substring(100, 150);
+	// 휴관일 25글자 단위로 잘라서 줄바꿈 기호 넣어주기
+	const closeDayLength = libraryData.closeDay.length;
+	const closeDayLoopCount = Math.ceil(closeDayLength / 25);
+	// 휴관일 데이터를 임시로 저장할 변수
+	let tempCloseDay = ``;
+	for (let count = 0; count < closeDayLoopCount; ++count) {
+		tempCloseDay += `${libraryData.closeDay.substring(count * 25, (count + 1) * 25)}
+		`;
+	}
+	libraryData.closeDay = tempCloseDay;
 
+	// 주소 25글자 단위로 잘라서 줄바꿈 기호 넣어주기
+	const addressLength = libraryData.address.length;
+	const addressLoopCount = Math.ceil(addressLength / 25);
+	// 주소 데이터 임시로 저장할 변수
+	let tempAddress = ``;
+	for (let count = 0; count < addressLoopCount; ++count) {
+		tempAddress += `${libraryData.address.substring(count * 25, (count + 1) * 25)}
+		`;
+	}
+	libraryData.address = tempAddress;
 	return libraryData;
 }
-// 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
-export async function checkExistUser(nickname) {
-	// 닉네임이 null이면 삭제된 닉네임 취급
-	if (nickname === null) return "삭제된 유저입니다.";
-	return nickname;
-}
+
 /*
  * 평점만큼 별 개수 출력하는 문자열로 가공하는 메서드
  * 예시: 5점 일경우 ⭐⭐⭐⭐⭐ 5
@@ -202,4 +213,70 @@ export async function changeGradeStarForm(reviewData) {
 
 	reviewData.grade = tempStar;
 	return reviewData;
+}
+// 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
+export async function checkExistUser(nickname) {
+	// 닉네임이 null이면 삭제된 닉네임 취급
+	if (nickname === null) return "삭제된 유저입니다.";
+	return nickname;
+}
+
+// 게시글 제목 25글자 단위로 줄바꿈
+export async function newLinePostTitle(boardData) {
+	// 제목 25글자 단위로 잘라서 줄바꿈 기호 넣어주기
+	const postTitleLength = boardData.postTitle.length;
+	const postTitleLoopCount = Math.ceil(postTitleLength / 25);
+	// 제목 데이터를 임시로 저장할 변수
+	let tempPostTitle = ``;
+	for (let count = 0; count < postTitleLoopCount; ++count) {
+		tempPostTitle += `${boardData.postTitle.substring(count * 25, (count + 1) * 25)}
+		`;
+	}
+	boardData.postTitle = tempPostTitle;
+	return boardData.postTitle;
+}
+
+// 게시글 내용 50글자 단위로 줄바꿈
+export async function newLinePostContent(boardData) {
+	// 내용 50글자 단위로 잘라서 줄바꿈 기호 넣어주기
+	const postContentLength = boardData.postContent.length;
+	const postContentLoopCount = Math.ceil(postContentLength / 50);
+	// 내용 데이터를 임시로 저장할 변수
+	let tempPostContent = ``;
+	for (let count = 0; count < postContentLoopCount; ++count) {
+		tempPostContent += `${boardData.postContent.substring(count * 50, (count + 1) * 50)}
+		`;
+	}
+	boardData.postContent = tempPostContent;
+	return boardData.postContent;
+}
+
+// 댓글 내용 50글자 단위로 줄바꿈
+export async function newLineCommentContent(commentData) {
+	// 내용 50글자 단위로 잘라서 줄바꿈 기호 넣어주기
+	const commentContentLength = commentData.commentContent.length;
+	const commentContentLoopCount = Math.ceil(commentContentLength / 50);
+	// 내용 데이터를 임시로 저장할 변수
+	let tempCommentContent = ``;
+	for (let count = 0; count < commentContentLoopCount; ++count) {
+		tempCommentContent += `${commentData.commentContent.substring(count * 50, (count + 1) * 50)}
+		`;
+	}
+	commentData.commentContent = tempCommentContent;
+	return commentData.commentContent;
+}
+
+// 후기 내용 25글자 단위로 줄바꿈
+export async function newLineReviewContent(reviewData) {
+	// 내용 50글자 단위로 잘라서 줄바꿈 기호 넣어주기
+	const reviewContentLength = reviewData.reviewContent.length;
+	const reviewContentLoopCount = Math.ceil(reviewContentLength / 50);
+	// 내용 데이터를 임시로 저장할 변수
+	let tempReviewContent = ``;
+	for (let count = 0; count < reviewContentLoopCount; ++count) {
+		tempReviewContent += `${reviewData.reviewContent.substring(count * 25, (count + 1) * 25)}
+		`;
+	}
+	reviewData.reviewContent = tempReviewContent;
+	return reviewData.reviewContent;
 }

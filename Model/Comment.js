@@ -5,8 +5,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeDateTimeForm, checkExistUser } from "../CustomModule/ChangeDataForm";
-import { check } from "express-validator";
+import { changeDateTimeForm, checkExistUser, newLineCommentContent } from "../CustomModule/ChangeDataForm";
 
 /*
  * 1. 댓글 작성
@@ -134,7 +133,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 				isRoot: true,
 				isDeleted: false,
 				nickname: await checkExistUser(rootResult[rootIndex].nickname),
-				commentContent: rootResult[rootIndex].commentContent,
+				commentContent: await newLineCommentContent(rootResult[rootIndex]),
 				createDate: await changeDateTimeForm(rootResult[rootIndex].createDateTime),
 			};
 			// 루트댓글이면서 삭제된 댓글일 때
@@ -146,8 +145,6 @@ export async function detailCommentModel(boardIndex, page, ip) {
 					commentContent: "삭제된 댓글입니다",
 					createDate: await changeDateTimeForm(rootResult[rootIndex].createDateTime),
 				};
-
-			if (tempRoot.nickname === null) tempRoot.nickname = "삭제된 유저입니다";
 			commentData.push(tempRoot);
 			// 해당 댓글의 대댓글 정보 추가
 			for (let childIndex in childResult) {
@@ -159,7 +156,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 							isRoot: false,
 							isDeleted: false,
 							nickname: await checkExistUser(childResult[childIndex].nickname),
-							commentContent: childResult[childIndex].commentContent,
+							commentContent: await newLineCommentContent(childResult[childIndex]),
 							createDate: await changeDateTimeForm(childResult[childIndex].createDateTime),
 						};
 						// 대댓글이면서 삭제된 댓글일 때
@@ -172,7 +169,6 @@ export async function detailCommentModel(boardIndex, page, ip) {
 								createDate: null,
 							};
 					}
-					if (tempChild.nickname === null) tempChild.nickname = "삭제된 유저입니다";
 					commentData.push(tempChild);
 				}
 			}
@@ -201,7 +197,7 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
 			return { state: "존재하지않는댓글" };
 		}
 		const commentData = {
-			commentContent: results[0].commentContent,
+			commentContent: await newLineCommentContent(results[0]),
 		};
 		// DB에 데이터가 있을 때
 		return { state: "댓글정보로딩", dataOfComment: commentData };

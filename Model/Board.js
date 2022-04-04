@@ -6,7 +6,13 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeDateTimeForm, changeUnit, checkExistUser } from "../CustomModule/ChangeDataForm";
+import {
+	changeDateTimeForm,
+	changeUnit,
+	checkExistUser,
+	newLinePostContent,
+	newLinePostTitle,
+} from "../CustomModule/ChangeDataForm";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -169,30 +175,14 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 
 		// 해당 게시글의 데이터 파싱
 		// 게시글 데이터
-		// 제목 글자수가 25 이하일 때
-		if (results[0][0].postTitle.length <= 25) {
-			boardData = {
-				postTitle: results[0][0].postTitle,
-				nickname: await checkExistUser(results[0][0].nickname),
-				postContent: results[0][0].postContent,
-				viewCount: await changeUnit(results[0][0].viewCount),
-				favoriteCount: await changeUnit(results[0][0].favoriteCount),
-				createDate: await changeDateTimeForm(results[0][0].createDateTime),
-			};
-			// 제목 글자수가 25 초과일 때
-		} else if (results[0][0].postTitle.length > 25) {
-			const tempTitle = results[0][0].postTitle.substring(0, 25);
-			const tempTitle2 = results[0][0].postTitle.substring(25, 50);
-			const boardTitle = tempTitle + "\n" + tempTitle2;
-			boardData = {
-				postTitle: boardTitle,
-				nickname: await checkExistUser(results[0][0].nickname),
-				postContent: results[0][0].postContent,
-				viewCount: await changeUnit(results[0][0].viewCount),
-				favoriteCount: await changeUnit(results[0][0].favoriteCount),
-				createDate: await changeDateTimeForm(results[0][0].createDateTime),
-			};
-		}
+		boardData = {
+			postTitle: await newLinePostTitle(results[0][0]),
+			nickname: await checkExistUser(results[0][0].nickname),
+			postContent: await newLinePostContent(results[0][0]),
+			viewCount: await changeUnit(results[0][0].viewCount),
+			favoriteCount: await changeUnit(results[0][0].favoriteCount),
+			createDate: await changeDateTimeForm(results[0][0].createDateTime),
+		};
 		// 태그 데이터
 		for (let tagIndex in results[1]) {
 			tagData.push({ tag: results[1][tagIndex].tag });
@@ -297,7 +287,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
 		const boardData = {
 			category: results[0][0].category,
 			postTitle: results[0][0].postTitle,
-			postContent: results[0][0].postContent,
+			postContent: await newLinePostContent(results[0][0]),
 		};
 		// 태그 데이터
 		for (let tagIndex in results[1]) {
