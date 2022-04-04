@@ -125,7 +125,8 @@ export async function changeGradeForm(grade) {
   // 평점의 소수점 1의자리까지 있다면 문자열화만 해주기
   else return "★ " + grade.toString() + " / 5점";
 }
-// 도서관 정보 글자수 자르기(전체도서관/ 지역도서관)
+
+// 도서관 정보 가공(전체도서관/ 지역도서관)
 export async function changeLibrarysDataForm(libraryData) {
   // 도서관명이 15글자 이상일 때 자르기
   if (libraryData.libraryName.length >= 15) {
@@ -157,7 +158,7 @@ export async function changeLibrarysDataForm(libraryData) {
   return libraryData;
 }
 
-// 도서관 정보 글자수 자르기(특정 인덱스 도서관정보)
+// 도서관 정보 가공(특정 인덱스 도서관정보)
 export async function changeLibraryDataForm(libraryData) {
   // 연락처가 빈문자열일 때 연락처 없다고 표기해주기
   if (libraryData.libraryContact === "") {
@@ -178,4 +179,20 @@ export async function changeLibraryDataForm(libraryData) {
       libraryData.closeDay.substring(100, 150);
   }
   return libraryData;
+}
+// 후기 데이터 가공
+export async function changeReviewDataForm(reviewData) {
+  // 닉네임이 null이면 삭제된 닉네임 취급
+  if (reviewData.nickName === null) reviewData.nickName = "삭제된 유저 정보입니다.";
+  // 평점만큼 별 개수 출력하게 하기
+  reviewData.grade = Number(reviewData.grade.toString().substring(0, 1));
+  let tempStar = "";
+  for (let i = 1; i <= 5; ++i) {
+    if (i <= reviewData.grade) tempStar += "★";
+    else tempStar += "☆";
+  }
+  tempStar += " " + reviewData.grade;
+
+  reviewData.grade = tempStar;
+  return reviewData;
 }

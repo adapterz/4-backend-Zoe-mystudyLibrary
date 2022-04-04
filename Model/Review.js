@@ -5,7 +5,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeDateTimeForm } from "../CustomModule/ChangeDataForm";
+import { changeDateTimeForm, changeReviewDataForm } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 도서관 후기 등록
  * 2. 도서관의 후기 정보
@@ -66,14 +66,14 @@ export async function detailReviewModel(libraryIndex, page, ip) {
     if (results[0] === undefined) return { state: "후기없음" };
     // 쿼리문 성공로그
     await querySuccessLog(ip, query);
-    // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
-    // 댓글 정보 데이터
+    // 후기 정보 데이터
     for (let index in results) {
+      const processedResults = await changeReviewDataForm(results[index]);
       const tempData = {
-        닉네임: results[index].nickName,
-        후기내용: results[index].reviewContent,
-        평점: results[index].grade.toString().substring(0, 1) + " 점",
-        작성날짜: await changeDateTimeForm(results[index].createDateTime),
+        nickname: results[index].nickName,
+        reviewContent: results[index].reviewContent,
+        grade: processedResults.grade,
+        createDate: await changeDateTimeForm(results[index].createDateTime),
       };
       reviewData.push(tempData);
     }
@@ -100,8 +100,8 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
 
     // 리뷰 데이터 가공
     const reviewData = {
-      후기내용: results[0].reviewContent,
-      평점: Math.round(results[0].grade),
+      reviewContent: results[0].reviewContent,
+      grade: Math.round(results[0].grade),
     };
 
     // DB에 데이터가 있을 때
