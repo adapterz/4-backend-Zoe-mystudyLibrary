@@ -33,7 +33,6 @@ export async function getRecentBoardModel(ip) {
 		const [results, fields] = await myPool.query(query, ["자유게시판", "공부인증샷"]);
 		// 성공 로그찍기
 		await querySuccessLog(ip, query);
-
 		// 자유게시판 최신글 파싱
 		for (const index in results[0]) {
 			// 게시글 제목의 글자수가 15자 이하일 때
@@ -53,10 +52,11 @@ export async function getRecentBoardModel(ip) {
 				freeBoardData.push(tempData);
 			}
 		}
+
 		// 공부인증샷 최신글 파싱
 		for (const index in results[1]) {
 			// 게시글 제목의 글자수가 10자 이하일 때
-			if (results[0][index].postTitle.length <= 10) {
+			if (results[1][index].postTitle.length <= 10) {
 				const tempData = {
 					postTitle: results[1][index].postTitle,
 					nickname: await checkExistUser(results[1][index].nickname),
@@ -65,7 +65,7 @@ export async function getRecentBoardModel(ip) {
 				};
 				studyBoardData.push(tempData);
 				// 게시글 제목의 글자수가 10자 초과일 때
-			} else if (results[0][index].postTitle.length > 10) {
+			} else if (results[1][index].postTitle.length > 10) {
 				const tempData = {
 					postTitle: results[1][index].postTitle.substring(0, 10) + "...",
 					nickname: await checkExistUser(results[1][index].nickname),
