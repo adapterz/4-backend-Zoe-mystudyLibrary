@@ -16,21 +16,27 @@ import { changeDateTimeForm, changeGradeStarForm, checkExistUser } from "../Cust
 
 // 도서관 후기 등록하는 모델
 export async function registerReviewModel(libraryIndex, userIndex, inputComment, ip) {
-	// 후기 등록 쿼리문
-	const query =
-		"INSERT INTO REVIEW(libraryIndex,userIndex,reviewContent,createDateTime,grade) VALUES (" +
-		mysql.escape(libraryIndex) +
-		"," +
-		mysql.escape(userIndex) +
-		"," +
-		mysql.escape(inputComment.reviewContent) +
-		"," +
-		mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-		"," +
-		mysql.escape(inputComment.grade) +
-		")";
+	// 기존에 해당 도서관에 해당 유저가 후기를 작성한적이 있는지 체크
+	let query = `SELECT reviewContent FROM REVIEW WHERE deleteDateTime IS NULL AND userIndex =${userIndex} AND libraryIndex = ${libraryIndex}`;
 	// 성공시
 	try {
+		const [result, field] = await myPool.query(query);
+		// 쿼리문 성공 로그
+		await querySuccessLog(ip, query);
+		if (result[0] !== undefined) return { state: "기존에 작성한 후기가 존재합니다." };
+		// 후기 등록 쿼리문
+		query =
+			"INSERT INTO REVIEW(libraryIndex,userIndex,reviewContent,createDateTime,grade) VALUES (" +
+			mysql.escape(libraryIndex) +
+			"," +
+			mysql.escape(userIndex) +
+			"," +
+			mysql.escape(inputComment.reviewContent) +
+			"," +
+			mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
+			"," +
+			mysql.escape(inputComment.grade) +
+			")";
 		await myPool.query(query);
 		// 쿼리문 성공 로그
 		await querySuccessLog(ip, query);
