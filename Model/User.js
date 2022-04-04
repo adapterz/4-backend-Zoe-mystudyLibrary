@@ -107,7 +107,7 @@ export async function dropOutModel(ip, loginCookie) {
 export async function loginModel(inputLogin, ip) {
 	// 유저가 입력한 id의 유저 정보 가져오는 쿼리문
 	const query =
-		"SELECT userIndex,id,pw,name,gender,phoneNumber,nickname,profileShot FROM USER WHERE id = " +
+		"SELECT userIndex,id,pw,name,gender,phoneNumber,nickname,profileImage FROM USER WHERE id = " +
 		mysql.escape(inputLogin.id);
 	// 성공시
 	try {
@@ -412,8 +412,8 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
 		query =
 			"UPDATE USER SET nickname=" +
 			mysql.escape(inputRevise.nickname) +
-			", profileShot =" +
-			mysql.escape(inputRevise.profileShot) +
+			", profileImage =" +
+			mysql.escape(inputRevise.profileImage) +
 			", updateDateTime =" +
 			mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
 			" WHERE userIndex =" +

@@ -425,7 +425,7 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
 export async function favoriteBoardModel(boardIndex, userIndex, ip) {
 	// 좋아요한 유저 테이블에 해당게시글에 좋아요 누른 유저인덱스 추가하는 쿼리문
 	let query =
-		"SELECT isFavorite FROM FAVORITEPOST WHERE boardIndex=" +
+		"SELECT favoriteFlag FROM FAVORITEPOST WHERE boardIndex=" +
 		mysql.escape(boardIndex) +
 		"AND userIndex = " +
 		mysql.escape(userIndex);
@@ -441,23 +441,23 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
 				" Update BOARD SET favoriteCount = favoriteCount + 1 WHERE boardIndex = " +
 				mysql.escape(boardIndex) +
 				";" +
-				"INSERT INTO favoritePost(boardIndex,userIndex,isFavorite,updateDateTime) VALUES(?,?,?,?)";
+				"INSERT INTO favoritePost(boardIndex,userIndex,favoriteFlag,updateDateTime) VALUES(?,?,?,?)";
 			// 쿼리문 실행
 			await myPool.query(query, [boardIndex, userIndex, 1, moment().format("YYYY-MM-DD HH:mm:ss")]);
 			// 성공 로그찍기
 			await querySuccessLog(ip, query);
 			// 정상적으로 좋아요 수 1증가
 			return { state: "좋아요+1" };
-			// 좋아요를 이미 누른 적이 있고 isFavorite 컬럼값이 TRUE 일 때, isFavorite 컬럼값 FALSE 로 바꿔주기 (게시글 조회시 isFavorite의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
+			// 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 TRUE 일 때, favoriteFlag 컬럼값 FALSE 로 바꿔주기 (게시글 조회시 favoriteFlag의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
 		} else if (results[0] !== undefined) {
-			if (results[0].isFavorite === 1) {
+			if (results[0].favoriteFlag === 1) {
 				query =
 					" Update BOARD SET favoriteCount = favoriteCount - 1 WHERE boardIndex = " +
 					mysql.escape(boardIndex) +
 					";" +
 					"UPDATE FAVORITEPOST SET updateDateTime =" +
 					mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-					", isFavorite = 0 WHERE boardIndex =" +
+					", favoriteFlag = 0 WHERE boardIndex =" +
 					mysql.escape(boardIndex) +
 					" AND userIndex = " +
 					mysql.escape(userIndex);
@@ -467,15 +467,15 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
 				await querySuccessLog(ip, query);
 				// 좋아요 취소
 				return { state: "좋아요 취소" };
-				// 좋아요를 이미 누른 적이 있고 isFavorite 컬럼값이 FALSE 일 때, isFavorite 컬럼값 TRUE 로 바꿔주기 (게시글 조회시 isFavorite의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
-			} else if (results[0].isFavorite === 0) {
+				// 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 FALSE 일 때, favoriteFlag 컬럼값 TRUE 로 바꿔주기 (게시글 조회시 favoriteFlag의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
+			} else if (results[0].favoriteFlag === 0) {
 				query =
 					" Update BOARD SET favoriteCount = favoriteCount + 1 WHERE boardIndex = " +
 					mysql.escape(boardIndex) +
 					";" +
 					"UPDATE FAVORITEPOST SET updateDateTime =" +
 					mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-					", isFavorite = 1 WHERE boardIndex =" +
+					", favoriteFlag = 1 WHERE boardIndex =" +
 					mysql.escape(boardIndex) +
 					" AND userIndex = " +
 					mysql.escape(userIndex);

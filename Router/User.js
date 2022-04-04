@@ -109,7 +109,7 @@ router.get("/review", checkPageValidation, userReviewController);
 // 내프로필 변경
 router.patch(
 	"/profile",
-	body("profileShot").isDataURI(),
+	body("profileImage").isDataURI(),
 	body("nickname")
 		.isString()
 		.trim()

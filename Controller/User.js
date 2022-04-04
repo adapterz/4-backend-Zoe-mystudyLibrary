@@ -322,7 +322,7 @@ export async function userReviewController(req, res) {
 export async function editProfileController(req, res) {
 	/*
 	 * req.body
-	 *  profileShot: 프로필 사진 uri
+	 *  profileImage: 프로필 사진 uri
 	 *  nickname: 닉네임
 	 */
 	// 필요 변수 선언
