@@ -186,7 +186,7 @@ export async function userLibraryController(req, res) {
   // 등록된 도서관 정보가 없을 때
   else if (modelResult.state === "등록된정보없음") return res.status(OK).json(modelResult);
   // 해당 유저가 지금까지 등록한 관심도서관 정보 응답
-  else if (modelResult.state === "유저의관심도서관") return res.status(OK).json(modelResult.data);
+  else if (modelResult.state === "유저의관심도서관") return res.status(OK).json(modelResult.dataOfLibrary);
 }
 
 // 3-2. 관심도서관 등록
@@ -266,7 +266,7 @@ export async function userBoardController(req, res) {
   // 유저가 작성한 글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
   else if (modelResult.state === "등록된글이없음") return res.status(OK).json(modelResult.state);
   // 성공적으로 유저가 작성한 게시글 정보 응답
-  else if (modelResult.state === "내작성글조회") return res.status(OK).json(modelResult.data);
+  else if (modelResult.state === "내작성글조회") return res.status(OK).json(modelResult.dataOfBoard);
 }
 // 4-2. 유저가 작성한 댓글 조회
 export async function userCommentController(req, res) {
@@ -290,7 +290,7 @@ export async function userCommentController(req, res) {
   // 유저가 작성한 댓글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
   else if (modelResult.state === "등록된댓글없음") return res.status(OK).json(modelResult);
   // 성공적으로 유저가 작성한 댓글 정보 응답
-  else if (modelResult.state === "성공적조회") return res.status(OK).json(modelResult.data);
+  else if (modelResult.state === "성공적조회") return res.status(OK).json(modelResult.dataOfComment);
 }
 // 4-3. 유저가 작성한 도서관 이용 후기 조회
 export async function userReviewController(req, res) {
@@ -314,7 +314,7 @@ export async function userReviewController(req, res) {
   // 유저가 작성한 후기가 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
   else if (modelResult.state === "등록된후기없음") return res.status(OK).json(modelResult);
   // 성공적으로 유저가 작성한 후기 정보 응답
-  else if (modelResult.state === "성공적조회") return res.status(OK).json(modelResult.data);
+  else if (modelResult.state === "성공적조회") return res.status(OK).json(modelResult.dataOfReview);
 }
 
 // 5. 유저 정보 수정

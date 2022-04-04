@@ -5,7 +5,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeDateTimeForm, changeReviewDataForm } from "../CustomModule/ChangeDataForm";
+import { changeDateTimeForm, changeReviewDataForm, checkExistUser } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 도서관 후기 등록
  * 2. 도서관의 후기 정보
@@ -70,7 +70,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
     for (let index in results) {
       const processedResults = await changeReviewDataForm(results[index]);
       const tempData = {
-        nickname: results[index].nickName,
+        nickname: await checkExistUser(results[index].nickName),
         reviewContent: results[index].reviewContent,
         grade: processedResults.grade,
         createDate: await changeDateTimeForm(results[index].createDateTime),

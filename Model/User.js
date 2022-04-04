@@ -7,6 +7,13 @@ import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
 import bcrypt from "bcrypt";
 import { hashPw } from "../CustomModule/PwBcrypt";
+import {
+  changeDateTimeForm,
+  changeGradeForm,
+  changeLibrarysDataForm,
+  changeReviewDataForm,
+  changeUnit,
+} from "../CustomModule/ChangeDataForm";
 /*
  * 1. 회원가입/탈퇴
  * 2. 로그인/(로그아웃 - 모델x)
@@ -19,7 +26,6 @@ import { hashPw } from "../CustomModule/PwBcrypt";
 // 1-1. 회원가입
 export async function signUpModel(inputUser, ip) {
   // 유저가 입력한 아이디가 기존에 있는지 select 해올 쿼리문
-  // TODO 무엇에 대한 쿼리문인지(변수명)
   let query = "SELECT id FROM USER WHERE id = " + mysql.escape(inputUser.id);
   // 성공시
   try {
@@ -127,11 +133,12 @@ export async function loginModel(inputLogin, ip) {
 // 3. 내 관심도서관 조회/등록/탈퇴
 // 3-1. 관심도서관 조회
 export async function userLibraryModel(userIndex, ip) {
+  const libraryData = [];
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
-    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade),COUNT(grade) FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
+    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
     mysql.escape(userIndex) +
-    " GROUP BY libraryIndex";
+    " GROUP BY libraryIndex ORDER BY libraryIndex";
   // 성공시
   try {
     const [results, fields] = await myPool.query(query);
@@ -140,7 +147,28 @@ export async function userLibraryModel(userIndex, ip) {
     if (results[0] === undefined) {
       return { state: "등록된정보없음" };
     }
-    return { state: "유저의관심도서관", data: results };
+    // 유저도서관 데이터 가공
+    for (const index in results) {
+      // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
+      const grade = await changeGradeForm(Math.round(results[index].avgOfGrade * 10) / 10);
+      // 데이터 가공 메서드
+      const tempResult = await changeLibrarysDataForm(results[index]);
+      const tempData = {
+        libraryIndex: results[index].libraryIndex,
+        libraryName: tempResult.libraryName,
+        libraryType: tempResult.libraryType,
+        closeDay: tempResult.closeDay,
+        weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
+        SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
+        HolidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
+        districts: results[index].nameOfCity + " " + results[index].districts,
+        address: tempResult.address,
+        libraryContact: tempResult.libraryContact,
+        averageGrade: grade,
+      };
+      libraryData.push(tempData);
+    }
+    return { state: "유저의관심도서관", dataOfLibrary: libraryData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
@@ -215,9 +243,10 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
 // 4. 유저가 작성한 글/댓글/후기 조회
 // 4-1. 유저가 작성한 글
 export async function userBoardModel(userIndex, page, ip) {
+  const boardData = [];
   // 해당 유저가 작성한 게시글 정보 가져오기
   const query =
-    "SELECT boardIndex,postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
+    "SELECT postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
     mysql.escape(userIndex) +
     " ORDER BY boardIndex DESC LIMIT " +
     10 * (page - 1) +
@@ -231,8 +260,31 @@ export async function userBoardModel(userIndex, page, ip) {
     if (results[0] === undefined) {
       return { state: "등록된글이없음" };
     }
+    // 게시글 정보 파싱
+    for (const index in results) {
+      // 게시글 제목의 글자수가 25자 미만일 때
+      if (results[index].postTitle.length <= 25) {
+        const tempData = {
+          postTitle: results[index].postTitle,
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeDateTimeForm(results[index].createDateTime),
+        };
+        boardData.push(tempData);
+      }
+      // 게시글 제목의 글자수가 25자 이상일 때
+      else if (results[index].postTitle.length > 25) {
+        const tempData = {
+          postTitle: results[index].postTitle.substring(0, 25) + "...",
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeDateTimeForm(results[index].createDateTime),
+        };
+        boardData.push(tempData);
+      }
+    }
     // 성공 로그찍기, 커밋하고 data return
-    return { state: "내작성글조회", data: results };
+    return { state: "내작성글조회", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
@@ -242,9 +294,10 @@ export async function userBoardModel(userIndex, page, ip) {
 
 // 4-2. 유저가 작성한 댓글
 export async function userCommentModel(userIndex, page, ip) {
+  const commentData = [];
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
-    "SELECT COMMENT.commentIndex,COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle,COMMENT.boardDeleteDateTime FROM COMMENT LEFT JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
+    "SELECT COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle,COMMENT.boardDeleteDateTime FROM COMMENT LEFT JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
     mysql.escape(userIndex) +
     " ORDER BY commentIndex DESC LIMIT " +
     5 * (page - 1) +
@@ -259,15 +312,35 @@ export async function userCommentModel(userIndex, page, ip) {
     if (results[0] === undefined) {
       return { state: "등록된댓글없음" };
     }
-
+    console.log(results);
+    // 댓글 정보
+    // 삭제된 게시글인 경우 제목 바꿔주기
     for (let i = 0; i < 5; ++i) {
       if (results[i].boardDeleteDateTime !== null) results[i].postTitle = "삭제된 게시글입니다";
     }
-
-    console.log(results[0]);
+    for (const index in results) {
+      // 게시글 제목의 글자수가 25자 미만일 때
+      if (results[index].postTitle.length <= 25) {
+        const tempData = {
+          postTitle: results[index].postTitle,
+          commentContent: results[index].commentContent,
+          createDate: await changeDateTimeForm(results[index].createDateTime),
+        };
+        commentData.push(tempData);
+      }
+      // 게시글 제목의 글자수가 25자 이상일 때
+      else if (results[index].postTitle.length > 25) {
+        const tempData = {
+          postTitle: results[index].postTitle.substring(0, 25) + "...",
+          commentContent: results[index].commentContent,
+          createDate: await changeDateTimeForm(results[index].createDateTime),
+        };
+        commentData.push(tempData);
+      }
+    }
 
     // DB에 데이터가 있을 때
-    return { state: "성공적조회", data: results };
+    return { state: "성공적조회", dataOfComment: commentData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
@@ -277,6 +350,7 @@ export async function userCommentModel(userIndex, page, ip) {
 
 // 4-3. 유저가 작성한 후기
 export async function userReviewModel(userIndex, page, ip) {
+  const reviewData = [];
   // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
   const query =
     "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
@@ -295,7 +369,19 @@ export async function userReviewModel(userIndex, page, ip) {
       return { state: "등록된후기없음" };
     }
     // 데이터가 있을 때
-    return { state: "성공적조회", data: results };
+
+    for (const index in results) {
+      const processedResults = await changeReviewDataForm(results[index]);
+      const tempData = {
+        libraryName: results[index].libraryName,
+        reviewContent: results[index].reviewContent,
+        createDate: await changeDateTimeForm(results[index].createDateTime),
+        grade: processedResults.grade,
+      };
+      reviewData.push(tempData);
+    }
+
+    return { state: "성공적조회", dataOfReview: reviewData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);

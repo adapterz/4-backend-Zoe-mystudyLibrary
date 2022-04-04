@@ -60,7 +60,7 @@ export async function allLibraryModel(ip) {
 
 // 입력한 지역에 따라 도서관 정보주는 모델
 export async function localLibraryModel(inputLocal, ip) {
-  let libraryData = [];
+  const libraryData = [];
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
   const query =
     "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.deleteDateTime=REVIEW.deleteDateTime WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND nameOfCity =" +
