@@ -56,7 +56,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
 		if (results[0] === undefined) return { state: "존재하지않는도서관" };
 		// 해당 도서관의 후기 가져오는 쿼리문
 		query =
-			"SELECT nickName,reviewContent,grade,createDateTime FROM REVIEW LEFT JOIN USER ON USER.userIndex = REVIEW.userIndex WHERE deleteDateTime IS NULL AND libraryIndex =" +
+			"SELECT nickname,reviewContent,grade,createDateTime FROM REVIEW LEFT JOIN USER ON USER.userIndex = REVIEW.userIndex WHERE deleteDateTime IS NULL AND libraryIndex =" +
 			mysql.escape(libraryIndex) +
 			" ORDER BY reviewIndex DESC LIMIT " +
 			5 * (page - 1) +
@@ -72,7 +72,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
 		for (let index in results) {
 			const processedResults = await changeGradeStarForm(results[index]);
 			const tempData = {
-				nickname: await checkExistUser(results[index].nickName),
+				nickname: await checkExistUser(results[index].nickname),
 				reviewContent: results[index].reviewContent,
 				grade: processedResults.grade,
 				createDate: await changeDateTimeForm(results[index].createDateTime),

@@ -106,7 +106,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 		if (results[0] === undefined) return { state: "존재하지않는게시글" };
 		// 해당 게시글의 루트 댓글만 가져오는 쿼리문
 		const rootCommentQuery =
-			"SELECT commentIndex,commentContent,User.nickName, createDateTime,deleteDateTime FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND parentIndex IS NULL AND boardIndex =" +
+			"SELECT commentIndex,commentContent,User.nickname, createDateTime,deleteDateTime FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND parentIndex IS NULL AND boardIndex =" +
 			mysql.escape(boardIndex) +
 			"ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT " + // 해당 게시글의 댓글 정보
 			5 * (page - 1) +
@@ -117,7 +117,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 		await querySuccessLog(ip, rootCommentQuery);
 		// 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
 		childCommentQuery =
-			"SELECT commentContent,User.nickName, createDateTime,deleteDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND boardIndex =" +
+			"SELECT commentContent,User.nickname, createDateTime,deleteDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND boardIndex =" +
 			mysql.escape(boardIndex);
 		for (let commentIndex in rootResult) {
 			childCommentQuery += " OR parentIndex =" + mysql.escape(rootResult[commentIndex].commentIndex);
@@ -133,7 +133,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 			let tempRoot = {
 				isRoot: true,
 				isDeleted: false,
-				nickname: await checkExistUser(rootResult[rootIndex].nickName),
+				nickname: await checkExistUser(rootResult[rootIndex].nickname),
 				commentContent: rootResult[rootIndex].commentContent,
 				createDate: await changeDateTimeForm(rootResult[rootIndex].createDateTime),
 			};
@@ -142,7 +142,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 				tempRoot = {
 					isRoot: true,
 					isDeleted: true,
-					nickname: await checkExistUser(rootResult[rootIndex].nickName),
+					nickname: await checkExistUser(rootResult[rootIndex].nickname),
 					commentContent: "삭제된 댓글입니다",
 					createDate: await changeDateTimeForm(rootResult[rootIndex].createDateTime),
 				};
@@ -158,7 +158,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 						tempChild = {
 							isRoot: false,
 							isDeleted: false,
-							nickname: await checkExistUser(childResult[childIndex].nickName),
+							nickname: await checkExistUser(childResult[childIndex].nickname),
 							commentContent: childResult[childIndex].commentContent,
 							createDate: await changeDateTimeForm(childResult[childIndex].createDateTime),
 						};
@@ -167,7 +167,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 							tempChild = {
 								isRoot: false,
 								isDeleted: true,
-								nickname: await checkExistUser(childResult[childIndex].nickName),
+								nickname: await checkExistUser(childResult[childIndex].nickname),
 								commentContent: "삭제된 댓글입니다",
 								createDate: null,
 							};

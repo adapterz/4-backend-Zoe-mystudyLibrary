@@ -20,8 +20,8 @@ export async function getRecentBoardModel(ip) {
 	const studyBoardData = [];
 	// 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
 	const query =
-		"SELECT postTitle,nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
-		"SELECT postTitle,nickName,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
+		"SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
+		"SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
 	// 성공시
 	try {
 		const [results, fields] = await myPool.query(query, ["자유게시판", "공부인증샷"]);
@@ -34,7 +34,7 @@ export async function getRecentBoardModel(ip) {
 			if (results[0][index].postTitle.length <= 15) {
 				const tempData = {
 					postTitle: results[0][index].postTitle,
-					nickname: await checkExistUser(results[0][index].nickName),
+					nickname: await checkExistUser(results[0][index].nickname),
 				};
 				freeBoardData.push(tempData);
 			}
@@ -42,7 +42,7 @@ export async function getRecentBoardModel(ip) {
 			else if (results[0][index].postTitle.length > 15) {
 				const tempData = {
 					postTitle: results[0][index].postTitle.substring(0, 15) + "...",
-					nickname: await checkExistUser(results[0][index].nickName),
+					nickname: await checkExistUser(results[0][index].nickname),
 				};
 				freeBoardData.push(tempData);
 			}
@@ -53,7 +53,7 @@ export async function getRecentBoardModel(ip) {
 			if (results[0][index].postTitle.length <= 10) {
 				const tempData = {
 					postTitle: results[1][index].postTitle,
-					nickname: await checkExistUser(results[1][index].nickName),
+					nickname: await checkExistUser(results[1][index].nickname),
 					viewCount: await changeUnit(results[1][index].viewCount),
 					favoriteCount: await changeUnit(results[1][index].favoriteCount),
 				};
@@ -62,7 +62,7 @@ export async function getRecentBoardModel(ip) {
 			} else if (results[0][index].postTitle.length > 10) {
 				const tempData = {
 					postTitle: results[1][index].postTitle.substring(0, 10) + "...",
-					nickname: await checkExistUser(results[1][index].nickName),
+					nickname: await checkExistUser(results[1][index].nickname),
 					viewCount: await changeUnit(results[1][index].viewCount),
 					favoriteCount: await changeUnit(results[1][index].favoriteCount),
 				};
@@ -82,7 +82,7 @@ export async function entireBoardModel(category, page, ip) {
 	const boardData = [];
 	// 카테고리에 맞는 전체 게시글 정보 가져오기
 	const query =
-		"SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+		"SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
 		mysql.escape(category) +
 		"ORDER BY boardIndex DESC LIMIT " +
 		10 * (page - 1) +
@@ -102,7 +102,7 @@ export async function entireBoardModel(category, page, ip) {
 			if (results[index].postTitle.length <= 25) {
 				const tempData = {
 					postTitle: results[index].postTitle,
-					nickname: await checkExistUser(results[index].nickName),
+					nickname: await checkExistUser(results[index].nickname),
 					viewCount: await changeUnit(results[index].viewCount),
 					favoriteCount: await changeUnit(results[index].favoriteCount),
 					createDate: await changeDateTimeForm(results[index].createDateTime),
@@ -113,7 +113,7 @@ export async function entireBoardModel(category, page, ip) {
 			else if (results[index].postTitle.length > 25) {
 				const tempData = {
 					postTitle: results[index].postTitle.substring(0, 25) + "...",
-					nickname: await checkExistUser(results[index].nickName),
+					nickname: await checkExistUser(results[index].nickname),
 					viewCount: await changeUnit(results[index].viewCount),
 					favoriteCount: await changeUnit(results[index].favoriteCount),
 					createDate: await changeDateTimeForm(results[index].createDateTime),
@@ -137,7 +137,7 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 	let boardData;
 	// 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
 	let query =
-		"SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickName FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+		"SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
 		mysql.escape(category) +
 		"AND boardIndex =" +
 		mysql.escape(boardIndex);
@@ -152,7 +152,7 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 			return { state: "존재하지않는게시글" };
 		}
 		query =
-			"SELECT postTitle,USER.nickName,postContent,viewCount,favoriteCount,BOARD.createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+			"SELECT postTitle,USER.nickname,postContent,viewCount,favoriteCount,BOARD.createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
 			mysql.escape(category) + // 해당 게시글 정보
 			"AND boardIndex =" +
 			mysql.escape(boardIndex) +
@@ -173,7 +173,7 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 		if (results[0][0].postTitle.length <= 25) {
 			boardData = {
 				postTitle: results[0][0].postTitle,
-				nickname: await checkExistUser(results[0][0].nickName),
+				nickname: await checkExistUser(results[0][0].nickname),
 				postContent: results[0][0].postContent,
 				viewCount: await changeUnit(results[0][0].viewCount),
 				favoriteCount: await changeUnit(results[0][0].favoriteCount),
@@ -186,7 +186,7 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 			const boardTitle = tempTitle + "\n" + tempTitle2;
 			boardData = {
 				postTitle: boardTitle,
-				nickname: await checkExistUser(results[0][0].nickName),
+				nickname: await checkExistUser(results[0][0].nickname),
 				postContent: results[0][0].postContent,
 				viewCount: await changeUnit(results[0][0].viewCount),
 				favoriteCount: await changeUnit(results[0][0].favoriteCount),
@@ -502,7 +502,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 	// 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
 	if (searchOption === "제목만") {
 		query =
-			"SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+			"SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
 			mysql.escape(category) +
 			" AND postTitle LIKE " +
 			mysql.escape("%" + searchContent + "%") +
@@ -512,7 +512,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 		// 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
 	} else if (searchOption === "내용만") {
 		query =
-			"SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+			"SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
 			mysql.escape(category) +
 			" AND postContent LIKE " +
 			mysql.escape("%" + searchContent + "%") +
@@ -523,7 +523,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 		// 제목+내용 검색한다고 옵션설정했을 때 검색해주는 쿼리문
 	} else if (searchOption === "제목 + 내용") {
 		query =
-			"SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+			"SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
 			mysql.escape(category) +
 			" AND postContent LIKE " +
 			mysql.escape("%" + searchContent + "%") +
@@ -535,9 +535,9 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 		// 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
 	} else if (searchOption === "닉네임") {
 		query =
-			"SELECT postTitle,viewCount,favoriteCount,nickName,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+			"SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
 			mysql.escape(category) +
-			" AND nickName LIKE " +
+			" AND nickname LIKE " +
 			mysql.escape("%" + searchContent + "%") +
 			"ORDER BY boardIndex DESC LIMIT " +
 			10 * (page - 1) +
@@ -557,7 +557,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 			if (results[index].postTitle.length <= 25) {
 				const tempData = {
 					postTitle: results[index].postTitle,
-					nickname: await checkExistUser(results[index].nickName),
+					nickname: await checkExistUser(results[index].nickname),
 					viewCount: await changeUnit(results[index].viewCount),
 					favoriteCount: await changeUnit(results[index].favoriteCount),
 					createDate: await changeDateTimeForm(results[index].createDateTime),
@@ -568,7 +568,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 			else if (results[index].postTitle.length > 25) {
 				const tempData = {
 					postTitle: results[index].postTitle.substring(0, 25) + "...",
-					nickname: await checkExistUser(results[index].nickName),
+					nickname: await checkExistUser(results[index].nickname),
 					viewCount: await changeUnit(results[index].viewCount),
 					favoriteCount: await changeUnit(results[index].favoriteCount),
 					createDate: await changeDateTimeForm(results[index].createDateTime),

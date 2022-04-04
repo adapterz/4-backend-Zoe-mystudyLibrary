@@ -39,7 +39,7 @@ export async function signUpModel(inputUser, ip) {
 		}
 		// 유저가 입력한 닉네임이 기존에 존재하는 닉네임일 때
 		// 유저가 입력한 닉네임이 기존에 있는지 select 해올 쿼리문
-		query = "SELECT nickName FROM USER WHERE nickName = " + mysql.escape(inputUser.nickName);
+		query = "SELECT nickname FROM USER WHERE nickname = " + mysql.escape(inputUser.nickname);
 		[results, fields] = await myPool.query(query);
 		await querySuccessLog(ip, query);
 		if (results[0] !== undefined) {
@@ -57,7 +57,7 @@ export async function signUpModel(inputUser, ip) {
 
 		// 모든 유효성 검사 통과 후 회원정보 추가해줄 새로운 쿼리문
 		query =
-			"INSERT INTO USER(id,pw,name,gender,phoneNumber,nickName,updateDateTime) VALUES (" +
+			"INSERT INTO USER(id,pw,name,gender,phoneNumber,nickname,updateDateTime) VALUES (" +
 			mysql.escape(inputUser.id) +
 			"," +
 			mysql.escape(hashedPw) + // 라우터에서 해싱된 pw값 insert
@@ -68,7 +68,7 @@ export async function signUpModel(inputUser, ip) {
 			"," +
 			mysql.escape(inputUser.phoneNumber) +
 			"," +
-			mysql.escape(inputUser.nickName) +
+			mysql.escape(inputUser.nickname) +
 			"," +
 			mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) + // 계정 생성날짜
 			")";
@@ -107,7 +107,7 @@ export async function dropOutModel(ip, loginCookie) {
 export async function loginModel(inputLogin, ip) {
 	// 유저가 입력한 id의 유저 정보 가져오는 쿼리문
 	const query =
-		"SELECT userIndex,id,pw,name,gender,phoneNumber,nickName,profileShot FROM USER WHERE id = " +
+		"SELECT userIndex,id,pw,name,gender,phoneNumber,nickname,profileShot FROM USER WHERE id = " +
 		mysql.escape(inputLogin.id);
 	// 성공시
 	try {
@@ -397,7 +397,7 @@ export async function userReviewModel(userIndex, page, ip) {
 // 5-1. 프로필 변경
 export async function editProfileModel(inputRevise, ip, loginCookie) {
 	// 유저가 입력한 닉네임이 기존에 존재하는지 확인하기 위해 select 해올 쿼리문
-	let query = "SELECT nickName FROM USER WHERE nickName =" + mysql.escape(inputRevise.nickName);
+	let query = "SELECT nickname FROM USER WHERE nickname =" + mysql.escape(inputRevise.nickname);
 	// 성공시
 	try {
 		let [results, fields] = await myPool.query(query);
@@ -410,8 +410,8 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
 
 		// 새 프로필 정보 수정해줄 쿼리문
 		query =
-			"UPDATE USER SET nickName=" +
-			mysql.escape(inputRevise.nickName) +
+			"UPDATE USER SET nickname=" +
+			mysql.escape(inputRevise.nickname) +
 			", profileShot =" +
 			mysql.escape(inputRevise.profileShot) +
 			", updateDateTime =" +
