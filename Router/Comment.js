@@ -34,12 +34,12 @@ router.post(
   writeCommentController,
 );
 // 게시글에서 댓글 상세 조회
-router.get("/detail", query("boardIndex").isInt().trim(), isExist, checkPageValidation, detailCommentController);
+router.get("/", query("boardIndex").isInt().trim(), isExist, checkPageValidation, detailCommentController);
 // 기존 댓글 정보 불러오기
-router.get("/", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, getCommentController);
+router.get("/edit", query("boardIndex").isInt().trim(), query("commentIndex").isInt().trim(), isExist, getCommentController);
 // 댓글 수정 요청
 router.patch(
-  "/patch",
+  "/edit",
   query("boardIndex").isInt().trim(),
   query("commentIndex").isInt().trim(),
   isExist,

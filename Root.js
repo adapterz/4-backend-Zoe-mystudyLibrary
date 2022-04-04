@@ -94,7 +94,7 @@ app.use("/api", apiLimiter);
 
 // 경로별로 라우팅
 app.use("/comment", commentRouter);
-app.use("/library", libraryRouter);
+app.use("/", libraryRouter);
 app.use("/review", reviewRouter);
 app.use("/user", userRouter);
 app.use("/", boardRouter);
