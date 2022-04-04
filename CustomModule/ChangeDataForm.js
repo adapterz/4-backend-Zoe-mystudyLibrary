@@ -211,7 +211,6 @@ export async function changeLibraryDataForm(libraryData) {
  */
 export async function changeGradeStarForm(reviewData) {
 	// 평점만큼 별 개수 출력하게 하기
-	reviewData.grade = Number(reviewData.grade.toString().substring(0, 1));
 	let tempStar = "";
 	for (let i = 1; i <= 5; ++i) {
 		if (i <= reviewData.grade) tempStar += "⭐";

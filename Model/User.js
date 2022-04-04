@@ -13,6 +13,8 @@ import {
 	changeLibrarysDataForm,
 	changeGradeStarForm,
 	changeUnit,
+	newLineReviewContent,
+	newLineCommentContent,
 } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 회원가입/탈퇴
@@ -328,7 +330,7 @@ export async function userCommentModel(userIndex, page, ip) {
 			if (results[index].postTitle.length <= 25) {
 				const tempData = {
 					postTitle: results[index].postTitle,
-					commentContent: results[index].commentContent,
+					commentContent: await newLineCommentContent(results[index]),
 					createDate: await changeDateTimeForm(results[index].createDateTime),
 				};
 				commentData.push(tempData);
@@ -379,7 +381,7 @@ export async function userReviewModel(userIndex, page, ip) {
 			const processedResults = await changeGradeStarForm(results[index]);
 			const tempData = {
 				libraryName: results[index].libraryName,
-				reviewContent: results[index].reviewContent,
+				reviewContent: await newLineReviewContent(results[index]),
 				createDate: await changeDateTimeForm(results[index].createDateTime),
 				grade: processedResults.grade,
 			};
