@@ -101,22 +101,22 @@ export async function entireBoardModel(category, page, ip) {
       // 게시글 제목의 글자수가 25자 미만일 때
       if (results[index].postTitle.length <= 25) {
         const tempData = {
-          글제목: results[index].postTitle,
-          닉네임: results[index].nickName,
-          조회수: await changeUnit(results[index].viewCount),
-          좋아요: await changeUnit(results[index].favoriteCount),
-          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+          postTitle: results[index].postTitle,
+          nickname: results[index].nickName,
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeDateTimeForm(results[index].createDateTime),
         };
         boardData.push(tempData);
       }
       // 게시글 제목의 글자수가 25자 이상일 때
       else if (results[index].postTitle.length > 25) {
         const tempData = {
-          글제목: results[index].postTitle.substring(0, 25) + "...",
-          닉네임: results[index].nickName,
-          조회수: await changeUnit(results[index].viewCount),
-          좋아요: await changeUnit(results[index].favoriteCount),
-          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+          postTitle: results[index].postTitle.substring(0, 25) + "...",
+          nickname: results[index].nickName,
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeDateTimeForm(results[index].createDateTime),
         };
         boardData.push(tempData);
       }
@@ -143,7 +143,6 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
     mysql.escape(boardIndex);
   // 성공시
   try {
-    await myPool.query("START TRANSACTION");
     // 게시글 정보가져오는 쿼리 메서드
     let [results, fields] = await myPool.query(query);
     // 성공 로그찍기
@@ -168,19 +167,17 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
     // 조회수 중복증가 여부 체크해서 반영해주는 메서드
     await increaseViewCount(boardIndex, userIndex, ip);
 
-    await myPool.query("COMMIT");
-
     // 해당 게시글의 데이터 파싱
     // 게시글 데이터
     // 제목 글자수가 25 이하일 때
     if (results[0][0].postTitle.length <= 25) {
       boardData = {
-        글제목: results[0][0].postTitle,
-        닉네임: results[0][0].nickName,
-        글내용: results[0][0].postContent,
-        조회수: await changeUnit(results[0][0].viewCount),
-        좋아요: await changeUnit(results[0][0].favoriteCount),
-        작성날짜: await changeDateTimeForm(results[0][0].createDateTime),
+        postTitle: results[0][0].postTitle,
+        nickname: results[0][0].nickName,
+        postContent: results[0][0].postContent,
+        viewCount: await changeUnit(results[0][0].viewCount),
+        favoriteCount: await changeUnit(results[0][0].favoriteCount),
+        createDate: await changeDateTimeForm(results[0][0].createDateTime),
       };
       // 제목 글자수가 25 초과일 때
     } else if (results[0][0].postTitle.length > 25) {
@@ -188,17 +185,17 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
       const tempTitle2 = results[0][0].postTitle.substring(25, 50);
       const boardTitle = tempTitle + "\n" + tempTitle2;
       boardData = {
-        글제목: boardTitle,
-        닉네임: results[0][0].nickName,
-        글내용: results[0][0].postContent,
-        조회수: await changeUnit(results[0][0].viewCount),
-        좋아요: await changeUnit(results[0][0].favoriteCount),
-        작성날짜: await changeDateTimeForm(results[0][0].createDateTime),
+        postTitle: boardTitle,
+        nickname: results[0][0].nickName,
+        postContent: results[0][0].postContent,
+        viewCount: await changeUnit(results[0][0].viewCount),
+        favoriteCount: await changeUnit(results[0][0].favoriteCount),
+        createDate: await changeDateTimeForm(results[0][0].createDateTime),
       };
     }
     // 태그 데이터
     for (let tagIndex in results[1]) {
-      tagData.push(results[1][tagIndex].tag);
+      tagData.push({ tag: results[1][tagIndex].tag });
     }
 
     // 성공적으로 게시글 정보 조회
@@ -206,7 +203,6 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await myPool.query("ROLLBACK");
     await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
@@ -299,13 +295,13 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
 
     // 게시글 데이터
     const boardData = {
-      카테고리: results[0][0].category,
-      글제목: results[0][0].postTitle,
-      글내용: results[0][0].postContent,
+      category: results[0][0].category,
+      postTitle: results[0][0].postTitle,
+      postContent: results[0][0].postContent,
     };
     // 태그 데이터
     for (let tagIndex in results[1]) {
-      tagData.push(results[1][tagIndex].tag);
+      tagData.push({ tag: results[1][tagIndex].tag });
     }
 
     return { state: "게시글정보로딩", dataOfBoard: boardData, dataOfTag: tagData };
@@ -557,22 +553,22 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
       // 게시글 제목의 글자수가 25자 미만일 때
       if (results[index].postTitle.length <= 25) {
         const tempData = {
-          글제목: results[index].postTitle,
-          닉네임: results[index].nickName,
-          조회수: await changeUnit(results[index].viewCount),
-          좋아요: await changeUnit(results[index].favoriteCount),
-          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+          postTitle: results[index].postTitle,
+          nickname: results[index].nickName,
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeDateTimeForm(results[index].createDateTime),
         };
         boardData.push(tempData);
       }
       // 게시글 제목의 글자수가 25자 이상일 때
       else if (results[index].postTitle.length > 25) {
         const tempData = {
-          글제목: results[index].postTitle.substring(0, 25) + "...",
-          닉네임: results[index].nickName,
-          조회수: await changeUnit(results[index].viewCount),
-          좋아요: await changeUnit(results[index].favoriteCount),
-          작성날짜: await changeDateTimeForm(results[index].createDateTime),
+          postTitle: results[index].postTitle.substring(0, 25) + "...",
+          nickname: results[index].nickName,
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeDateTimeForm(results[index].createDateTime),
         };
         boardData.push(tempData);
       }
