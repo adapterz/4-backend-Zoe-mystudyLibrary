@@ -128,14 +128,24 @@ export async function detailCommentModel(boardIndex, page, ip) {
     await querySuccessLog(ip, childCommentQuery);
     // 댓글 정보 데이터
     for (let rootIndex in rootResult) {
-      let tempRoot = [
-        "닉네임: " + rootResult[rootIndex].nickName,
-        "댓글내용: " + rootResult[rootIndex].commentContent,
-        "작성날짜: " + (await changeDateTimeForm(rootResult[rootIndex].createDateTime)),
-      ];
+      let tempRoot = {
+        isRoot: true,
+        isDeleted: false,
+        nickname: rootResult[rootIndex].nickName,
+        commentContent: rootResult[rootIndex].commentContent,
+        createDate: await changeDateTimeForm(rootResult[rootIndex].createDateTime),
+      };
       // 루트댓글이면서 삭제된 댓글일 때
-      if (rootResult[rootIndex].deleteDateTime !== null) tempRoot = ["삭제된 댓글입니다"];
+      if (rootResult[rootIndex].deleteDateTime !== null)
+        tempRoot = {
+          isRoot: true,
+          isDeleted: true,
+          nickname: rootResult[rootIndex].nickName,
+          commentContent: "삭제된 댓글입니다",
+          createDate: null,
+        };
 
+      if (tempRoot.nickname === null) tempRoot.nickname = "삭제된 유저입니다";
       commentData.push(tempRoot);
       // 해당 댓글의 대댓글 정보 추가
       for (let childIndex in childResult) {
@@ -143,15 +153,24 @@ export async function detailCommentModel(boardIndex, page, ip) {
         // 대댓글의 parentIndex 가 해당 댓글일 때 commentData에 대댓글 정보 추가
         if (childResult[childIndex].parentIndex === rootResult[rootIndex].commentIndex) {
           if (childResult[childIndex].parentIndex !== null) {
-            tempChild = [
-              "        닉네임: " + childResult[childIndex].nickName,
-              "        댓글내용: " + childResult[childIndex].commentContent,
-              "        작성날짜: " + (await changeDateTimeForm(childResult[childIndex].createDateTime)),
-            ];
+            tempChild = {
+              isRoot: false,
+              isDeleted: false,
+              nickname: childResult[childIndex].nickName,
+              commentContent: childResult[childIndex].commentContent,
+              createDate: await changeDateTimeForm(childResult[childIndex].createDateTime),
+            };
             // 대댓글이면서 삭제된 댓글일 때
-            if (childResult[childIndex].deleteDateTime !== null) tempChild = ["        삭제된 댓글입니다"];
+            if (childResult[childIndex].deleteDateTime !== null)
+              tempChild = {
+                isRoot: false,
+                isDeleted: true,
+                nickname: childResult[childIndex].nickName,
+                commentContent: "삭제된 댓글입니다",
+                createDate: null,
+              };
           }
-
+          if (tempChild.nickname === null) tempChild.nickname = "삭제된 유저입니다";
           commentData.push(tempChild);
         }
       }
@@ -180,7 +199,7 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
       return { state: "존재하지않는댓글" };
     }
     const commentData = {
-      댓글내용: results[0].commentContent,
+      commentContent: results[0].commentContent,
     };
     // DB에 데이터가 있을 때
     return { state: "댓글정보로딩", dataOfComment: commentData };
