@@ -33,39 +33,38 @@ export async function getRecentBoardModel(ip) {
       // 게시글 제목의 글자수가 15자 이하일 때
       if (results[0][index].postTitle.length <= 15) {
         const tempData = {
-          글제목: results[0][index].postTitle,
-          닉네임: results[0][index].nickName,
+          postTitle: results[0][index].postTitle,
+          nickname: results[0][index].nickName,
         };
         freeBoardData.push(tempData);
       }
       // 게시글 제목의 글자수가 15자 초과일 때
       else if (results[0][index].postTitle.length > 15) {
         const tempData = {
-          글제목: results[0][index].postTitle.substring(0, 15) + "...",
-          닉네임: results[0][index].nickName,
+          postTitle: results[0][index].postTitle.substring(0, 15) + "...",
+          nickname: results[0][index].nickName,
         };
         freeBoardData.push(tempData);
       }
     }
-
     // 공부인증샷 최신글 파싱
     for (const index in results[1]) {
       // 게시글 제목의 글자수가 10자 이하일 때
       if (results[0][index].postTitle.length <= 10) {
         const tempData = {
-          글제목: results[1][index].postTitle,
-          닉네임: results[1][index].nickName,
-          조회수: await changeUnit(results[1][index].viewCount),
-          좋아요: await changeUnit(results[1][index].favoriteCount),
+          postTitle: results[1][index].postTitle,
+          nickname: results[1][index].nickName,
+          viewCount: await changeUnit(results[1][index].viewCount),
+          favoriteCount: await changeUnit(results[1][index].favoriteCount),
         };
         studyBoardData.push(tempData);
         // 게시글 제목의 글자수가 10자 초과일 때
       } else if (results[0][index].postTitle.length > 10) {
         const tempData = {
-          글제목: results[1][index].postTitle.substring(0, 10) + "...",
-          닉네임: results[1][index].nickName,
-          조회수: await changeUnit(results[1][index].viewCount),
-          좋아요: await changeUnit(results[1][index].favoriteCount),
+          postTitle: results[1][index].postTitle.substring(0, 10) + "...",
+          nickname: results[1][index].nickName,
+          viewCount: await changeUnit(results[1][index].viewCount),
+          favoriteCount: await changeUnit(results[1][index].favoriteCount),
         };
         studyBoardData.push(tempData);
       }

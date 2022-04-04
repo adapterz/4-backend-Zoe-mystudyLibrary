@@ -13,7 +13,7 @@ import {
   writeBoardModel,
 } from "../Model/Board";
 import { OK, INTERNAL_SERVER_ERROR, FORBIDDEN, NOT_FOUND, CREATED, UNAUTHORIZED, NO_CONTENT } from "../CustomModule/StatusCode";
-
+// TODO DB컨벤션, on/off 좋아요 컬럼명, 인덱스공부 다시하기, library/detail x library/librarys 라고 나누기, eslint prettier sql문 적용
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
