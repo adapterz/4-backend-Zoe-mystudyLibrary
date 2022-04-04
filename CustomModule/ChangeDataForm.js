@@ -180,10 +180,13 @@ export async function changeLibraryDataForm(libraryData) {
   }
   return libraryData;
 }
+// 닉네임 데이터 가공
+export async function checkExistUser(nickname) {
+  // 닉네임이 null이면 삭제된 닉네임 취급
+  if (nickname === null) return "삭제된 유저 정보입니다.";
+}
 // 후기 데이터 가공
 export async function changeReviewDataForm(reviewData) {
-  // 닉네임이 null이면 삭제된 닉네임 취급
-  if (reviewData.nickName === null) reviewData.nickName = "삭제된 유저 정보입니다.";
   // 평점만큼 별 개수 출력하게 하기
   reviewData.grade = Number(reviewData.grade.toString().substring(0, 1));
   let tempStar = "";
