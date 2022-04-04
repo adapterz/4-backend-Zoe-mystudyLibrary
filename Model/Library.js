@@ -4,7 +4,13 @@ import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeDetailLibraryData, changeGradeForm, changeLibraryDataForm } from "../CustomModule/ChangeDataForm";
+import {
+  changeDetailLibraryData,
+  changeGradeForm,
+  changeLibraryDataForm,
+  changeLibrarysDataForm,
+  changeLibraryㄴDataForm,
+} from "../CustomModule/ChangeDataForm";
 
 /*
  * 1. 전체도서관 정보
@@ -27,24 +33,20 @@ export async function allLibraryModel(ip) {
     for (const index in results) {
       // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
       const grade = await changeGradeForm(Math.round(results[index].avgOfGrade * 10) / 10);
-      // 글자수 너무길어지면 잘라주는 메서드
-      const tempResult = await changeLibraryDataForm(results[index]);
+      // 데이터 가공 메서드
+      const tempResult = await changeLibrarysDataForm(results[index]);
       const tempData = {
-        도서관인덱스: results[index].libraryIndex,
-        도서관이름: tempResult.libraryName,
-        도서관종류: tempResult.libraryType,
-        휴관일: tempResult.closeDay,
-        평일오픈시간: tempResult.openWeekday,
-        평일종료시간: tempResult.endWeekday,
-        토요일오픈시간: tempResult.openSaturday,
-        토요일종료시간: tempResult.endSaturday,
-        공휴일오픈시간: tempResult.openHoliday,
-        공휴일종료시간: tempResult.endHoliday,
-        시도명: results[index].nameOfCity,
-        시군구명: results[index].districts,
-        상세주소: tempResult.address,
-        연락처: results[index].libraryContact,
-        평점: grade,
+        libraryIndex: results[index].libraryIndex,
+        libraryName: tempResult.libraryName,
+        libraryType: tempResult.libraryType,
+        closeDay: tempResult.closeDay,
+        weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
+        SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
+        HolidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
+        districts: results[index].nameOfCity + " " + results[index].districts,
+        address: tempResult.address,
+        libraryContact: tempResult.libraryContact,
+        averageGrade: grade,
       };
       libraryData.push(tempData);
     }
@@ -78,24 +80,20 @@ export async function localLibraryModel(inputLocal, ip) {
     for (const index in results) {
       // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
       const grade = await changeGradeForm(Math.round(results[index].avgOfGrade * 10) / 10);
-      // 글자수 너무길어지면 잘라주는 메서드
-      const tempResult = await changeLibraryDataForm(results[index]);
+      // 데이터 가공 메서드
+      const tempResult = await changeLibrarysDataForm(results[index]);
       const tempData = {
-        도서관인덱스: results[index].libraryIndex,
-        도서관이름: tempResult.libraryName,
-        도서관종류: tempResult.libraryType,
-        휴관일: tempResult.closeDay,
-        평일오픈시간: tempResult.openWeekday,
-        평일종료시간: tempResult.endWeekday,
-        토요일오픈시간: tempResult.openSaturday,
-        토요일종료시간: tempResult.endSaturday,
-        공휴일오픈시간: tempResult.openHoliday,
-        공휴일종료시간: tempResult.endHoliday,
-        시도명: results[index].nameOfCity,
-        시군구명: results[index].districts,
-        상세주소: tempResult.address,
-        연락처: results[index].libraryContact,
-        평점: grade,
+        libraryIndex: results[index].libraryIndex,
+        libraryName: tempResult.libraryName,
+        libraryType: tempResult.libraryType,
+        closeDay: tempResult.closeDay,
+        weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
+        SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
+        HolidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
+        districts: results[index].nameOfCity + " " + results[index].districts,
+        address: tempResult.address,
+        libraryContact: tempResult.libraryContact,
+        averageGrade: grade,
       };
       libraryData.push(tempData);
     }
@@ -128,26 +126,21 @@ export async function detailLibraryModel(libraryIndex, ip) {
     // 해당 도서관인덱스의 데이터 가공
     // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
     const grade = await changeGradeForm(Math.round(results[0].avgOfGrade * 10) / 10);
-    // 연락처가 빈문자열일 때 연락처 없다고 표기해주기
-    if (results[0].libraryContact === "") {
-      results[0].libraryContact = "연락처 없음";
-    }
-    // 휴관일 글자수 너무 길 경우 글자수 잘라주기
-    if (results[0].closeDay.length >= 50) {
-      results[0].closeDay = results[0].closeDay.substring(0, 50);
-    }
+    // 글자수 너무길어지면 잘라주는 메서드
+    const tempResult = await changeLibraryDataForm(results[0]);
+
     const libraryData = {
-      도서관이름: results[0].libraryName,
-      도서관종류: results[0].libraryType,
-      지역: results[0].nameOfCity + " " + results[0].districts,
-      상세주소: results[0].address,
-      휴관일: results[0].closeDay,
-      평일운영시간: results[0].openWeekday.toString().substring(0, 5) + " ~ " + results[0].endWeekday.toString().substring(0, 5),
-      토요일운영시간: results[0].openSaturday.toString().substring(0, 5) + " ~ " + results[0].endSaturday.toString().substring(0, 5),
-      공휴일운영시간: results[0].openHoliday.toString().substring(0, 5) + " ~ " + results[0].endHoliday.toString().substring(0, 5),
-      연락처: results[0].libraryContact,
-      후기개수: results[0].countOfGrade + " 개",
-      평점: grade,
+      libraryName: results[0].libraryName,
+      libraryType: results[0].libraryType,
+      districts: results[0].nameOfCity + " " + results[0].districts,
+      address: results[0].address,
+      closeDay: tempResult.closeDay,
+      weekDayOperateTime: results[0].openWeekday.toString().substring(0, 5) + " ~ " + results[0].endWeekday.toString().substring(0, 5),
+      SaturdayOperateTime: results[0].openSaturday.toString().substring(0, 5) + " ~ " + results[0].endSaturday.toString().substring(0, 5),
+      HolidayOperateTime: results[0].openHoliday.toString().substring(0, 5) + " ~ " + results[0].endHoliday.toString().substring(0, 5),
+      libraryContact: tempResult.libraryContact,
+      countOfGrade: results[0].countOfGrade + " 개",
+      averageGrade: grade,
     };
     // 유저가 요청한 도서관 정보가 존재할 때
     return { state: "상세도서관정보", dataOfLibrary: libraryData };

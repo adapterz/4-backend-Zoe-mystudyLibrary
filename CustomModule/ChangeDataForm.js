@@ -125,8 +125,8 @@ export async function changeGradeForm(grade) {
   // 평점의 소수점 1의자리까지 있다면 문자열화만 해주기
   else return "★ " + grade.toString() + " / 5점";
 }
-// 도서관 정보 글자수 자르기
-export async function changeLibraryDataForm(libraryData) {
+// 도서관 정보 글자수 자르기(전체도서관/ 지역도서관)
+export async function changeLibrarysDataForm(libraryData) {
   // 도서관명이 15글자 이상일 때 자르기
   if (libraryData.libraryName.length >= 15) {
     libraryData.libraryName = libraryData.libraryName.substring(0, 15) + "...";
@@ -153,5 +153,29 @@ export async function changeLibraryDataForm(libraryData) {
     libraryData.address = libraryData.address.substring(0, 20) + "...";
   }
 
+  if (libraryData.libraryContact === "") libraryData.libraryContact = "연락처 없음";
+  return libraryData;
+}
+
+// 도서관 정보 글자수 자르기(특정 인덱스 도서관정보)
+export async function changeLibraryDataForm(libraryData) {
+  // 연락처가 빈문자열일 때 연락처 없다고 표기해주기
+  if (libraryData.libraryContact === "") {
+    libraryData.libraryContact = "연락처 없음";
+  }
+  // 휴관일 글자수 너무 길 경우 글자수 잘라주기
+  // 50~100
+  if (libraryData.closeDay.length > 50 && libraryData.closeDay.length <= 100) {
+    libraryData.closeDay = libraryData.closeDay.substring(0, 50) + "\n" + libraryData.closeDay.substring(50, 100);
+  }
+  // 100~150
+  else if (libraryData.closeDay.length > 100 && libraryData.closeDay.length <= 150) {
+    libraryData.closeDay =
+      libraryData.closeDay.substring(0, 50) +
+      "\n" +
+      libraryData.closeDay.substring(50, 100) +
+      "\n" +
+      libraryData.closeDay.substring(100, 150);
+  }
   return libraryData;
 }
