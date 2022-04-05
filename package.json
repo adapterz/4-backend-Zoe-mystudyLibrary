@@ -22,6 +22,7 @@
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
+    "prettier-eslint": "^13.0.0",
     "rate-limiter-flexible": "^2.3.6",
     "request": "^2.88.2",
     "request-promise-native": "^1.0.9",
@@ -35,8 +36,9 @@
     "@babel/cli": "^7.17.6",
     "@babel/core": "^7.17.8",
     "@babel/preset-env": "^7.16.11",
+    "babel-eslint": "^10.1.0",
     "eslint": "^8.12.0",
-    "eslint-config-prettier": "^8.4.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.5.1"
   },

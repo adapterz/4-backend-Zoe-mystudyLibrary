@@ -17,6 +17,7 @@ export async function checkBoardMethod(boardIndex, userIndex, ip) {
     if (results[0] === undefined) {
       return { state: "존재하지않는게시글" };
     }
+
     // 해당 게시글이 로그인한 유저가 작성한 것이 아닐 때
     query =
       "SELECT userIndex FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex=" +
@@ -88,7 +89,8 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, ip
 // 삭제/수정 요청한 도서관정보가 있는지, 후기 정보가 있는지 유저가 해당 후기의 작성자인지 체크 하는 함수
 export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip) {
   // 해당 도서관이 존재하는지 확인
-  let query = "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
+  let query =
+    "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
   // 성공시
   try {
     // 쿼리문 실행
@@ -132,7 +134,8 @@ export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip
 // 삭제할 관심도서관 정보가 있는지 체크 하는 함수
 export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
   // 해당 도서관이 존재하는지 확인
-  let query = "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
+  let query =
+    "SELECT libraryIndex FROM LIBRARY WHERE deleteDateTime IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
   // 성공시
   try {
     // 쿼리문 실행
