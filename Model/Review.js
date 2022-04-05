@@ -5,12 +5,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import {
-	changeDateTimeForm,
-	changeGradeStarForm,
-	checkExistUser,
-	newLineReviewContent,
-} from "../CustomModule/ChangeDataForm";
+import { changeDateTimeForm, changeGradeStarForm, checkExistUser, newLine } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 도서관 후기 등록
  * 2. 도서관의 후기 정보
@@ -84,7 +79,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
 			const processedResults = await changeGradeStarForm(results[index]);
 			const tempData = {
 				nickname: await checkExistUser(results[index].nickname),
-				reviewContent: await newLineReviewContent(results[index]),
+				reviewContent: await newLine(results[index].reviewContent, 25),
 				grade: processedResults.grade,
 				createDate: await changeDateTimeForm(results[index].createDateTime),
 			};
@@ -115,7 +110,7 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
 
 		// 리뷰 데이터 가공
 		const reviewData = {
-			reviewContent: await newLineReviewContent(results[0]),
+			reviewContent: await newLine(results[0].reviewContent, 25),
 			grade: Math.round(results[0].grade),
 		};
 

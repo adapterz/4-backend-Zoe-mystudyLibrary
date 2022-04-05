@@ -7,10 +7,7 @@ import { moment } from "./DateTime";
  * 4. 도서관 정보 가공(특정 인덱스 도서관정보)
  * 5. 평점만큼 별 개수 출력하는 문자열로 가공하는 메서드
  * 6. 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
- * 7. 게시글 제목 25글자 단위로 줄바꿈
- * 8. 게시글 내용 50글자 단위로 줄바꿈
- * 9. 댓글 내용 50글자 단위로 줄바꿈
- * 10. 후기 내용 50글자 단위로 줄바꿈
+ * 7. 특정 글자수 단위로 개행문자 넣어주는 메서드
  */
 // 조회수/좋아요 수 단위 바꿔주는 메서드
 export async function changeUnit(viewOrFavoriteCount) {
@@ -228,62 +225,17 @@ export async function checkExistUser(nickname) {
 	return nickname;
 }
 
-// 게시글 제목 25글자 단위로 줄바꿈
-export async function newLinePostTitle(boardData) {
-	// 제목 25글자 단위로 잘라서 줄바꿈 기호 넣어주기
-	const postTitleLength = boardData.postTitle.length;
-	const postTitleLoopCount = Math.ceil(postTitleLength / 25);
-	// 제목 데이터를 임시로 저장할 변수
-	let tempPostTitle = ``;
-	for (let count = 0; count < postTitleLoopCount; ++count) {
-		tempPostTitle += `${boardData.postTitle.substring(count * 25, (count + 1) * 25)}
+// 특정 글자수 단위로 개행문자 넣어주는 메서드
+export async function newLine(data, countOfWord) {
+	// 데이터의 글자수와 몇번 반복문 돌릴지 정하기
+	const length = data.length;
+	const loopCount = Math.ceil(length / countOfWord);
+	// 파싱한 데이터를 임시로 저장할 변수
+	let tempData = ``;
+	for (let count = 0; count < loopCount; ++count) {
+		tempData += `${data.substring(count * countOfWord, (count + 1) * countOfWord)}
 		`;
 	}
-	boardData.postTitle = tempPostTitle;
-	return boardData.postTitle;
-}
-
-// 게시글 내용 50글자 단위로 줄바꿈
-export async function newLinePostContent(boardData) {
-	// 내용 50글자 단위로 잘라서 줄바꿈 기호 넣어주기
-	const postContentLength = boardData.postContent.length;
-	const postContentLoopCount = Math.ceil(postContentLength / 50);
-	// 내용 데이터를 임시로 저장할 변수
-	let tempPostContent = ``;
-	for (let count = 0; count < postContentLoopCount; ++count) {
-		tempPostContent += `${boardData.postContent.substring(count * 50, (count + 1) * 50)}
-		`;
-	}
-	boardData.postContent = tempPostContent;
-	return boardData.postContent;
-}
-
-// 댓글 내용 50글자 단위로 줄바꿈
-export async function newLineCommentContent(commentData) {
-	// 내용 50글자 단위로 잘라서 줄바꿈 기호 넣어주기
-	const commentContentLength = commentData.commentContent.length;
-	const commentContentLoopCount = Math.ceil(commentContentLength / 50);
-	// 내용 데이터를 임시로 저장할 변수
-	let tempCommentContent = ``;
-	for (let count = 0; count < commentContentLoopCount; ++count) {
-		tempCommentContent += `${commentData.commentContent.substring(count * 50, (count + 1) * 50)}
-		`;
-	}
-	commentData.commentContent = tempCommentContent;
-	return commentData.commentContent;
-}
-
-// 후기 내용 25글자 단위로 줄바꿈
-export async function newLineReviewContent(reviewData) {
-	// 내용 50글자 단위로 잘라서 줄바꿈 기호 넣어주기
-	const reviewContentLength = reviewData.reviewContent.length;
-	const reviewContentLoopCount = Math.ceil(reviewContentLength / 50);
-	// 내용 데이터를 임시로 저장할 변수
-	let tempReviewContent = ``;
-	for (let count = 0; count < reviewContentLoopCount; ++count) {
-		tempReviewContent += `${reviewData.reviewContent.substring(count * 25, (count + 1) * 25)}
-		`;
-	}
-	reviewData.reviewContent = tempReviewContent;
-	return reviewData.reviewContent;
+	data = tempData;
+	return data;
 }

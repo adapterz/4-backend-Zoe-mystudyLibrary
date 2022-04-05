@@ -6,13 +6,7 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import {
-	changeDateTimeForm,
-	changeUnit,
-	checkExistUser,
-	newLinePostContent,
-	newLinePostTitle,
-} from "../CustomModule/ChangeDataForm";
+import { changeDateTimeForm, changeUnit, checkExistUser, newLine } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -176,9 +170,9 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
 		// 해당 게시글의 데이터 파싱
 		// 게시글 데이터
 		boardData = {
-			postTitle: await newLinePostTitle(results[0][0]),
+			postTitle: await newLine(results[0][0].postTitle, 25),
 			nickname: await checkExistUser(results[0][0].nickname),
-			postContent: await newLinePostContent(results[0][0]),
+			postContent: await newLine(results[0][0].postContent, 50),
 			viewCount: await changeUnit(results[0][0].viewCount),
 			favoriteCount: await changeUnit(results[0][0].favoriteCount),
 			createDate: await changeDateTimeForm(results[0][0].createDateTime),
@@ -287,7 +281,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
 		const boardData = {
 			category: results[0][0].category,
 			postTitle: results[0][0].postTitle,
-			postContent: await newLinePostContent(results[0][0]),
+			postContent: await newLine(results[0][0].postContent, 50),
 		};
 		// 태그 데이터
 		for (let tagIndex in results[1]) {
