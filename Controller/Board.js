@@ -66,21 +66,25 @@ export async function entireBoardController(req, res) {
 export async function detailBoardController(req, res) {
   // req.params: category,boardIndex
   // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
-  let loginIndex;
   let reqCategory;
-  // 로그인 여부 검사
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else loginIndex = null;
+  let isViewDuplicated = true; // 기존에 이 게시글을 조회한적 있는가? 에 대한 boolean 값
+  const boardIndex = req.params.boardIndex;
   // 요청 category 값이 자유게시판이면 자유게시판의 글 정보, 공부인증샷면 공부인증샷 게시판의 글 정보 가져오기
   if (req.params.category === "free-bulletin") reqCategory = "자유게시판";
   if (req.params.category === "proof-shot") reqCategory = "공부인증샷";
-
+  // 쿠키를 이용한 중복조회 체크 (undefined : 해당 게시물 조회한 적이 없다는 뜻)
+  if (req.signedCookies[boardIndex] === undefined) {
+    // 최초 조회시 하루짜리 쿠키 생성
+    res.cookie(boardIndex, req.ip, {
+      maxAge: 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      signed: true,
+    });
+    // 이 게시글 최초 조회라고 boolean 값 변경해주기
+    isViewDuplicated = false;
+  }
   // 모델 결과 변수
-  const modelResult = await detailBoardModel(reqCategory, req.params.boardIndex, req.ip, loginIndex);
+  const modelResult = await detailBoardModel(reqCategory, boardIndex, req.ip, isViewDuplicated);
 
   // 모델 실행 결과에 따른 분기처리
   // mysql query 메서드 실패

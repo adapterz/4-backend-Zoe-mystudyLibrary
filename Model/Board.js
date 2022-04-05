@@ -132,7 +132,7 @@ export async function entireBoardModel(category, page, ip) {
 }
 
 // 1-3. 특정 게시글 상세보기
-export async function detailBoardModel(category, boardIndex, ip, userIndex) {
+export async function detailBoardModel(category, boardIndex, ip, isViewDuplicated) {
   const tagData = [];
   let boardData;
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
@@ -164,9 +164,13 @@ export async function detailBoardModel(category, boardIndex, ip, userIndex) {
     [results, fields] = await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
-    // 조회수 중복증가 여부 체크해서 반영해주는 메서드
-    await increaseViewCount(boardIndex, userIndex, ip);
-
+    // 최초 조회시 게시글 조회수 +1
+    if (isViewDuplicated === false) {
+      query = `UPDATE BOARD SET viewCount = viewCount +1 WHERE boardIndex = ${boardIndex}`;
+      await myPool.query(query);
+      // 성공 로그찍기
+      await querySuccessLog(ip, query);
+    }
     // 해당 게시글의 데이터 파싱
     // 게시글 데이터
     boardData = {

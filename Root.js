@@ -80,14 +80,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extends: false }));
 app.use(helmet());
 app.disable("x-powered-by");
-app.use(cookieParser("secret"));
+app.use(cookieParser(process.env.SECRET));
 app.use(
   session({
     secret: process.env.SESSION_PASSWORD,
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 24 * 60 * 60 * 1000 },
-  }),
+  })
 );
 app.use(morgan("combined", { stream: logger.stream }));
 app.use("/api", apiLimiter);
