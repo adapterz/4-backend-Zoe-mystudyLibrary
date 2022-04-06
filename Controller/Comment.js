@@ -1,7 +1,13 @@
 // 댓글 컨트롤러
 // 내장 모듈
 import { checkBoardMethod, checkCommentMethod } from "../CustomModule/CheckDataOrAuthority";
-import { deleteCommentModel, detailCommentModel, editCommentModel, getCommentModel, writeCommentModel } from "../Model/Comment";
+import {
+  deleteCommentModel,
+  detailCommentModel,
+  editCommentModel,
+  getCommentModel,
+  writeCommentModel,
+} from "../Model/Comment";
 import {
   FORBIDDEN,
   UNAUTHORIZED,
@@ -13,6 +19,7 @@ import {
   OK,
 } from "../CustomModule/StatusCode";
 import { detailBoardModel } from "../Model/Board";
+import jwt from "jsonwebtoken";
 
 /*
  * 1. 댓글 작성
@@ -30,20 +37,22 @@ export async function writeCommentController(req, res) {
    * req.body
    *  content: 댓글내용
    */
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
   let parentIndex;
   let checkComment;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+
   if (req.query.parentIndex !== undefined) parentIndex = req.query.parentIndex;
   else parentIndex = "NULL";
   // 대댓글 작성 시 해당 대댓글의 루트댓글 유무 체크 및 유저의 권한 체크
-  if (req.query.parentIndex !== undefined) checkComment = await checkCommentMethod(req.query.boardIndex, parentIndex, loginIndex, req.ip);
+  if (req.query.parentIndex !== undefined)
+    checkComment = await checkCommentMethod(req.query.boardIndex, parentIndex, loginIndex, req.ip);
   // 댓글 작성시 게시글의 유무 체크 및 유저의 권한 체크
   else checkComment = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
@@ -100,14 +109,14 @@ export async function getCommentController(req, res) {
    * req.query
    *  boardIndex,commentIndex
    */
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 해당 댓글유무 체크, 댓글에 대한 유저의 권한 체크
   const checkComment = await checkCommentMethod(req.query.boardIndex, req.query.commentIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
@@ -138,14 +147,14 @@ export async function editCommentController(req, res) {
    * req.body
    *  content (댓글내용)
    */
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 해당 댓글에 존재유무와 유저의 권한 체크
   const checkComment = await checkCommentMethod(req.query.boardIndex, req.query.commentIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
@@ -173,14 +182,14 @@ export async function deleteCommentController(req, res) {
    * req.query
    *  boardIndex, commentIndex
    */
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 해당 게시글,댓글 유무와 댓글에 대한 유저의 권한 체크
   const checkComment = await checkCommentMethod(req.query.boardIndex, req.query.commentIndex, loginIndex, req.ip);
   // mysql query 메서드 실패

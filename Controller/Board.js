@@ -21,6 +21,7 @@ import {
   UNAUTHORIZED,
   NO_CONTENT,
 } from "../CustomModule/StatusCode";
+import jwt from "jsonwebtoken";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -106,14 +107,14 @@ export async function writeBoardController(req, res) {
    *  postContent: 글내용
    *  tags: 태그배열 [{content : 태그내용},{content: 태그내용}]
    */
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 게시글 작성 모델 실행 결과 변수
   const modelResult = await writeBoardModel(req.body.category, req.body, loginIndex, req.ip);
   // 모델 실행결과에 따른 분기처리
@@ -126,14 +127,14 @@ export async function writeBoardController(req, res) {
 // 2-2. 게시글 수정을 위해 기존 게시글 정보 불러오기
 export async function getWriteController(req, res) {
   // req.query : boardIndex
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 1. 글 새로 작성하는 경우
   if (req.query.boardIndex === "") return res.status(OK).end();
   // 2. 기존의 글 수정하는 경우
@@ -168,15 +169,14 @@ export async function editBoardController(req, res) {
    *  postContent: 글내용
    *  tags: 태그배열
    */
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
   const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
@@ -199,14 +199,14 @@ export async function editBoardController(req, res) {
 // 2-4. 게시글 삭제하기
 export async function deleteBoardController(req, res) {
   // req.query: boardIndex
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
   const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
@@ -229,14 +229,14 @@ export async function deleteBoardController(req, res) {
 // 3-1. 게시글 좋아요 요청
 export async function favoriteBoardController(req, res) {
   // req.query: boardIndex
-  // 필요 변수 선언
-  const loginCookie = req.signedCookies.user;
+  //  필요 변수 선언
+  const loginToken = req.signedCookies.token;
   let loginIndex;
-  // 로그인 돼있고 세션키와 발급받은 쿠키의 키가 일치할때 유저인덱스 알려줌
-  if (req.session.user) {
-    if (req.session.user.key === loginCookie) loginIndex = req.session.user.id;
-    else return res.status(FORBIDDEN).json({ state: "올바르지않은 접근" });
-  } else return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인 토큰이 없을 때
+  if (loginToken === undefined)
+    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+  // 로그인했을 때 토큰의 유저인덱스 불러오기
+  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
   // 좋아요 모델 실행 결과
   const modelResult = await favoriteBoardModel(req.query.boardIndex, loginIndex, req.ip);
   // mysql query 메서드 실패
