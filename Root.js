@@ -19,6 +19,8 @@ import rateLimit from "express-rate-limit"; // 디도스 방어 모듈
 import "dotenv/config.js";
 
 // 내장모듈
+// 명언 스크래핑 모듈
+import { getScraping } from "./CustomModule/Scraping";
 // 날짜/시간 관련 모듈
 import { moment } from "./CustomModule/DateTime";
 // 라우터
@@ -110,7 +112,8 @@ app.get("/not-found", (req, res) => {
  * import { reqOpenData } from "./CustomModule/RequestOpenApi";
  * reqOpenData();
  */
-
+// 서비스에 필요한 명언 정보 DB 테이블에 넣기
+// getScraping();
 // 서버 시작
 app.listen(process.env.PORT, () => {
   console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
