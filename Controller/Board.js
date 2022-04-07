@@ -107,57 +107,73 @@ export async function writeBoardController(req, res) {
    *  postContent: 글내용
    *  tags: 태그배열 [{content : 태그내용},{content: 태그내용}]
    */
-  //  필요 변수 선언
-  const loginToken = req.signedCookies.token;
-  let loginIndex;
-  // 로그인 토큰이 없을 때
-  if (loginToken === undefined)
-    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 로그인했을 때 토큰의 유저인덱스 불러오기
-  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
-  // 게시글 작성 모델 실행 결과 변수
-  const modelResult = await writeBoardModel(req.body.category, req.body, loginIndex, req.ip);
-  // 모델 실행결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 게시글 작성 요청 성공
-  else if (modelResult.state === "게시글작성완료") return res.status(CREATED).end();
+  try {
+    //  필요 변수 선언
+    const loginToken = req.signedCookies.token;
+    let loginIndex;
+    // 로그인 토큰이 없을 때
+    if (loginToken === undefined)
+      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+    // 로그인했을 때 토큰의 유저인덱스 불러오기
+    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const payloadIndex = await jwt.decode(loginToken).idx;
+    // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    // 게시글 작성 모델 실행 결과 변수
+    const modelResult = await writeBoardModel(req.body.category, req.body, loginIndex, req.ip);
+    // 모델 실행결과에 따른 분기처리
+    // mysql query 메서드 실패
+    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 게시글 작성 요청 성공
+    else if (modelResult.state === "게시글작성완료") return res.status(CREATED).end();
+    // 유효하지 않은 토큰일 때
+  } catch (err) {
+    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+  }
 }
 
 // 2-2. 게시글 수정을 위해 기존 게시글 정보 불러오기
 export async function getWriteController(req, res) {
   // req.query : boardIndex
-  //  필요 변수 선언
-  const loginToken = req.signedCookies.token;
-  let loginIndex;
-  // 로그인 토큰이 없을 때
-  if (loginToken === undefined)
-    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 로그인했을 때 토큰의 유저인덱스 불러오기
-  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
-  // 1. 글 새로 작성하는 경우
-  if (req.query.boardIndex === "") return res.status(OK).end();
-  // 2. 기존의 글 수정하는 경우
-  // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
-  // mysql query 메서드 실패
-  if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
-  // 해당 게시글 정보가 없을 때
-  else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
-  // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-  else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
-  // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-  else if (checkPost.state === "접근성공") {
-    // 해당 인덱스의 게시글 정보 가져오는 모델
-    const modelResult = await getWriteModel(req.query.boardIndex, loginIndex, req.ip);
-    // 모델 실행결과에 따른 분기처리
+  try {
+    //  필요 변수 선언
+    const loginToken = req.signedCookies.token;
+    let loginIndex;
+    // 로그인 토큰이 없을 때
+    if (loginToken === undefined)
+      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+    // 로그인했을 때 토큰의 유저인덱스 불러오기
+    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const payloadIndex = await jwt.decode(loginToken).idx;
+    // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    // 1. 글 새로 작성하는 경우
+    if (req.query.boardIndex === "") return res.status(OK).end();
+    // 2. 기존의 글 수정하는 경우
+    // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
+    const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
     // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
-    else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
-    // 성공적으로 게시글 정보 가져왔을 때
-    else if (modelResult.state === "게시글정보로딩")
-      return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag]);
+    else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
+    // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
+    else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
+    // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
+    else if (checkPost.state === "접근성공") {
+      // 해당 인덱스의 게시글 정보 가져오는 모델
+      const modelResult = await getWriteModel(req.query.boardIndex, loginIndex, req.ip);
+      // 모델 실행결과에 따른 분기처리
+      // mysql query 메서드 실패
+      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // 해당 게시글 정보가 없을 때
+      else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
+      // 성공적으로 게시글 정보 가져왔을 때
+      else if (modelResult.state === "게시글정보로딩")
+        return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag]);
+    }
+    // 유효하지 않은 토큰일 때
+  } catch (err) {
+    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
   }
 }
 // 2-3. 게시글 수정요청
@@ -169,82 +185,106 @@ export async function editBoardController(req, res) {
    *  postContent: 글내용
    *  tags: 태그배열
    */
-  //  필요 변수 선언
-  const loginToken = req.signedCookies.token;
-  let loginIndex;
-  // 로그인 토큰이 없을 때
-  if (loginToken === undefined)
-    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 로그인했을 때 토큰의 유저인덱스 불러오기
-  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
-  // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
-  // mysql query 메서드 실패
-  if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
-  // 해당 게시글 정보가 없을 때
-  else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
-  // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-  else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
-  // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-  else if (checkPost.state === "접근성공") {
-    // 게시글 수정 모델 실행 결과
-    const modelResults = await editBoardModel(req.body, req.query.boardIndex, loginIndex, req.ip);
+  try {
+    //  필요 변수 선언
+    const loginToken = req.signedCookies.token;
+    let loginIndex;
+    // 로그인 토큰이 없을 때
+    if (loginToken === undefined)
+      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+    // 로그인했을 때 토큰의 유저인덱스 불러오기
+    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const payloadIndex = await jwt.decode(loginToken).idx;
+    // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
+    const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
     // mysql query 메서드 실패
-    if (modelResults.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
-    // 성공적으로 게시글 수정 요청 수행
-    else if (modelResults.state === "게시글수정") return res.status(OK).end();
+    if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    // 해당 게시글 정보가 없을 때
+    else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
+    // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
+    else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
+    // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
+    else if (checkPost.state === "접근성공") {
+      // 게시글 수정 모델 실행 결과
+      const modelResults = await editBoardModel(req.body, req.query.boardIndex, loginIndex, req.ip);
+      // mysql query 메서드 실패
+      if (modelResults.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
+      // 성공적으로 게시글 수정 요청 수행
+      else if (modelResults.state === "게시글수정") return res.status(OK).end();
+    }
+    // 유효하지 않은 토큰일 때
+  } catch (err) {
+    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
   }
 }
 
 // 2-4. 게시글 삭제하기
 export async function deleteBoardController(req, res) {
   // req.query: boardIndex
-  //  필요 변수 선언
-  const loginToken = req.signedCookies.token;
-  let loginIndex;
-  // 로그인 토큰이 없을 때
-  if (loginToken === undefined)
-    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 로그인했을 때 토큰의 유저인덱스 불러오기
-  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
-  // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-  const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
-  // mysql query 메서드 실패
-  if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
-  // 해당 게시글 정보가 없을 때
-  else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
-  // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-  else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
-  // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-  else if (checkPost.state === "접근성공") {
-    // 해당 인덱스 게시글 삭제
-    const modelResult = await deleteBoardModel(req.query.boardIndex, loginIndex, req.ip);
+  try {
+    //  필요 변수 선언
+    const loginToken = req.signedCookies.token;
+    let loginIndex;
+    // 로그인 토큰이 없을 때
+    if (loginToken === undefined)
+      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+    // 로그인했을 때 토큰의 유저인덱스 불러오기
+    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const payloadIndex = await jwt.decode(loginToken).idx;
+    // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
+    const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
     // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-    // 성공적으로 게시글 삭제 요청 수행
-    else if (modelResult.state === "게시글삭제") return res.status(NO_CONTENT).end();
+    if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    // 해당 게시글 정보가 없을 때
+    else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
+    // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
+    else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
+    // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
+    else if (checkPost.state === "접근성공") {
+      // 해당 인덱스 게시글 삭제
+      const modelResult = await deleteBoardModel(req.query.boardIndex, loginIndex, req.ip);
+      // mysql query 메서드 실패
+      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // 성공적으로 게시글 삭제 요청 수행
+      else if (modelResult.state === "게시글삭제") return res.status(NO_CONTENT).end();
+    }
+    // 유효하지 않은 토큰일 때
+  } catch (err) {
+    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
   }
 }
 // 3. 좋아요/검색기능
 // 3-1. 게시글 좋아요 요청
 export async function favoriteBoardController(req, res) {
   // req.query: boardIndex
-  //  필요 변수 선언
-  const loginToken = req.signedCookies.token;
-  let loginIndex;
-  // 로그인 토큰이 없을 때
-  if (loginToken === undefined)
-    return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
-  // 로그인했을 때 토큰의 유저인덱스 불러오기
-  loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
-  // 좋아요 모델 실행 결과
-  const modelResult = await favoriteBoardModel(req.query.boardIndex, loginIndex, req.ip);
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 좋아요를 이미 누른적이 있을 때
-  else if (modelResult.state === "좋아요 취소") return res.status(OK).end();
-  // 성공적으로 좋아요 요청 수행
-  else if (modelResult.state === "좋아요+1") return res.status(OK).end();
+  try {
+    //  필요 변수 선언
+    const loginToken = req.signedCookies.token;
+    let loginIndex;
+    // 로그인 토큰이 없을 때
+    if (loginToken === undefined)
+      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+    // 로그인했을 때 토큰의 유저인덱스 불러오기
+    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const payloadIndex = await jwt.decode(loginToken).idx;
+    // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    // 좋아요 모델 실행 결과
+    const modelResult = await favoriteBoardModel(req.query.boardIndex, loginIndex, req.ip);
+    // mysql query 메서드 실패
+    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 좋아요를 이미 누른적이 있을 때
+    else if (modelResult.state === "좋아요 취소") return res.status(OK).end();
+    // 성공적으로 좋아요 요청 수행
+    else if (modelResult.state === "좋아요+1") return res.status(OK).end();
+    // 유효하지 않은 토큰일 때
+  } catch (err) {
+    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+  }
 }
 // 3-2. 게시글 검색기능
 export async function searchBoardController(req, res) {
