@@ -57,9 +57,16 @@ export async function registerReviewController(req, res) {
     if (modelResult.state === "기존에 작성한 후기가 존재합니다.") return res.status(CONFLICT).json(modelResult);
     // 성공적으로 도서관 후기 등록
     else if (modelResult.state === "도서관후기등록") return res.status(CREATED).end();
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -128,9 +135,16 @@ export async function getReviewController(req, res) {
       // 성공적으로 후기 정보 가져왔을 때
       else if (modelResults.state === "후기정보로딩") return res.status(OK).json(modelResults.dataOfReview);
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 후기 수정 요청
@@ -172,9 +186,16 @@ export async function editReviewController(req, res) {
       // 성공적으로 후기수정 요청 수행
       else if (modelResult.state === "후기수정") return res.status(OK).end();
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 후기 삭제
@@ -216,8 +237,15 @@ export async function deleteReviewController(req, res) {
       // 성공적으로 해당 후기 삭제
       else if (modelResult.state === "후기삭제") return res.status(NO_CONTENT).end();
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }

@@ -126,9 +126,16 @@ export async function writeBoardController(req, res) {
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 게시글 작성 요청 성공
     else if (modelResult.state === "게시글작성완료") return res.status(CREATED).end();
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -171,9 +178,16 @@ export async function getWriteController(req, res) {
       else if (modelResult.state === "게시글정보로딩")
         return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag]);
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 2-3. 게시글 수정요청
@@ -214,9 +228,16 @@ export async function editBoardController(req, res) {
       // 성공적으로 게시글 수정 요청 수행
       else if (modelResults.state === "게시글수정") return res.status(OK).end();
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -252,9 +273,16 @@ export async function deleteBoardController(req, res) {
       // 성공적으로 게시글 삭제 요청 수행
       else if (modelResult.state === "게시글삭제") return res.status(NO_CONTENT).end();
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 3. 좋아요/검색기능
@@ -281,9 +309,16 @@ export async function favoriteBoardController(req, res) {
     else if (modelResult.state === "좋아요 취소") return res.status(OK).end();
     // 성공적으로 좋아요 요청 수행
     else if (modelResult.state === "좋아요+1") return res.status(OK).end();
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 3-2. 게시글 검색기능

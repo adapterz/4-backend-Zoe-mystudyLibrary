@@ -114,9 +114,16 @@ export async function dropOutController(req, res) {
       res.clearCookie("user");
       return res.status(NO_CONTENT).json(modelResult);
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -196,9 +203,16 @@ export async function userLibraryController(req, res) {
     else if (modelResult.state === "등록된정보없음") return res.status(OK).json(modelResult);
     // 해당 유저가 지금까지 등록한 관심도서관 정보 응답
     else if (modelResult.state === "유저의관심도서관") return res.status(OK).json(modelResult.dataOfLibrary);
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -228,9 +242,16 @@ export async function registerUserLibraryController(req, res) {
     else if (modelResult.state === "중복된등록요청") return res.status(BAD_REQUEST).json(modelResult);
     // 성공적으로 관심도서관 추가 요청 수행
     else if (modelResult.state === "관심도서관추가") return res.status(OK).end();
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -268,9 +289,16 @@ export async function deleteUserLibraryController(req, res) {
       // 해당 관심도서관 정보가 삭제됐을 때
       if (modelResult.state === "관심도서관삭제") return res.status(NO_CONTENT).json(modelResult);
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 4. 유저가 작성한 글/댓글/후기 조회
@@ -301,9 +329,16 @@ export async function userBoardController(req, res) {
     else if (modelResult.state === "등록된글이없음") return res.status(OK).json(modelResult.state);
     // 성공적으로 유저가 작성한 게시글 정보 응답
     else if (modelResult.state === "내작성글조회") return res.status(OK).json(modelResult.dataOfBoard);
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 4-2. 유저가 작성한 댓글 조회
@@ -333,9 +368,16 @@ export async function userCommentController(req, res) {
     else if (modelResult.state === "등록된댓글없음") return res.status(OK).json(modelResult);
     // 성공적으로 유저가 작성한 댓글 정보 응답
     else if (modelResult.state === "성공적조회") return res.status(OK).json(modelResult.dataOfComment);
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 4-3. 유저가 작성한 도서관 이용 후기 조회
@@ -365,9 +407,16 @@ export async function userReviewController(req, res) {
     else if (modelResult.state === "등록된후기없음") return res.status(OK).json(modelResult);
     // 성공적으로 유저가 작성한 후기 정보 응답
     else if (modelResult.state === "성공적조회") return res.status(OK).json(modelResult.dataOfReview);
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -402,9 +451,16 @@ export async function editProfileController(req, res) {
     else if (modelResult.state === "중복닉네임") return res.status(BAD_REQUEST).json(modelResult);
     // 성공적으로 프로필 변경
     else if (modelResult.state === "프로필변경성공") return res.status(OK).end();
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -433,9 +489,16 @@ export async function editPhoneNumberController(req, res) {
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 성공적으로 연락처 변경요청 수행
     else if (modelResult.state === "연락처변경성공") return res.status(OK).end();
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 
@@ -470,8 +533,15 @@ export async function editPwController(req, res) {
     else if (modelResult.state === "비밀번호/비밀번호확인 불일치") return res.status(BAD_REQUEST).json(modelResult);
     // 성공적으로 비밀번호 변경 요청 수행
     else if (modelResult.state === "비밀번호변경성공") return res.status(OK).json(modelResult);
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }

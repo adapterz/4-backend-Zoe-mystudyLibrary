@@ -79,9 +79,16 @@ export async function writeCommentController(req, res) {
       // 성공적으로 대댓글 작성 요청 수행
       else if (modelResult.state === "대댓글작성") return res.status(CREATED).end();
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 게시글의 댓글 정보
@@ -148,9 +155,16 @@ export async function getCommentController(req, res) {
       // 성공적으로 댓글 정보 가져왔을 때
       else if (modelResult.state === "댓글정보로딩") return res.status(OK).json(modelResult.dataOfComment);
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 댓글 수정 요청
@@ -193,9 +207,16 @@ export async function editCommentController(req, res) {
       // 성공적으로 댓글수정 요청 수행
       else if (modelResult.state === "댓글수정") return res.status(OK).end();
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
 // 댓글 삭제
@@ -235,8 +256,15 @@ export async function deleteCommentController(req, res) {
       // 성공적으로 댓글삭제 요청 수행
       else if (modelResult.state === "댓글삭제") return res.status(NO_CONTENT).end();
     }
-    // 유효하지 않은 토큰일 때
   } catch (err) {
-    return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+    }
+    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
   }
 }
