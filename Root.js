@@ -29,6 +29,7 @@ import commentRouter from "./Router/Comment";
 import libraryRouter from "./Router/Library";
 import reviewRouter from "./Router/Review";
 import userRouter from "./Router/User";
+import otherRouter from "./Router/Other";
 
 // 설정
 // 로그에 DB 저장하도록 할 설정
@@ -100,6 +101,7 @@ app.use("/", libraryRouter);
 app.use("/review", reviewRouter);
 app.use("/user", userRouter);
 app.use("/", boardRouter);
+app.use("/", otherRouter);
 
 // 404 에러처리
 app.get("/not-found", (req, res) => {
