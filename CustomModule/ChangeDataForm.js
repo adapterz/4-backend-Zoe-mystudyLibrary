@@ -184,7 +184,7 @@ export async function changeLibraryDataForm(libraryData) {
   let tempCloseDay = ``;
   for (let count = 0; count < closeDayLoopCount; ++count) {
     tempCloseDay += `${libraryData.closeDay.substring(count * 25, (count + 1) * 25)}
-		`;
+`;
   }
   libraryData.closeDay = tempCloseDay;
 
@@ -195,7 +195,7 @@ export async function changeLibraryDataForm(libraryData) {
   let tempAddress = ``;
   for (let count = 0; count < addressLoopCount; ++count) {
     tempAddress += `${libraryData.address.substring(count * 25, (count + 1) * 25)}
-		`;
+`;
   }
   libraryData.address = tempAddress;
   return libraryData;
@@ -234,7 +234,7 @@ export async function newLine(data, countOfWord) {
   let tempData = ``;
   for (let count = 0; count < loopCount; ++count) {
     tempData += `${data.substring(count * countOfWord, (count + 1) * countOfWord)}
-		`;
+`;
   }
   data = tempData;
   return data;
