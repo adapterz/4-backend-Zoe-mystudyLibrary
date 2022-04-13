@@ -20,6 +20,7 @@ import {
   CREATED,
   UNAUTHORIZED,
   NO_CONTENT,
+  BAD_REQUEST,
 } from "../CustomModule/StatusCode";
 import jwt from "jsonwebtoken";
 /*
@@ -305,6 +306,8 @@ export async function favoriteBoardController(req, res) {
     const modelResult = await favoriteBoardModel(req.query.boardIndex, loginIndex, req.ip);
     // mysql query 메서드 실패
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 게시글이 없을 때
+    else if (modelResult.state === "존재하지않는게시글") return res.status(BAD_REQUEST).json(modelResult);
     // 좋아요를 이미 누른적이 있을 때
     else if (modelResult.state === "좋아요 취소") return res.status(OK).end();
     // 성공적으로 좋아요 요청 수행

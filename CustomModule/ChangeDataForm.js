@@ -113,16 +113,16 @@ export async function changeUnit(viewOrFavoriteCount) {
 }
 
 // DateTime yyyy-mm-dd 형태로 변경해주는 메서드
-export async function changeDateTimeForm(dateTime) {
-  let tempDateTime = moment(dateTime, "YYYY-MM-DD").toDate();
-  const stringDateTime =
-    tempDateTime.getFullYear().toString() +
+export async function changeTimestampForm(timestamp) {
+  let tempTimestamp = moment(timestamp, "YYYY-MM-DD").toDate();
+  const stringTimestamp =
+    tempTimestamp.getFullYear().toString() +
     "년 " +
-    (tempDateTime.getMonth() + 1).toString() +
+    (tempTimestamp.getMonth() + 1).toString() +
     "월 " +
-    tempDateTime.getDate().toString() +
+    tempTimestamp.getDate().toString() +
     "일";
-  return stringDateTime;
+  return stringTimestamp;
 }
 
 /*

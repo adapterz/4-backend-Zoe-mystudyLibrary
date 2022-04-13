@@ -4,9 +4,8 @@
 import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
-import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeDateTimeForm, changeUnit, checkExistUser, newLine } from "../CustomModule/ChangeDataForm";
+import { changeTimestampForm, changeUnit, checkExistUser, newLine } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -20,8 +19,8 @@ export async function getRecentBoardModel(ip) {
   const studyBoardData = [];
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
   const query =
-    "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
-    "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
+    "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
+    "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
   // 성공시
   try {
     const [results, fields] = await myPool.query(query, ["자유게시판", "공부인증샷"]);
@@ -82,7 +81,7 @@ export async function entireBoardModel(category, page, ip) {
   const boardData = [];
   // 카테고리에 맞는 전체 게시글 정보 가져오기
   const query =
-    "SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+    "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
     mysql.escape(category) +
     "ORDER BY boardIndex DESC LIMIT " +
     10 * (page - 1) +
@@ -105,7 +104,7 @@ export async function entireBoardModel(category, page, ip) {
           nickname: await checkExistUser(results[index].nickname),
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeDateTimeForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         boardData.push(tempData);
       }
@@ -116,7 +115,7 @@ export async function entireBoardModel(category, page, ip) {
           nickname: await checkExistUser(results[index].nickname),
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeDateTimeForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         boardData.push(tempData);
       }
@@ -137,7 +136,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
   let boardData;
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
-    "SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createDateTime,USER.nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+    "SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createTimestamp,USER.nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category=" +
     mysql.escape(category) +
     "AND boardIndex =" +
     mysql.escape(boardIndex);
@@ -152,12 +151,12 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
       return { state: "존재하지않는게시글" };
     }
     query =
-      "SELECT postTitle,USER.nickname,postContent,viewCount,favoriteCount,BOARD.createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category=" +
+      "SELECT postTitle,USER.nickname,postContent,viewCount,favoriteCount,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category=" +
       mysql.escape(category) + // 해당 게시글 정보
       "AND boardIndex =" +
       mysql.escape(boardIndex) +
       ";" +
-      "SELECT tag FROM TAG WHERE deleteDateTime IS NULL AND TAG IS NOT NULL AND boardIndex =" + // 태그 정보
+      "SELECT tag FROM TAG WHERE deleteTimestamp IS NULL AND TAG IS NOT NULL AND boardIndex =" + // 태그 정보
       mysql.escape(boardIndex) +
       ";";
     // 게시글 정보가져오는 쿼리 메서드
@@ -179,7 +178,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
       postContent: await newLine(results[0][0].postContent, 50),
       viewCount: await changeUnit(results[0][0].viewCount),
       favoriteCount: await changeUnit(results[0][0].favoriteCount),
-      createDate: await changeDateTimeForm(results[0][0].createDateTime),
+      createDate: await changeTimestampForm(results[0][0].createTimestamp),
     };
     // 태그 데이터
     for (let tagIndex in results[1]) {
@@ -204,7 +203,7 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
   let tagSequence = 1;
   // 게시글 작성 쿼리문
   query =
-    "INSERT INTO BOARD(category,userIndex,postTitle,postContent,createDateTime,viewCount,favoriteCount) VALUES (" +
+    "INSERT INTO BOARD(category,userIndex,postTitle,postContent,createTimestamp,viewCount,favoriteCount) VALUES (" +
     mysql.escape(category) +
     "," +
     mysql.escape(userIndex) +
@@ -212,9 +211,7 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
     mysql.escape(inputWrite.postTitle) +
     "," +
     mysql.escape(inputWrite.postContent) +
-    "," +
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    ",0,0);"; // 조회수, 좋아하는 유저수는 처음에 0으로 등록
+    ",NOW(),0,0);"; // 조회수, 좋아하는 유저수는 처음에 0으로 등록
   // 성공시
   try {
     await myPool.query("START TRANSACTION");
@@ -225,27 +222,23 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
     // 태그 쿼리문 추가, 태그 배열이 비어있으면 해당 반복문은 작동하지 않음
     for (const tagIndex in inputWrite.tags) {
       tagQuery +=
-        "INSERT INTO TAG(boardIndex,tag,tagSequence,updateDateTime) VALUES (" +
+        "INSERT INTO TAG(boardIndex,tag,tagSequence,updateTimestamp) VALUES (" +
         mysql.escape(results.insertId) + // 생성될 게시글의 인덱스
         "," +
         mysql.escape(inputWrite.tags[tagIndex].content) +
         "," +
         mysql.escape(tagSequence) +
-        "," +
-        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-        ");";
+        ",NOW());";
       ++tagSequence;
     }
     // 태그가 5개 이하라면 비어있는 태그 sequence 만들어줌 (tagCount 는 마지막 (tagIndex(범위: 0~4) + 1)(범위: 1~5) +1)
     for (; tagSequence <= 5; ++tagSequence) {
       tagQuery +=
-        "INSERT INTO TAG(boardIndex,tagSequence,updateDateTime) VALUES (" +
+        "INSERT INTO TAG(boardIndex,tagSequence,updateTimestamp) VALUES (" +
         mysql.escape(results.insertId) + // 생성될 게시글의 인덱스
         "," +
         mysql.escape(tagSequence) +
-        "," +
-        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-        ");";
+        ",NOW());";
     }
     // 태그가 있다면 DB에 태그 정보 추가
     if (tagQuery !== "") await myPool.query(tagQuery);
@@ -265,10 +258,10 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
   const tagData = [];
   // 해당 인덱스의 게시글 정보 가져오기 + 해당 게시글인덱스의 태그 가져오기
   const query =
-    "SELECT category,postTitle,postContent FROM BOARD WHERE deleteDateTime IS NULL AND boardIndex = " +
+    "SELECT category,postTitle,postContent FROM BOARD WHERE deleteTimestamp IS NULL AND boardIndex = " +
     mysql.escape(boardIndex) +
     ";" +
-    "SELECT tag FROM TAG WHERE tag IS NOT NULL AND deleteDateTime IS NULL AND boardIndex = " +
+    "SELECT tag FROM TAG WHERE tag IS NOT NULL AND deleteTimestamp IS NULL AND boardIndex = " +
     mysql.escape(boardIndex) +
     " ORDER BY tagSequence ASC;";
   // 성공시
@@ -307,7 +300,7 @@ export async function editBoardModel(inputWrite, boardIndex, userIndex, ip) {
     mysql.escape(inputWrite.postTitle) +
     ",postContent=" +
     mysql.escape(inputWrite.postContent) +
-    "WHERE boardIndex = " +
+    ", updateTimestamp = NOW() WHERE boardIndex = " +
     mysql.escape(boardIndex) +
     " AND userIndex=" +
     mysql.escape(userIndex) +
@@ -328,9 +321,7 @@ export async function editBoardModel(inputWrite, boardIndex, userIndex, ip) {
       tagQuery +=
         "UPDATE TAG SET tag = " +
         mysql.escape(inputWrite.tags[tagIndex].content) +
-        ",updateDateTime =" +
-        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-        " WHERE boardIndex =" +
+        ",updateTimestamp = NOW() WHERE boardIndex =" +
         mysql.escape(boardIndex) +
         " AND tagSequence = " +
         mysql.escape(tagSequence) +
@@ -342,9 +333,7 @@ export async function editBoardModel(inputWrite, boardIndex, userIndex, ip) {
       tagQuery +=
         "UPDATE TAG SET tag = NULL, tagSequence =" +
         mysql.escape(tagSequence) +
-        ",updateDateTime =" +
-        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-        " WHERE boardIndex =" +
+        ",updateTimestamp = NOW() WHERE boardIndex =" +
         mysql.escape(boardIndex) +
         "AND tagSequence =" +
         mysql.escape(tagSequence) +
@@ -368,31 +357,21 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
   // 해당 인덱스 게시글 삭제
   const query =
     // 게시글 삭제 쿼리문
-    "UPDATE BOARD SET deleteDateTime = " +
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    " WHERE boardIndex = " +
+    "UPDATE BOARD SET deleteTimestamp = NOW() WHERE boardIndex = " +
     mysql.escape(boardIndex) +
     "AND userIndex = " +
     mysql.escape(userIndex) +
     ";" +
-    "UPDATE Tag SET deleteDateTime =" + // 해당 게시글인덱스에 해당하는 태그 삭제 쿼리문
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    "WHERE boardIndex=" +
+    "UPDATE Tag SET deleteTimestamp = NOW() WHERE boardIndex=" +
     mysql.escape(boardIndex) +
     ";" +
-    "UPDATE FAVORITEPOST SET boardDeleteDateTime = " + // 좋아요 테이블의 게시글 삭제날짜 컬럼에 값 넣는 쿼리문
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    "WHERE boardIndex=" +
+    "UPDATE FAVORITEPOST SET boardDeleteTimestamp = NOW() WHERE boardIndex=" + // 좋아요 테이블의 게시글 삭제날짜 컬럼에 값 넣는 쿼리문
     mysql.escape(boardIndex) +
     ";" +
-    "UPDATE COMMENT SET boardDeleteDateTime = " + // 댓글 테이블의 게시글 삭제날짜 컬럼에 값 넣는 쿼리문
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    "WHERE boardIndex=" +
+    "UPDATE COMMENT SET boardDeleteTimestamp = NOW() WHERE boardIndex=" + // 댓글 테이블의 게시글 삭제날짜 컬럼에 값 넣는 쿼리문
     mysql.escape(boardIndex) +
     ";" +
-    "UPDATE VIEWPOST SET deleteDateTime = " + // 해당 게시글인덱스에 해당하는 조회한 유저 정보 삭제 쿼리문
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    "WHERE boardIndex=" +
+    "UPDATE VIEWPOST SET deleteTimestamp = NOW() WHERE boardIndex=" +
     mysql.escape(boardIndex) +
     ";";
   // 성공시
@@ -411,15 +390,18 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
 // 3. 좋아요 요청/검색기능
 // 3-1. 게시글 좋아요 요청
 export async function favoriteBoardModel(boardIndex, userIndex, ip) {
-  // 좋아요한 유저 테이블에 해당게시글에 좋아요 누른 유저인덱스 추가하는 쿼리문
-  let query =
-    "SELECT favoriteFlag FROM FAVORITEPOST WHERE boardIndex=" +
-    mysql.escape(boardIndex) +
-    "AND userIndex = " +
-    mysql.escape(userIndex);
+  let query = "SELECT postTitle FROM BOARD WHERE boardIndex=" + mysql.escape(boardIndex);
   // 성공시
   try {
-    const [results, fields] = await myPool.query(query);
+    let [results, fields] = await myPool.query(query);
+    if (results[0] === undefined) return { state: "존재하지않는게시글" };
+    // 좋아요한 유저 테이블에 해당게시글에 좋아요 누른 유저인덱스 추가하는 쿼리문
+    query =
+      "SELECT favoriteFlag FROM FAVORITEPOST WHERE boardIndex=" +
+      mysql.escape(boardIndex) +
+      "AND userIndex = " +
+      mysql.escape(userIndex);
+    [results, fields] = await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
     // 좋아요 최초 요청
@@ -429,9 +411,9 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         " Update BOARD SET favoriteCount = favoriteCount + 1 WHERE boardIndex = " +
         mysql.escape(boardIndex) +
         ";" +
-        "INSERT INTO favoritePost(boardIndex,userIndex,favoriteFlag,updateDateTime) VALUES(?,?,?,?)";
+        "INSERT INTO favoritePost(boardIndex,userIndex,favoriteFlag,updateTimestamp) VALUES(?,?,?,NOW())";
       // 쿼리문 실행
-      await myPool.query(query, [boardIndex, userIndex, 1, moment().format("YYYY-MM-DD HH:mm:ss")]);
+      await myPool.query(query, [boardIndex, userIndex, 0]);
       // 성공 로그찍기
       await querySuccessLog(ip, query);
       // 정상적으로 좋아요 수 1증가
@@ -443,14 +425,12 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
           " Update BOARD SET favoriteCount = favoriteCount - 1 WHERE boardIndex = " +
           mysql.escape(boardIndex) +
           ";" +
-          "UPDATE FAVORITEPOST SET updateDateTime =" +
-          mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-          ", favoriteFlag = 0 WHERE boardIndex =" +
+          "UPDATE FAVORITEPOST SET updateTimestamp = NOW(), favoriteFlag = 0 WHERE boardIndex =" +
           mysql.escape(boardIndex) +
           " AND userIndex = " +
           mysql.escape(userIndex);
         // 쿼리문 실행
-        await myPool.query(query, [boardIndex, userIndex, 1, moment().format("YYYY-MM-DD HH:mm:ss")]);
+        await myPool.query(query);
         // 성공 로그찍기
         await querySuccessLog(ip, query);
         // 좋아요 취소
@@ -461,14 +441,12 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
           " Update BOARD SET favoriteCount = favoriteCount + 1 WHERE boardIndex = " +
           mysql.escape(boardIndex) +
           ";" +
-          "UPDATE FAVORITEPOST SET updateDateTime =" +
-          mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-          ", favoriteFlag = 1 WHERE boardIndex =" +
+          "UPDATE FAVORITEPOST SET updateTimestamp= NOW(), favoriteFlag = 1 WHERE boardIndex =" +
           mysql.escape(boardIndex) +
           " AND userIndex = " +
           mysql.escape(userIndex);
         // 쿼리문 실행
-        await myPool.query(query, [boardIndex, userIndex, 1, moment().format("YYYY-MM-DD HH:mm:ss")]);
+        await myPool.query(query);
         // 성공 로그찍기
         await querySuccessLog(ip, query);
         // 좋아요 +1
@@ -490,7 +468,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (searchOption === "제목만") {
     query =
-      "SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postTitle LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -500,7 +478,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "내용만") {
     query =
-      "SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postContent LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -511,7 +489,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 제목+내용 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "제목 + 내용") {
     query =
-      "SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND postContent LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -523,7 +501,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "닉네임") {
     query =
-      "SELECT postTitle,viewCount,favoriteCount,nickname,createDateTime FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteDateTime IS NULL AND BOARD.category =" +
+      "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
       mysql.escape(category) +
       " AND nickname LIKE " +
       mysql.escape("%" + searchContent + "%") +
@@ -548,7 +526,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
           nickname: await checkExistUser(results[index].nickname),
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeDateTimeForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         boardData.push(tempData);
       }
@@ -559,7 +537,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
           nickname: await checkExistUser(results[index].nickname),
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeDateTimeForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         boardData.push(tempData);
       }
