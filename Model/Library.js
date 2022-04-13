@@ -4,7 +4,12 @@ import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeGradeForm, changeLibraryDataForm, changeLibrarysDataForm } from "../CustomModule/ChangeDataForm";
+import {
+  changeGradeForm,
+  changeLibraryDataForm,
+  changeLibrarysDataForm,
+  changeLibraryType,
+} from "../CustomModule/ChangeDataForm";
 /*
  * 1. 전체도서관 정보
  * 2. 입력한 지역의 도서관 정보
@@ -15,7 +20,7 @@ export async function allLibraryModel(ip) {
   let libraryData = [];
   // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 후기 평균 평점, 평점개수 가져오는 쿼리문
   const query =
-    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL GROUP BY libraryIndex";
+    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteTimestamp IS NULL AND REVIEW.deleteTimestamp IS NULL GROUP BY libraryIndex";
   try {
     // 쿼리문 메서드 성공
     const [results, fields] = await myPool.query(query);
@@ -30,7 +35,7 @@ export async function allLibraryModel(ip) {
       const tempData = {
         libraryIndex: results[index].libraryIndex,
         libraryName: tempResult.libraryName,
-        libraryType: tempResult.libraryType,
+        libraryType: await changeLibraryType(tempResult.libraryType),
         closeDay: tempResult.closeDay,
         weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
         SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
@@ -77,7 +82,7 @@ export async function localLibraryModel(inputLocal, ip) {
       const tempData = {
         libraryIndex: results[index].libraryIndex,
         libraryName: tempResult.libraryName,
-        libraryType: tempResult.libraryType,
+        libraryType: await changeLibraryType(tempResult.libraryType),
         closeDay: tempResult.closeDay,
         weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
         SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
@@ -123,7 +128,7 @@ export async function detailLibraryModel(libraryIndex, ip) {
 
     const libraryData = {
       libraryName: results[0].libraryName,
-      libraryType: results[0].libraryType,
+      libraryType: await changeLibraryType(results[0].libraryType),
       districts: results[0].nameOfCity + " " + results[0].districts,
       address: tempResult.address,
       closeDay: tempResult.closeDay,

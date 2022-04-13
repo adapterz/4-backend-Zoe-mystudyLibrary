@@ -8,6 +8,7 @@ import { moment } from "./DateTime";
  * 5. 평점만큼 별 개수 출력하는 문자열로 가공하는 메서드
  * 6. 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
  * 7. 특정 글자수 단위로 개행문자 넣어주는 메서드
+ * 8. 도서관 종류(Int)를 문자열로 바꿔주는 메서드
  */
 // 조회수/좋아요 수 단위 바꿔주는 메서드
 export async function changeUnit(viewOrFavoriteCount) {
@@ -238,4 +239,14 @@ export async function newLine(data, countOfWord) {
   }
   data = tempData;
   return data;
+}
+
+// 도서관 종류(Int)를 문자열로 바꿔주는 메서드
+export async function changeLibraryType(libraryType) {
+  if (libraryType === 0) return "작은도서관";
+  if (libraryType === 1) return "공공도서관";
+  if (libraryType === 2) return "어린이도서관";
+  if (libraryType === 3) return "전문도서관";
+  if (libraryType === 4) return "대학도서관";
+  if (libraryType === 5) return "학교도서관";
 }
