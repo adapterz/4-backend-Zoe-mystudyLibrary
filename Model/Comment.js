@@ -3,7 +3,6 @@
 import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
-import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
 import { changeTimestampForm, checkExistUser, newLine } from "../CustomModule/ChangeDataForm";
 
@@ -23,7 +22,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
     // 댓글 작성시 쿼리문
     if (parentIndex === "NULL") {
       query =
-        "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,commentSequence,createDateTime) VALUES (" +
+        "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,commentSequence,createTimestamp) VALUES (" +
         mysql.escape(boardIndex) +
         "," +
         mysql.escape(userIndex) +
@@ -31,9 +30,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
         mysql.escape(inputComment.content) +
         "," +
         mysql.escape(1) +
-        "," +
-        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-        ")";
+        ",NOW())";
       // 쿼리문 메서드 성공
       await myPool.query(query);
       await querySuccessLog(ip, query);
@@ -43,7 +40,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
     else {
       // parentIndex의 댓글이 루트댓글이 아닌지 체크해주는 쿼리문
       query =
-        "SELECT parentIndex FROM COMMENT WHERE deleteDateTime IS NULL AND boardDeleteDateTime IS NULL AND parentIndex IS NOT NULL AND commentIndex =" +
+        "SELECT parentIndex FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND parentIndex IS NOT NULL AND commentIndex =" +
         mysql.escape(parentIndex);
       // 쿼리문 메서드 성공
       let [results, fields] = await myPool.query(query);
@@ -54,7 +51,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
       }
       // 해당 댓글 묶음의 마지막 commentSequence 구하기
       query =
-        "SELECT commentSequence FROM COMMENT WHERE deleteDateTime IS NULL AND boardDeleteDateTime IS NULL AND parentIndex =" +
+        "SELECT commentSequence FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND parentIndex =" +
         mysql.escape(parentIndex) +
         " ORDER BY commentSequence desc limit 1";
       // 쿼리문 메서드 성공
@@ -67,7 +64,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
       else commentSequence = results[0].commentSequence + 1;
 
       query =
-        "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,parentIndex,commentSequence,createDateTime) VALUES (" +
+        "INSERT INTO COMMENT(boardIndex,userIndex,commentContent,parentIndex,commentSequence,createTimestamp) VALUES (" +
         mysql.escape(boardIndex) +
         "," +
         mysql.escape(userIndex) +
@@ -77,9 +74,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
         mysql.escape(parentIndex) +
         "," +
         mysql.escape(commentSequence) +
-        "," +
-        mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-        ")";
+        ",NOW())";
       // 쿼리문 메서드 성공
       await myPool.query(query);
       await querySuccessLog(ip, query);
@@ -97,7 +92,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
   let commentData = [];
   let childCommentQuery;
   let query =
-    "SELECT boardIndex FROM BOARD WHERE BOARD.deleteDateTime IS NULL AND boardIndex =" + mysql.escape(boardIndex);
+    "SELECT boardIndex FROM BOARD WHERE BOARD.deleteTimestamp IS NULL AND boardIndex =" + mysql.escape(boardIndex);
   try {
     let [results, field] = await myPool.query(query);
     await querySuccessLog(ip, query);
@@ -105,7 +100,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     if (results[0] === undefined) return { state: "존재하지않는게시글" };
     // 해당 게시글의 루트 댓글만 가져오는 쿼리문
     const rootCommentQuery =
-      "SELECT commentIndex,commentContent,User.nickname, createDateTime,deleteDateTime FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND parentIndex IS NULL AND boardIndex =" +
+      "SELECT commentIndex,commentContent,User.nickname, createTimestamp,deleteTimestamp FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND parentIndex IS NULL AND boardIndex =" +
       mysql.escape(boardIndex) +
       "ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT " + // 해당 게시글의 댓글 정보
       5 * (page - 1) +
@@ -116,7 +111,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     await querySuccessLog(ip, rootCommentQuery);
     // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
     childCommentQuery =
-      "SELECT commentContent,User.nickname, createDateTime,deleteDateTime, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteDateTIme IS NULL AND boardIndex =" +
+      "SELECT commentContent,User.nickname, createTimestamp,deleteTimestamp, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND boardIndex =" +
       mysql.escape(boardIndex);
     for (let commentIndex in rootResult) {
       childCommentQuery += " OR parentIndex =" + mysql.escape(rootResult[commentIndex].commentIndex);
@@ -134,16 +129,16 @@ export async function detailCommentModel(boardIndex, page, ip) {
         isDeleted: false,
         nickname: await checkExistUser(rootResult[rootIndex].nickname),
         commentContent: await newLine(rootResult[rootIndex].commentContent, 50),
-        createDate: await changeTimestampForm(rootResult[rootIndex].createDateTime),
+        createDate: await changeTimestampForm(rootResult[rootIndex].createTimestamp),
       };
       // 루트댓글이면서 삭제된 댓글일 때
-      if (rootResult[rootIndex].deleteDateTime !== null)
+      if (rootResult[rootIndex].deleteTimestamp !== null)
         tempRoot = {
           isRoot: true,
           isDeleted: true,
           nickname: await checkExistUser(rootResult[rootIndex].nickname),
           commentContent: "삭제된 댓글입니다",
-          createDate: await changeTimestampForm(rootResult[rootIndex].createDateTime),
+          createDate: await changeTimestampForm(rootResult[rootIndex].createTimestamp),
         };
       commentData.push(tempRoot);
       // 해당 댓글의 대댓글 정보 추가
@@ -157,10 +152,10 @@ export async function detailCommentModel(boardIndex, page, ip) {
               isDeleted: false,
               nickname: await checkExistUser(childResult[childIndex].nickname),
               commentContent: await newLine(childResult[childIndex].commentContent, 50),
-              createDate: await changeTimestampForm(childResult[childIndex].createDateTime),
+              createDate: await changeTimestampForm(childResult[childIndex].createTimestamp),
             };
             // 대댓글이면서 삭제된 댓글일 때
-            if (childResult[childIndex].deleteDateTime !== null)
+            if (childResult[childIndex].deleteTimestamp !== null)
               tempChild = {
                 isRoot: false,
                 isDeleted: true,
@@ -185,7 +180,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
 // 수정시 기존 댓글 정보 불러오는 모델
 export async function getCommentModel(commentIndex, loginCookie, ip) {
   const query =
-    "SELECT commentContent FROM COMMENT WHERE deleteDateTime IS NULL AND boardDeleteDateTime IS NULL AND commentIndex =" +
+    "SELECT commentContent FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND commentIndex =" +
     mysql.escape(commentIndex);
   // 성공시
   try {
@@ -212,7 +207,7 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
 export async function editCommentModel(commentIndex, loginCookie, inputComment, ip) {
   // 댓글 수정 쿼리문
   const query =
-    "UPDATE COMMENT SET commentContent=" +
+    "UPDATE COMMENT SET updateTimestamp = NOW(), commentContent=" +
     mysql.escape(inputComment.content) +
     "WHERE commentIndex =" +
     mysql.escape(commentIndex);
@@ -235,9 +230,7 @@ export async function deleteCommentModel(commentIndex, userIndex, ip) {
   // 해당 인덱스 댓글 삭제
   // 댓글 삭제 쿼리문
   const query =
-    "UPDATE COMMENT SET deleteDateTime = " +
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    " WHERE commentIndex = " +
+    "UPDATE COMMENT SET deleteTimestamp = NOW() WHERE commentIndex = " +
     mysql.escape(commentIndex) +
     "AND userIndex = " +
     mysql.escape(userIndex);
