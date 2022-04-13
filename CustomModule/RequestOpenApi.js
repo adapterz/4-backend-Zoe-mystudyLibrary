@@ -8,7 +8,6 @@ const { querySuccessLog, queryFailLog } = require("./QueryLog");
 // 공공데이터 요청
 export async function reqOpenData() {
   let info;
-  await myPool.query("START TRANSACTION");
   // 해당 공공데이터 api 총 페이지 수가 346 개라서 346번 반복문 돌려주기
   for (let page = 1; page <= 346; ++page) {
     const libList = [];
@@ -20,7 +19,6 @@ export async function reqOpenData() {
       const libraryName = info["response"]["body"]["items"][index]["lbrryNm"];
       const nameOfCity = info["response"]["body"]["items"][index]["ctprvnNm"];
       const districts = info["response"]["body"]["items"][index]["signguNm"];
-      const libraryType = info["response"]["body"]["items"][index]["lbrrySe"];
       const closeDay = info["response"]["body"]["items"][index]["closeDay"];
       const openWeekday = info["response"]["body"]["items"][index]["weekdayOperOpenHhmm"];
       const closeWeekday = info["response"]["body"]["items"][index]["weekdayOperColseHhmm"];
@@ -30,6 +28,15 @@ export async function reqOpenData() {
       const closeHoliday = info["response"]["body"]["items"][index]["holidayCloseOpenHhmm"];
       const address = info["response"]["body"]["items"][index]["rdnmadr"];
       const libraryContact = info["response"]["body"]["items"][index]["phoneNumber"];
+      // 도서관 종류 정수로 치환
+      let libraryType = info["response"]["body"]["items"][index]["lbrrySe"];
+      if (info["response"]["body"]["items"][index]["lbrrySe"] === "작은도서관") libraryType = 0;
+      if (info["response"]["body"]["items"][index]["lbrrySe"] === "공공도서관") libraryType = 1;
+      if (info["response"]["body"]["items"][index]["lbrrySe"] === "어린이도서관") libraryType = 2;
+      if (info["response"]["body"]["items"][index]["lbrrySe"] === "전문도서관") libraryType = 3;
+      if (info["response"]["body"]["items"][index]["lbrrySe"] === "대학도서관") libraryType = 4;
+      if (info["response"]["body"]["items"][index]["lbrrySe"] === "학교도서관") libraryType = 5;
+
       libList.push([
         libraryName,
         libraryType,
@@ -51,8 +58,6 @@ export async function reqOpenData() {
       await queryData([libList]);
     }
   }
-
-  await myPool.query("COMMIT");
 }
 // 페이지 단위로 공공데이터 가져오기
 async function requestData(page) {
@@ -85,6 +90,5 @@ async function queryData([values]) {
   } catch (err) {
     // 쿼리문 실행시 에러발생
     await queryFailLog(err, null, query);
-    await myPool.query("ROLLBACK");
   }
 }
