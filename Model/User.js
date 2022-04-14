@@ -3,7 +3,6 @@
 import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
-import { moment } from "../CustomModule/DateTime";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
 import bcrypt from "bcrypt";
 import { hashPw } from "../CustomModule/PwBcrypt";
@@ -14,6 +13,7 @@ import {
   changeGradeStarForm,
   changeUnit,
   newLine,
+  changeLibraryType,
 } from "../CustomModule/ChangeDataForm";
 /*
  * 1. 회원가입/탈퇴
@@ -58,7 +58,7 @@ export async function signUpModel(inputUser, ip) {
 
     // 모든 유효성 검사 통과 후 회원정보 추가해줄 새로운 쿼리문
     query =
-      "INSERT INTO USER(id,pw,name,gender,phoneNumber,nickname,updateDateTime) VALUES (" +
+      "INSERT INTO USER(id,pw,name,gender,phoneNumber,nickname,createTimestamp) VALUES (" +
       mysql.escape(inputUser.id) +
       "," +
       mysql.escape(hashedPw) + // 라우터에서 해싱된 pw값 insert
@@ -70,9 +70,7 @@ export async function signUpModel(inputUser, ip) {
       mysql.escape(inputUser.phoneNumber) +
       "," +
       mysql.escape(inputUser.nickname) +
-      "," +
-      mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) + // 계정 생성날짜
-      ")";
+      ", NOW())";
 
     await myPool.query(query);
     // 성공 로그찍기
@@ -88,10 +86,36 @@ export async function signUpModel(inputUser, ip) {
 
 // 1-2. 회원탈퇴
 export async function dropOutModel(ip, loginCookie) {
-  // 해당 유저 데이터 삭제 쿼리문
-  const query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(loginCookie);
+  // 해당 유저 정보 탈퇴 유저 테이블에 옮기기
+  // 1. 해당 유저 정보 불러오기
+  let query =
+    "SELECT id,pw,name,gender,phoneNumber,nickname,profileImage FROM USER WHERE userIndex = " +
+    mysql.escape(loginCookie);
   // 성공시
   try {
+    const [result, field] = await myPool.query(query);
+    // 2. 탈퇴유저 테이블에 불러온 유저 정보 옮기기
+    query =
+      "INSERT INTO withdrawalUser(id,pw,name,gender,phoneNumber,nickname,profileImage,withdrawalTimestamp) VALUES (" +
+      mysql.escape(result[0].id) +
+      "," +
+      mysql.escape(result[0].pw) +
+      "," +
+      mysql.escape(result[0].name) +
+      "," +
+      mysql.escape(result[0].gender) +
+      "," +
+      mysql.escape(result[0].phoneNumber) +
+      "," +
+      mysql.escape(result[0].nickname) +
+      "," +
+      mysql.escape(result[0].profileImage) +
+      ", NOW())";
+    await myPool.query(query);
+    // 성공 로그찍기
+    await querySuccessLog(ip, query);
+    // 3. 유저테이블에서 해당 유저 데이터 삭제
+    query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(loginCookie);
     await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
@@ -139,7 +163,7 @@ export async function userLibraryModel(userIndex, ip) {
   const libraryData = [];
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
-    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND USERLIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND USERLIBRARY.userIndex=" +
+    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND USERLIBRARY.deleteTimestamp IS NULL AND USERLIBRARY.userIndex=" +
     mysql.escape(userIndex) +
     " GROUP BY libraryIndex ORDER BY libraryIndex";
   // 성공시
@@ -159,7 +183,7 @@ export async function userLibraryModel(userIndex, ip) {
       const tempData = {
         libraryIndex: results[index].libraryIndex,
         libraryName: tempResult.libraryName,
-        libraryType: tempResult.libraryType,
+        libraryType: await changeLibraryType(tempResult.libraryType),
         closeDay: tempResult.closeDay,
         weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
         SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
@@ -183,7 +207,7 @@ export async function userLibraryModel(userIndex, ip) {
 export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
   // 기존에 등록돼있는 관심도서관인지 확인하는 쿼리문
   let query =
-    "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE deleteDateTime IS NULL AND userIndex=" +
+    "SELECT userIndex,libraryIndex FROM USERLIBRARY WHERE deleteTimestamp IS NULL AND userIndex=" +
     mysql.escape(userIndex) +
     " AND libraryIndex=" +
     mysql.escape(libraryIndex);
@@ -195,13 +219,11 @@ export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
     }
     // USERLIBRARY 테이블에 유저인덱스와 해당 유저가 등록한 도서관인덱스 추가하는 쿼리문
     query =
-      "INSERT INTO USERLIBRARY(userIndex,libraryIndex,updateDateTime) VALUES (" +
+      "INSERT INTO USERLIBRARY(userIndex,libraryIndex,updateTimestamp) VALUES (" +
       mysql.escape(userIndex) +
       "," +
       mysql.escape(libraryIndex) +
-      "," +
-      mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-      ")";
+      ", NOW())";
     await myPool.query(query);
     // 성공 로그
     await querySuccessLog(ip, query);
@@ -230,11 +252,7 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
       return { state: "존재하지않는정보" };
     }
     // 등록한 관심도서관 삭제하는 쿼리문
-    query =
-      "UPDATE USERLIBRARY SET deleteDateTime =" +
-      mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-      "WHERE libraryIndex =" +
-      mysql.escape(libraryIndex);
+    query = "UPDATE USERLIBRARY SET deleteTimestamp = NOW() WHERE libraryIndex =" + mysql.escape(libraryIndex);
     await myPool.query(query);
     // 쿼리문 성공 로그
     await querySuccessLog(ip, query);
@@ -252,7 +270,7 @@ export async function userBoardModel(userIndex, page, ip) {
   const boardData = [];
   // 해당 유저가 작성한 게시글 정보 가져오기
   const query =
-    "SELECT postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteDateTime IS NULL AND userIndex = " +
+    "SELECT postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteTimestamp IS NULL AND userIndex = " +
     mysql.escape(userIndex) +
     " ORDER BY boardIndex DESC LIMIT " +
     10 * (page - 1) +
@@ -274,7 +292,7 @@ export async function userBoardModel(userIndex, page, ip) {
           postTitle: results[index].postTitle,
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeTimestampForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         boardData.push(tempData);
       }
@@ -284,7 +302,7 @@ export async function userBoardModel(userIndex, page, ip) {
           postTitle: results[index].postTitle.substring(0, 25) + "...",
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeTimestampForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         boardData.push(tempData);
       }
@@ -303,7 +321,7 @@ export async function userCommentModel(userIndex, page, ip) {
   const commentData = [];
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
-    "SELECT COMMENT.commentContent,COMMENT.createDateTime,BOARD.postTitle,COMMENT.boardDeleteDateTime FROM COMMENT LEFT JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteDateTime IS NULL AND COMMENT.userIndex=" +
+    "SELECT COMMENT.commentContent,COMMENT.createTimestamp,BOARD.postTitle,COMMENT.boardDeleteTimestamp FROM COMMENT LEFT JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteTimestamp IS NULL AND COMMENT.userIndex=" +
     mysql.escape(userIndex) +
     " ORDER BY commentIndex DESC LIMIT " +
     5 * (page - 1) +
@@ -318,19 +336,16 @@ export async function userCommentModel(userIndex, page, ip) {
     if (results[0] === undefined) {
       return { state: "등록된댓글없음" };
     }
-    console.log(results);
     // 댓글 정보
-    // 삭제된 게시글인 경우 제목 바꿔주기
-    for (let i = 0; i < 5; ++i) {
-      if (results[i].boardDeleteDateTime !== null) results[i].postTitle = "삭제된 게시글입니다";
-    }
     for (const index in results) {
+      // 삭제된 게시글인 경우 제목 바꿔주기
+      if (results[index].boardDeleteTimestamp !== null) results[index].postTitle = "삭제된 게시글입니다";
       // 게시글 제목의 글자수가 25자 미만일 때
       if (results[index].postTitle.length <= 25) {
         const tempData = {
           postTitle: results[index].postTitle,
           commentContent: await newLine(results[index].commentContent, 50),
-          createDate: await changeTimestampForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         commentData.push(tempData);
       }
@@ -339,7 +354,7 @@ export async function userCommentModel(userIndex, page, ip) {
         const tempData = {
           postTitle: results[index].postTitle.substring(0, 25) + "...",
           commentContent: results[index].commentContent,
-          createDate: await changeTimestampForm(results[index].createDateTime),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         commentData.push(tempData);
       }
@@ -359,7 +374,7 @@ export async function userReviewModel(userIndex, page, ip) {
   const reviewData = [];
   // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
   const query =
-    "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createDateTime,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteDateTime IS NULL AND LIBRARY.deleteDateTime IS NULL AND REVIEW.userIndex=" +
+    "SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createTimestamp,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteTimestamp IS NULL AND LIBRARY.deleteTimestamp IS NULL AND REVIEW.userIndex=" +
     mysql.escape(userIndex) +
     " ORDER BY reviewIndex DESC LIMIT " +
     5 * (page - 1) +
@@ -381,7 +396,7 @@ export async function userReviewModel(userIndex, page, ip) {
       const tempData = {
         libraryName: results[index].libraryName,
         reviewContent: await newLine(results[index].reviewContent, 25),
-        createDate: await changeTimestampForm(results[index].createDateTime),
+        createDate: await changeTimestampForm(results[index].createTimestamp),
         grade: processedResults.grade,
       };
       reviewData.push(tempData);
@@ -415,9 +430,7 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
       mysql.escape(inputRevise.nickname) +
       ", profileImage =" +
       mysql.escape(inputRevise.profileImage) +
-      ", updateDateTime =" +
-      mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-      " WHERE userIndex =" +
+      ", updateTimestamp = NOW() WHERE userIndex =" +
       mysql.escape(loginCookie);
 
     await myPool.query(query);
@@ -437,9 +450,7 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
   const query =
     "UPDATE USER SET phoneNumber=" +
     mysql.escape(newContact.phoneNumber) +
-    ", updateDateTime =" +
-    mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-    " WHERE userIndex = " +
+    ", updateTimestamp = NOW() WHERE userIndex =" +
     mysql.escape(loginCookie);
   // 성공시
   try {
@@ -452,7 +463,6 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await queryFailLog(err, ip, query);
-    await myPool.query("ROLLBACK");
     return { state: "mysql 사용실패" };
   }
 }
@@ -483,9 +493,7 @@ export async function editPwModel(inputPw, ip, loginCookie) {
     query =
       "UPDATE USER SET pw= " +
       mysql.escape(hashedNewPw) + // 해싱한 새 암호 DB에 저장
-      ", updateDateTime=" +
-      mysql.escape(moment().format("YYYY-MM-DD HH:mm:ss")) +
-      " WHERE userIndex = " +
+      ", updateTimestamp = NOW() WHERE userIndex =" +
       mysql.escape(loginCookie);
 
     await myPool.query(query);

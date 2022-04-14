@@ -97,6 +97,9 @@ export async function dropOutController(req, res) {
       return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const payloadIndex = await jwt.decode(loginToken).idx;
+    // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 회원탈퇴 안내조항에 체크 했는지
     const isAgreed = req.body.checkBox;
     // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
@@ -108,10 +111,8 @@ export async function dropOutController(req, res) {
     if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 성공적으로 회원탈퇴 요청
     else if (modelResult.state === "회원탈퇴") {
-      req.session.destroy(function (err) {
-        if (err) console.log(err);
-      });
-      res.clearCookie("user");
+      // 로그인 토큰 삭제
+      res.clearCookie("token");
       return res.status(NO_CONTENT).json(modelResult);
     }
   } catch (err) {
