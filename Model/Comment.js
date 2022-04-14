@@ -100,7 +100,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     if (results[0] === undefined) return { state: "존재하지않는게시글" };
     // 해당 게시글의 루트 댓글만 가져오는 쿼리문
     const rootCommentQuery =
-      "SELECT commentIndex,commentContent,User.nickname, createTimestamp,deleteTimestamp FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND parentIndex IS NULL AND boardIndex =" +
+      "SELECT commentIndex,commentContent,User.nickname, Comment.createTimestamp,deleteTimestamp FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND parentIndex IS NULL AND boardIndex =" +
       mysql.escape(boardIndex) +
       "ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT " + // 해당 게시글의 댓글 정보
       5 * (page - 1) +
@@ -111,7 +111,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     await querySuccessLog(ip, rootCommentQuery);
     // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
     childCommentQuery =
-      "SELECT commentContent,User.nickname, createTimestamp,deleteTimestamp, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND boardIndex =" +
+      "SELECT commentContent,User.nickname, Comment.createTimestamp,deleteTimestamp, parentIndex FROM COMMENT LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND boardIndex =" +
       mysql.escape(boardIndex);
     for (let commentIndex in rootResult) {
       childCommentQuery += " OR parentIndex =" + mysql.escape(rootResult[commentIndex].commentIndex);
