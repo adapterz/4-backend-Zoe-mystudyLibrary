@@ -52,19 +52,14 @@ export async function writeCommentController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     if (req.query.parentIndex !== undefined) parentIndex = req.query.parentIndex;
     else parentIndex = "NULL";
-    // 대댓글 작성 시 해당 대댓글의 루트댓글 유무 체크 및 유저의 권한 체크
-    if (req.query.parentIndex !== undefined)
-      checkComment = await checkCommentMethod(req.query.boardIndex, parentIndex, loginIndex, req.ip);
-    // 댓글 작성시 게시글의 유무 체크 및 유저의 권한 체크
-    else checkComment = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
+    // 게시글 및 루트 댓글의 존재 유무 체크 및 유저의 권한 체크
+    checkComment = await checkCommentMethod(req.query.boardIndex, parentIndex, loginIndex, true, req.ip);
     // mysql query 메서드 실패
     if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 게시글이 존재하지 않을 때
     else if (checkComment.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkComment);
     // 댓글이 존재하지 않을 때
     else if (checkComment.state === "존재하지않는댓글") return res.status(NOT_FOUND).json(checkComment);
-    // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-    else if (checkComment.state === "접근권한없음") return res.status(FORBIDDEN).json(checkComment);
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkComment.state === "접근성공") {
       // 댓글 작성 모델 실행 결과
@@ -135,14 +130,20 @@ export async function getCommentController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 댓글유무 체크, 댓글에 대한 유저의 권한 체크
-    const checkComment = await checkCommentMethod(req.query.boardIndex, req.query.commentIndex, loginIndex, req.ip);
+    const checkComment = await checkCommentMethod(
+      req.query.boardIndex,
+      req.query.commentIndex,
+      loginIndex,
+      false,
+      req.ip
+    );
     // mysql query 메서드 실패
     if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 게시글이 존재하지 않을 때
     else if (checkComment.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkComment);
     // 댓글이 존재하지 않을 때
     else if (checkComment.state === "존재하지않는댓글") return res.status(NOT_FOUND).json(checkComment);
-    // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
+    // 로그인돼있는 유저와 해당 댓글 작성 유저가 일치하지 않을 때
     else if (checkComment.state === "접근권한없음") return res.status(FORBIDDEN).json(checkComment);
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkComment.state === "접근성공") {
@@ -188,7 +189,13 @@ export async function editCommentController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 댓글에 존재유무와 유저의 권한 체크
-    const checkComment = await checkCommentMethod(req.query.boardIndex, req.query.commentIndex, loginIndex, req.ip);
+    const checkComment = await checkCommentMethod(
+      req.query.boardIndex,
+      req.query.commentIndex,
+      loginIndex,
+      false,
+      req.ip
+    );
     // mysql query 메서드 실패
     if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 해당 게시글이 없을 때
@@ -238,7 +245,13 @@ export async function deleteCommentController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 게시글,댓글 유무와 댓글에 대한 유저의 권한 체크
-    const checkComment = await checkCommentMethod(req.query.boardIndex, req.query.commentIndex, loginIndex, req.ip);
+    const checkComment = await checkCommentMethod(
+      req.query.boardIndex,
+      req.query.commentIndex,
+      loginIndex,
+      false,
+      req.ip
+    );
     // mysql query 메서드 실패
     if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 해당 게시글이 존재하지 않거나 이미 삭제됐을 때
