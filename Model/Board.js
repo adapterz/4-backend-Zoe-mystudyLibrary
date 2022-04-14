@@ -370,9 +370,6 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
     ";" +
     "UPDATE COMMENT SET boardDeleteTimestamp = NOW() WHERE boardIndex=" + // 댓글 테이블의 게시글 삭제날짜 컬럼에 값 넣는 쿼리문
     mysql.escape(boardIndex) +
-    ";" +
-    "UPDATE VIEWPOST SET deleteTimestamp = NOW() WHERE boardIndex=" +
-    mysql.escape(boardIndex) +
     ";";
   // 성공시
   try {
