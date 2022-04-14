@@ -20,7 +20,7 @@ export async function allLibraryModel(ip) {
   let libraryData = [];
   // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 후기 평균 평점, 평점개수 가져오는 쿼리문
   const query =
-    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteTimestamp IS NULL AND REVIEW.deleteTimestamp IS NULL GROUP BY libraryIndex";
+    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL GROUP BY libraryIndex";
   try {
     // 쿼리문 메서드 성공
     const [results, fields] = await myPool.query(query);
@@ -60,7 +60,7 @@ export async function localLibraryModel(inputLocal, ip) {
   const libraryData = [];
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
   const query =
-    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.deleteDateTime=REVIEW.deleteDateTime WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND nameOfCity =" +
+    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND nameOfCity =" +
     mysql.escape(inputLocal.nameOfCity) +
     " AND districts =" +
     mysql.escape(inputLocal.districts) +
@@ -107,7 +107,7 @@ export async function localLibraryModel(inputLocal, ip) {
 export async function detailLibraryModel(libraryIndex, ip) {
   // 특정 libraryIndex의 도서관 정보 후기의 평균 평점/평점개수 가져오는 다중 쿼리문
   const query =
-    "SELECT Library.libraryIndex, libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade) countOfGrade,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex WHERE LIBRARY.deleteDateTime IS NULL AND REVIEW.deleteDateTime IS NULL AND LIBRARY.libraryIndex=" +
+    "SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade) countOfGrade,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND LIBRARY.libraryIndex=" +
     mysql.escape(libraryIndex) +
     " GROUP BY libraryIndex";
 
