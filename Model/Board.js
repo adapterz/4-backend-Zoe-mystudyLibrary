@@ -373,12 +373,15 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
     ";";
   // 성공시
   try {
+    await myPool.query("START TRANSACTION");
     await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
+    await myPool.query("COMMIT");
     return { state: "게시글삭제" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
+    await myPool.query("ROLLBACK");
     await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }

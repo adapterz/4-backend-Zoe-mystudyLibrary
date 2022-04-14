@@ -93,6 +93,7 @@ export async function dropOutModel(ip, loginCookie) {
     mysql.escape(loginCookie);
   // 성공시
   try {
+    await myPool.query("START TRANSACTION");
     const [result, field] = await myPool.query(query);
     // 2. 탈퇴유저 테이블에 불러온 유저 정보 옮기기
     query =
@@ -119,10 +120,12 @@ export async function dropOutModel(ip, loginCookie) {
     await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
+    await myPool.query("COMMIT");
     // 성공적으로 회원탈퇴
     return { state: "회원탈퇴" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
+    await myPool.query("ROLLBACK");
     await queryFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
