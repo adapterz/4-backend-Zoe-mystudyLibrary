@@ -40,7 +40,7 @@ export async function checkBoardMethod(boardIndex, userIndex, ip) {
 }
 
 // 삭제/수정 요청시 해당 게시글,댓글의 존재유무 체크, 해당 댓글의 작성자인지 체크 하는 메서드
-export async function checkCommentMethod(boardIndex, commentIndex, userIndex, ip) {
+export async function checkCommentMethod(boardIndex, commentIndex, userIndex, isFirstWrite, ip) {
   // 해당 게시글이 존재하는지 확인
   let query = "SELECT * FROM BOARD WHERE deleteTimestamp IS NULL AND boardIndex=" + mysql.escape(boardIndex);
   // 성공시
@@ -52,32 +52,36 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, ip
     if (results[0] === undefined) {
       return { state: "존재하지않는게시글" };
     }
+
     // 해당 댓글이 존재하는지 확인
-    query =
-      "SELECT * FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND boardIndex=" +
-      mysql.escape(boardIndex) +
-      "AND commentIndex=" +
-      mysql.escape(commentIndex);
-    [results, fields] = await myPool.query(query);
-    await querySuccessLog(ip, query);
-    // 댓글이 존재하지 않을 때
-    if (results[0] === undefined) {
-      return { state: "존재하지않는댓글" };
+    if (commentIndex !== "NULL") {
+      query =
+        "SELECT * FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND boardIndex=" +
+        mysql.escape(boardIndex) +
+        "AND commentIndex=" +
+        mysql.escape(commentIndex);
+      [results, fields] = await myPool.query(query);
+      await querySuccessLog(ip, query);
+      // 댓글이 존재하지 않을 때
+      if (results[0] === undefined) {
+        return { state: "존재하지않는댓글" };
+      }
     }
-    // 해당 댓글을 해당 유저가 작성한 것인지 확인
-    query =
-      "SELECT userIndex FROM COMMENT WHERE deleteTimestamp IS NULL AND commentIndex=" +
-      mysql.escape(commentIndex) +
-      "AND userIndex=" +
-      mysql.escape(userIndex);
-    // 쿼리문 실행
-    [results, fields] = await myPool.query(query);
-    await querySuccessLog(ip, query);
-    // 해당 댓글의 작성자와 요청유저가 일치하지 않을 때
-    if (results[0] === undefined) {
-      return { state: "접근권한없음" };
+    if (isFirstWrite === false) {
+      // 해당 댓글을 해당 유저가 작성한 것인지 확인
+      query =
+        "SELECT userIndex FROM COMMENT WHERE deleteTimestamp IS NULL AND commentIndex=" +
+        mysql.escape(commentIndex) +
+        "AND userIndex=" +
+        mysql.escape(userIndex);
+      // 쿼리문 실행
+      [results, fields] = await myPool.query(query);
+      await querySuccessLog(ip, query);
+      // 해당 댓글의 작성자와 요청유저가 일치하지 않을 때
+      if (results[0] === undefined) {
+        return { state: "접근권한없음" };
+      }
     }
-    // 해당 댓글의 작성자와 요청유저가 일치할 때
     return { state: "접근성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
