@@ -42,7 +42,7 @@ export async function checkBoardMethod(boardIndex, userIndex, ip) {
 // 삭제/수정 요청시 해당 게시글,댓글의 존재유무 체크, 해당 댓글의 작성자인지 체크 하는 메서드
 export async function checkCommentMethod(boardIndex, commentIndex, userIndex, isFirstWrite, ip) {
   // 해당 게시글이 존재하는지 확인
-  let query = "SELECT * FROM BOARD WHERE deleteTimestamp IS NULL AND boardIndex=" + mysql.escape(boardIndex);
+  let query = "SELECT userIndex FROM BOARD WHERE deleteTimestamp IS NULL AND boardIndex=" + mysql.escape(boardIndex);
   // 성공시
   try {
     // 게시글이 존재하는지 확인할 쿼리문 실행
@@ -56,7 +56,7 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, is
     // 해당 댓글이 존재하는지 확인
     if (commentIndex !== "NULL") {
       query =
-        "SELECT * FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND boardIndex=" +
+        "SELECT userIndex FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND boardIndex=" +
         mysql.escape(boardIndex) +
         "AND commentIndex=" +
         mysql.escape(commentIndex);
@@ -94,7 +94,7 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, is
 export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip) {
   // 해당 도서관이 존재하는지 확인
   let query =
-    "SELECT libraryIndex FROM LIBRARY WHERE deleteTimestamp IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
+    "SELECT libraryType FROM LIBRARY WHERE deleteTimestamp IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
   // 성공시
   try {
     // 쿼리문 실행
@@ -139,7 +139,7 @@ export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip
 export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
   // 해당 도서관이 존재하는지 확인
   let query =
-    "SELECT libraryIndex FROM LIBRARY WHERE deleteTimestamp IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
+    "SELECT libraryType FROM LIBRARY WHERE deleteTimestamp IS NULL AND libraryIndex=" + mysql.escape(libraryIndex);
   // 성공시
   try {
     // 쿼리문 실행
@@ -151,7 +151,7 @@ export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
     }
     // 해당 유저가 관심도서관 등록한 적이 있는지 확인
     query =
-      "SELECT libraryIndex FROM USERLIBRARY WHERE deleteTimestamp IS NULL AND userIndex=" +
+      "SELECT libraryType FROM USERLIBRARY WHERE deleteTimestamp IS NULL AND userIndex=" +
       mysql.escape(userIndex) +
       " AND libraryIndex=" +
       mysql.escape(libraryIndex);
