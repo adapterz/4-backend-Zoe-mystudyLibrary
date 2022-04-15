@@ -202,7 +202,7 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
   let query;
   let tagQuery = "";
   let tagSequence = 1;
-  // DB에 저장될 형식(INT)으로 변경
+  // DB에 저장될 형식(TINYINT)으로 변경
   if (category === "자유게시판") category = 0;
   else if (category === "공부인증샷") category = 1;
   // 게시글 작성 쿼리문
@@ -277,7 +277,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
     if (results[0] === undefined) {
       return { state: "존재하지않는게시글" };
     }
-    // DB에 INT로 저장된 정보 문자열로 변경
+    // DB에 TINYINT로 저장된 정보 문자열로 변경
     if (results[0][0].category === 0) results[0][0].category = "자유게시판";
     else if (results[0][0].category === 1) results[0][0].category = "공부인증샷";
     // 게시글 데이터
@@ -300,7 +300,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
 }
 // 2-3. 게시글 수정 요청
 export async function editBoardModel(inputWrite, boardIndex, userIndex, ip) {
-  // body.category 의 문자열 DB에 저장될 형식(INT)으로 변경
+  // body.category 의 문자열 DB에 저장될 형식(TINYINT)으로 변경
   if (inputWrite.category === "자유게시판") inputWrite.category = 0;
   else if (inputWrite.category === "공부인증샷") inputWrite.category = 1;
   // 게시글 정보 수정 요청 쿼리문
