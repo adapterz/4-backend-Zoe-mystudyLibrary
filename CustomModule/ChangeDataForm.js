@@ -134,11 +134,11 @@ export async function changeTimestampForm(timestamp) {
  */
 export async function changeGradeForm(grade) {
   // 1. 후기가 없을 때
-  if (grade === 0) return "⭐ 후기없음";
+  if (grade === 0) return "후기없음";
   // 2. 평균 평점이 정수로 딱 떨어질 때 ".0" 붙여주기
-  else if (grade.toString().length === 1) return "⭐ " + grade.toString() + ".0 / 5 점";
+  else if (grade.toString().length === 1) return grade.toString() + ".0";
   // 3. 평균 평점이 정수가 아닐 때 소수점 1의자리까지 문자열화
-  else return "⭐ " + grade.toString() + " / 5점";
+  else return grade.toString();
 }
 
 // 도서관 정보 가공(전체도서관/ 지역도서관)
