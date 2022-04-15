@@ -2,7 +2,6 @@
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { newLine } from "../CustomModule/ChangeDataForm";
 import { randomNum } from "../CustomModule/RandomNum";
 
 export async function wiseSayingModel(ip) {
@@ -24,7 +23,7 @@ export async function wiseSayingModel(ip) {
     // 해당 게시글의 데이터 파싱
     // 게시글 데이터
     const wiseSayingData = {
-      wiseSayingContent: await newLine(results[0].wiseSayingContent, 25),
+      wiseSayingContent: results[0].wiseSayingContent,
       celebrity: results[0].celebrity,
     };
     // 가져온 게시글 정보 return

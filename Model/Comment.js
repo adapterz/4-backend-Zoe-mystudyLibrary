@@ -4,7 +4,7 @@ import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeTimestampForm, checkExistUser, newLine } from "../CustomModule/ChangeDataForm";
+import { changeTimestampForm, checkExistUser } from "../CustomModule/ChangeDataForm";
 
 /*
  * 1. 댓글 작성
@@ -128,7 +128,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
         isRoot: true,
         isDeleted: false,
         nickname: await checkExistUser(rootResult[rootIndex].nickname),
-        commentContent: await newLine(rootResult[rootIndex].commentContent, 50),
+        commentContent: rootResult[rootIndex].commentContent,
         createDate: await changeTimestampForm(rootResult[rootIndex].createTimestamp),
       };
       // 루트댓글이면서 삭제된 댓글일 때
@@ -151,7 +151,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
               isRoot: false,
               isDeleted: false,
               nickname: await checkExistUser(childResult[childIndex].nickname),
-              commentContent: await newLine(childResult[childIndex].commentContent, 50),
+              commentContent: childResult[childIndex].commentContent,
               createDate: await changeTimestampForm(childResult[childIndex].createTimestamp),
             };
             // 대댓글이면서 삭제된 댓글일 때
@@ -192,7 +192,7 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
       return { state: "존재하지않는댓글" };
     }
     const commentData = {
-      commentContent: await newLine(results[0].commentContent, 50),
+      commentContent: results[0].commentContent,
     };
     // DB에 데이터가 있을 때
     return { state: "댓글정보로딩", dataOfComment: commentData };

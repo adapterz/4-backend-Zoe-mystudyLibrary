@@ -5,7 +5,7 @@ import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
-import { changeTimestampForm, changeUnit, checkExistUser, newLine } from "../CustomModule/ChangeDataForm";
+import { changeTimestampForm, changeUnit, checkExistUser } from "../CustomModule/ChangeDataForm";
 import { re } from "@babel/core/lib/vendor/import-meta-resolve";
 /*
  * 1. 게시글 조회
@@ -174,9 +174,9 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     // 해당 게시글의 데이터 파싱
     // 게시글 데이터
     boardData = {
-      postTitle: await newLine(results[0][0].postTitle, 25),
+      postTitle: results[0][0].postTitle,
       nickname: await checkExistUser(results[0][0].nickname),
-      postContent: await newLine(results[0][0].postContent, 50),
+      postContent: results[0][0].postContent,
       viewCount: await changeUnit(results[0][0].viewCount),
       favoriteCount: await changeUnit(results[0][0].favoriteCount),
       createDate: await changeTimestampForm(results[0][0].createTimestamp),
@@ -284,7 +284,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
     const boardData = {
       category: results[0][0].category,
       postTitle: results[0][0].postTitle,
-      postContent: await newLine(results[0][0].postContent, 50),
+      postContent: results[0][0].postConten,
     };
     // 태그 데이터
     for (let tagIndex in results[1]) {

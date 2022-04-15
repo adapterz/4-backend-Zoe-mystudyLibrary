@@ -12,7 +12,6 @@ import {
   changeLibrarysDataForm,
   changeGradeStarForm,
   changeUnit,
-  newLine,
   changeLibraryType,
 } from "../CustomModule/ChangeDataForm";
 /*
@@ -97,7 +96,7 @@ export async function dropOutModel(ip, loginCookie) {
     const [result, field] = await myPool.query(query);
     // 2. 탈퇴유저 테이블에 불러온 유저 정보 옮기기
     query =
-      "INSERT INTO withdrawalUser(id,pw,name,gender,phoneNumber,nickname,profileImage,withdrawalTimestamp) VALUES (" +
+      "INSERT INTO withdrawalUser(userIndex,id,pw,name,gender,phoneNumber,nickname,profileImage,withdrawalTimestamp) VALUES (loginCookie," +
       mysql.escape(result[0].id) +
       "," +
       mysql.escape(result[0].pw) +
@@ -347,7 +346,7 @@ export async function userCommentModel(userIndex, page, ip) {
       if (results[index].postTitle.length <= 25) {
         const tempData = {
           postTitle: results[index].postTitle,
-          commentContent: await newLine(results[index].commentContent, 50),
+          commentContent: results[index].commentContent,
           createDate: await changeTimestampForm(results[index].createTimestamp),
         };
         commentData.push(tempData);
@@ -398,7 +397,7 @@ export async function userReviewModel(userIndex, page, ip) {
       const processedResults = await changeGradeStarForm(results[index]);
       const tempData = {
         libraryName: results[index].libraryName,
-        reviewContent: await newLine(results[index].reviewContent, 25),
+        reviewContent: results[index].reviewContent,
         createDate: await changeTimestampForm(results[index].createTimestamp),
         grade: processedResults.grade,
       };
