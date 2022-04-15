@@ -6,7 +6,6 @@ import mysql from "mysql2/promise";
 import { myPool } from "../CustomModule/Db";
 import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
 import { changeTimestampForm, changeUnit, checkExistUser } from "../CustomModule/ChangeDataForm";
-import { re } from "@babel/core/lib/vendor/import-meta-resolve";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -20,11 +19,11 @@ export async function getRecentBoardModel(ip) {
   const studyBoardData = [];
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오기
   const query =
-    "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 5;" +
-    "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = ? order by boardIndex DESC limit 4;";
+    "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5;" +
+    "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
   // 성공시
   try {
-    const [results, fields] = await myPool.query(query, [0, 1]);
+    const [results, fields] = await myPool.query(query);
     // 성공 로그찍기
     await querySuccessLog(ip, query);
     // 자유게시판 최신글 파싱
@@ -82,9 +81,9 @@ export async function entireBoardModel(category, page, ip) {
   const boardData = [];
   // 카테고리에 맞는 전체 게시글 정보 가져오기
   const query =
-    "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
+    "SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
     mysql.escape(category) +
-    "ORDER BY boardIndex DESC LIMIT " +
+    " ORDER BY boardIndex DESC LIMIT " +
     10 * (page - 1) +
     ", 10";
   // 성공시
@@ -139,7 +138,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
   let query =
     "SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createTimestamp,USER.nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category=" +
     mysql.escape(category) +
-    "AND boardIndex =" +
+    " AND boardIndex =" +
     mysql.escape(boardIndex);
   // 성공시
   try {
@@ -154,7 +153,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     query =
       "SELECT postTitle,USER.nickname,postContent,viewCount,favoriteCount,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category=" +
       mysql.escape(category) + // 해당 게시글 정보
-      "AND boardIndex =" +
+      " AND boardIndex =" +
       mysql.escape(boardIndex) +
       ";" +
       "SELECT tag FROM TAG WHERE deleteTimestamp IS NULL AND TAG IS NOT NULL AND boardIndex =" + // 태그 정보
@@ -399,7 +398,7 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
 // 3. 좋아요 요청/검색기능
 // 3-1. 게시글 좋아요 요청
 export async function favoriteBoardModel(boardIndex, userIndex, ip) {
-  let query = "SELECT postTitle FROM BOARD WHERE boardIndex=" + mysql.escape(boardIndex);
+  let query = "SELECT postTitle FROM BOARD WHERE deleteTimestamp IS NULL AND boardIndex=" + mysql.escape(boardIndex);
   // 성공시
   try {
     let [results, fields] = await myPool.query(query);
