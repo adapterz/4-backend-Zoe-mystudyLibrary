@@ -45,7 +45,6 @@ export async function getRecentBoardModel(ip) {
         freeBoardData.push(tempData);
       }
     }
-
     // 공부인증샷 최신글 파싱
     for (const index in results[1]) {
       // 게시글 제목의 글자수가 10자 이하일 때
