@@ -48,8 +48,10 @@ export async function entireBoardController(req, res) {
   let reqCategory;
   let page;
   // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷면 공부인증샷 게시판의 글 정보만 가져오기
-  if (req.params.category === "free-bulletin") reqCategory = "자유게시판";
-  if (req.params.category === "proof-shot") reqCategory = "공부인증샷";
+  // 자유게시판
+  if (req.params.category === "free-bulletin") reqCategory = 0;
+  // 공부인증샷
+  if (req.params.category === "proof-shot") reqCategory = 1;
   // 게시판 page 값
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
@@ -72,8 +74,10 @@ export async function detailBoardController(req, res) {
   let isViewDuplicated = true; // 기존에 이 게시글을 조회한적 있는가? 에 대한 boolean 값
   const boardIndex = req.params.boardIndex;
   // 요청 category 값이 자유게시판이면 자유게시판의 글 정보, 공부인증샷면 공부인증샷 게시판의 글 정보 가져오기
-  if (req.params.category === "free-bulletin") reqCategory = "자유게시판";
-  if (req.params.category === "proof-shot") reqCategory = "공부인증샷";
+  // 자유게시판
+  if (req.params.category === "free-bulletin") reqCategory = 0;
+  // 공부인증샷
+  if (req.params.category === "proof-shot") reqCategory = 1;
   // 쿠키를 이용한 중복조회 체크 (undefined : 해당 게시물 조회한 적이 없다는 뜻)
   if (req.signedCookies[boardIndex] === undefined) {
     // 최초 조회시 하루짜리 쿠키 생성
@@ -338,8 +342,11 @@ export async function searchBoardController(req, res) {
   let reqCategory;
   let page;
   // req.category에 따라 DB 값과 비교할 값으로 변경해주기
-  if (req.params.category === "free-bulletin") reqCategory = "자유게시판";
-  else if (req.params.category === "proof-shoot") reqCategory = "공부인증샷"; // 댓글 page 값
+  // 자유게시판
+  if (req.params.category === "free-bulletin") reqCategory = 0;
+  // 공부인증샷
+  else if (req.params.category === "proof-shoot") reqCategory = 1;
+  // 댓글 page 값
   if (req.query.page !== undefined) page = req.query.page;
   else page = 1;
   // 검색 모델 실행 결과
