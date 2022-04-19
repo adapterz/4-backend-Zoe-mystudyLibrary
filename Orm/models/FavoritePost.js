@@ -1,0 +1,50 @@
+// favoritePost 테이블 model
+module.exports = (sequelize, DataTypes) => {
+  const favoritePost = sequelize.define(
+    "favoritePost",
+    // 컬럼 정의
+    {
+      favoriteIndex: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+        comment: "(주요키/인덱스)",
+      },
+      boardIndex: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        comment: "(인덱스) board 테이블의 게시글 인덱스",
+        allowNull: false,
+      },
+      userIndex: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        comment: "(인덱스) user 테이블의 유저 인덱스",
+        allowNull: false,
+      },
+      favoriteFlag: {
+        type: DataTypes.BOOLEAN,
+        comment: "0:FALSE/1:TRUE",
+        allowNULL: false,
+      },
+      boardDeleteTimestamp: {
+        type: "TIMESTAMP",
+        comment: "YYYY-MM-DD HH:MM:SS",
+        allowNull: true,
+      },
+      updateTimestamp: {
+        type: "TIMESTAMP",
+        comment: "YYYY-MM-DD HH:MM:SS",
+        allowNull: false,
+      },
+    },
+    {
+      indexes: [{ fields: ["boardIndex"] }, { fields: ["userIndex"] }],
+      charset: "utf8", // 한국어 설정
+      collate: "utf8_general_ci", // 한국어 설정
+      tableName: "favoritePost", // 테이블 이름
+      timestamps: false,
+      initialAutoIncrement: 1,
+    }
+  );
+  return favoritePost;
+};
