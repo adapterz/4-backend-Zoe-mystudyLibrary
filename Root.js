@@ -23,6 +23,9 @@ import "dotenv/config.js";
 import { getScraping } from "./CustomModule/Scraping";
 // 날짜/시간 관련 모듈
 import { moment } from "./CustomModule/DateTime";
+// 시퀄라이저 모듈
+import { sequelize } from "./Orm/models";
+
 // 라우터
 import boardRouter from "./Router/Board";
 import commentRouter from "./Router/Comment";
@@ -77,6 +80,16 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// 시퀄라이저 연결
+sequelize
+  .sync({ force: false })
+  .then(() => {
+    console.log("데이터베이스 연결 성공".rainbow);
+  })
+  .catch((err) => {
+    console.log(("err: " + err).red);
+  });
+
 // 서버 설정
 const app = express();
 app.use(bodyParser.json());
@@ -108,14 +121,13 @@ app.get("/not-found", (req, res) => {
   res.status(404).send("not founded page");
 });
 
-/*
- * 도서관 정보 테이블에 넣기
- *
- * import { reqOpenData } from "./CustomModule/RequestOpenApi";
- * reqOpenData();
- */
+// 도서관 정보 테이블에 넣기
+// import { reqOpenData } from "./CustomModule/RequestOpenApi";
+// reqOpenData();
+
 // 서비스에 필요한 명언 정보 DB 테이블에 넣기
 // getScraping();
+
 // 서버 시작
 app.listen(process.env.PORT, () => {
   console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
