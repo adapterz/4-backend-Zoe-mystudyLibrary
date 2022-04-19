@@ -31,9 +31,9 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8", // 한국어 설정
-      collate: "utf8_general_ci", // 한국어 설정
-      tableName: "winston_logs", // 테이블 이름
+      charset: "utf8",
+      collate: "utf8_general_ci",
+      tableName: "winston_logs",
       timestamps: false,
       initialAutoIncrement: 1,
     }

@@ -39,9 +39,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       indexes: [{ fields: ["boardIndex"] }],
-      charset: "utf8", // 한국어 설정
-      collate: "utf8_general_ci", // 한국어 설정
-      tableName: "tag", // 테이블 이름
+      charset: "utf8",
+      collate: "utf8_general_ci",
+      tableName: "tag",
       timestamps: false,
       initialAutoIncrement: 1,
     }

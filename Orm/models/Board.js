@@ -61,9 +61,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       indexes: [{ unique: true, fields: ["userIndex"] }],
-      charset: "utf8", // 한국어 설정
-      collate: "utf8_general_ci", // 한국어 설정
-      tableName: "board", // 테이블 이름
+      charset: "utf8",
+      collate: "utf8_general_ci",
+      tableName: "board",
       timestamps: false,
       initialAutoIncrement: 1,
     }
