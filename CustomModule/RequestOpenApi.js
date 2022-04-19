@@ -8,8 +8,8 @@ const { querySuccessLog, queryFailLog } = require("./QueryLog");
 // 공공데이터 요청
 export async function reqOpenData() {
   let info;
-  // 해당 공공데이터 api 총 페이지 수가 346 개라서 346번 반복문 돌려주기
-  for (let page = 1; page <= 346; ++page) {
+  // 해당 공공데이터 api 총 페이지 수가 347 개라서 347번 반복문 돌려주기
+  for (let page = 1; page <= 347; ++page) {
     const libList = [];
     // 해당 페이지 JSON 데이터 js 객체로 변환하고 libList 에 해당 로우 배열로 추가
     info = JSON.parse(await requestData(page));
