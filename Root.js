@@ -24,7 +24,7 @@ import { getScraping } from "./CustomModule/Scraping";
 // 날짜/시간 관련 모듈
 import { moment } from "./CustomModule/DateTime";
 // 시퀄라이저 모듈
-import { sequelize } from "./Orm/models";
+import { db } from "./Orm/models";
 
 // 라우터
 import boardRouter from "./Router/Board";
@@ -81,7 +81,7 @@ const apiLimiter = rateLimit({
 });
 
 // 시퀄라이저 연결
-sequelize
+db.sequelize
   .sync({ force: false })
   .then(() => {
     console.log("데이터베이스 연결 성공".rainbow);
