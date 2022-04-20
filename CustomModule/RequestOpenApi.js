@@ -3,7 +3,7 @@
 import request from "request";
 // 내장모듈
 import { myPool } from "./Db";
-const { querySuccessLog, queryFailLog } = require("./QueryLog");
+const { modelSuccessLog, modelFailLog } = require("./QueryLog");
 
 // 공공데이터 요청
 export async function reqOpenData() {
@@ -85,10 +85,10 @@ async function queryData([values]) {
     "INSERT INTO LIBRARY(libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact) VALUES ?";
   try {
     const [postLibraryRow] = await myPool.query(query, [values]);
-    await querySuccessLog(null, query);
+    await modelSuccessLog(null, query);
     return postLibraryRow;
   } catch (err) {
     // 쿼리문 실행시 에러발생
-    await queryFailLog(err, null, query);
+    await modelFailLog(err, null, query);
   }
 }
