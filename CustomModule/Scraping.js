@@ -3,7 +3,7 @@ import axios from "axios";
 import cheerio from "cheerio";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
-import { queryFailLog, querySuccessLog } from "./QueryLog";
+import { modelFailLog, modelSuccessLog } from "./QueryLog";
 import mysql from "mysql2/promise";
 
 // 해당 url html 파일 가져오기 (성공을 위한 명언 50가지)
@@ -53,9 +53,9 @@ export async function getScraping() {
       }
       try {
         await myPool.query(query);
-        await querySuccessLog(null, query);
+        await modelSuccessLog(null, query);
       } catch (err) {
-        await queryFailLog(err, null, query);
+        await modelFailLog(err, null, query);
       }
     });
 }

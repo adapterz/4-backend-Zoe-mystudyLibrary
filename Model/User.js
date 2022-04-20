@@ -3,7 +3,7 @@
 import mysql from "mysql2/promise";
 // 내장모듈
 import { myPool } from "../CustomModule/Db";
-import { queryFailLog, querySuccessLog } from "../CustomModule/QueryLog";
+import { modelFailLog, modelSuccessLog } from "../CustomModule/QueryLog";
 import bcrypt from "bcrypt";
 import { hashPw } from "../CustomModule/PwBcrypt";
 import {
@@ -14,6 +14,7 @@ import {
   changeUnit,
   changeLibraryType,
 } from "../CustomModule/ChangeDataForm";
+import { db, Op } from "../Orm/models";
 /*
  * 1. 회원가입/탈퇴
  * 2. 로그인/(로그아웃 - 모델x)
@@ -25,60 +26,60 @@ import {
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입
 export async function signUpModel(inputUser, ip) {
-  // 유저가 입력한 아이디가 기존에 있는지 select 해올 쿼리문
-  let query = "SELECT id FROM USER WHERE id = " + mysql.escape(inputUser.id);
   // 성공시
   try {
-    let [results, fields] = await myPool.query(query);
+    // 유저가 입력한 아이디가 기존에 있는지 체크
+    let result = await db["user"].findAll({
+      attributes: ["id"],
+      where: {
+        id: { [Op.eq]: inputUser.id },
+      },
+    });
     // 성공로그
-    await querySuccessLog(ip, query);
     // 1. 유저가 입력한 id나 닉네임이 기존에 있을 때
     // 유저가 입력한 아이디가 기존에 존재하는 아이디일 때
-    if (results[0] !== undefined) {
+    if (result[0] !== undefined) {
+      await modelSuccessLog(ip, "signUpModel");
       return { state: "존재하는 아이디" };
     }
+    // 유저가 입력한 닉네임이 기존에 있는지 체크
+    result = await db["user"].findAll({
+      attributes: ["nickname"],
+      where: {
+        id: { [Op.eq]: inputUser.nickname },
+      },
+    });
+
     // 유저가 입력한 닉네임이 기존에 존재하는 닉네임일 때
-    // 유저가 입력한 닉네임이 기존에 있는지 select 해올 쿼리문
-    query = "SELECT nickname FROM USER WHERE nickname = " + mysql.escape(inputUser.nickname);
-    [results, fields] = await myPool.query(query);
-    await querySuccessLog(ip, query);
-    if (results[0] !== undefined) {
+    if (result[0] !== undefined) {
+      await modelSuccessLog(ip, "signUpModel");
       return { state: "존재하는 닉네임" };
     }
 
     // 2. 비밀번호 유효성 검사
     // 입력한 비밀번호와 비밀번호 확인이 다를 때
     const hashedPw = await hashPw(inputUser.pw);
-    //const hashed_confirm_pw = await hashPw(inputUser.confirmPw);
-    console.log("pw비교:" + bcrypt.compareSync(inputUser.confirmPw, hashedPw));
     if (!bcrypt.compareSync(inputUser.confirmPw, hashedPw)) {
+      await modelSuccessLog(ip, "signUpModel");
       return { state: "비밀번호/비밀번호확인 불일치" };
     }
 
-    // 모든 유효성 검사 통과 후 회원정보 추가해줄 새로운 쿼리문
-    query =
-      "INSERT INTO USER(id,pw,name,gender,phoneNumber,nickname,createTimestamp) VALUES (" +
-      mysql.escape(inputUser.id) +
-      "," +
-      mysql.escape(hashedPw) + // 라우터에서 해싱된 pw값 insert
-      "," +
-      mysql.escape(inputUser.name) +
-      "," +
-      mysql.escape(inputUser.gender) +
-      "," +
-      mysql.escape(inputUser.phoneNumber) +
-      "," +
-      mysql.escape(inputUser.nickname) +
-      ", NOW())";
+    // 모든 유효성 검사 통과 후 회원정보 추가
+    await db["user"].create({
+      id: inputUser.id,
+      pw: hashedPw,
+      name: inputUser.name,
+      gender: inputUser.gender,
+      phoneNumber: inputUser.phoneNumber,
+      nickname: inputUser.nickname,
+      createTimestamp: db.sequelize.fn("NOW"),
+    });
 
-    await myPool.query(query);
-    // 성공 로그찍기
-    await querySuccessLog(ip, query);
-
+    await modelSuccessLog(ip, "signUpModel");
     return { state: "회원가입" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, "signUpModel");
     return { state: "mysql 사용실패" };
   }
 }
@@ -113,19 +114,19 @@ export async function dropOutModel(ip, loginCookie) {
       ", NOW())";
     await myPool.query(query);
     // 성공 로그찍기
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     // 3. 유저테이블에서 해당 유저 데이터 삭제
     query = "DELETE FROM USER WHERE userIndex =" + mysql.escape(loginCookie);
     await myPool.query(query);
     // 성공 로그찍기
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     await myPool.query("COMMIT");
     // 성공적으로 회원탈퇴
     return { state: "회원탈퇴" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await myPool.query("ROLLBACK");
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -140,7 +141,7 @@ export async function loginModel(inputLogin, ip) {
   try {
     const [results, fields] = await myPool.query(query);
     // 성공로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
 
     // 1. 요청한 id와 일치하는 아이디가 없을 때
     if (results[0] === undefined) {
@@ -154,7 +155,7 @@ export async function loginModel(inputLogin, ip) {
     return { state: "로그인성공", userIndex: results[0].userIndex };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -172,7 +173,7 @@ export async function userLibraryModel(userIndex, ip) {
   try {
     const [results, fields] = await myPool.query(query);
     // 쿼리 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     if (results[0] === undefined) {
       return { state: "등록된정보없음" };
     }
@@ -200,7 +201,7 @@ export async function userLibraryModel(userIndex, ip) {
     return { state: "유저의관심도서관", dataOfLibrary: libraryData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -228,11 +229,11 @@ export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
       ", NOW())";
     await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     return { state: "관심도서관추가" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -248,7 +249,7 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
   try {
     let [results, fields] = await myPool.query(query);
     // 쿼리문 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     // 기존에 해당 유저 인덱스로 해당 관심도서관이 등록되지 않았을 때
     if (results[0] === undefined) {
       return { state: "존재하지않는정보" };
@@ -257,11 +258,11 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
     query = "UPDATE USERLIBRARY SET deleteTimestamp = NOW() WHERE libraryIndex =" + mysql.escape(libraryIndex);
     await myPool.query(query);
     // 쿼리문 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     return { state: "관심도서관삭제" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -281,7 +282,7 @@ export async function userBoardModel(userIndex, page, ip) {
   try {
     const [results, fields] = await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     // 요청한 데이터가 없을 때
     if (results[0] === undefined) {
       return { state: "등록된글이없음" };
@@ -313,7 +314,7 @@ export async function userBoardModel(userIndex, page, ip) {
     return { state: "내작성글조회", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -333,7 +334,7 @@ export async function userCommentModel(userIndex, page, ip) {
   try {
     const [results, fields] = await myPool.query(query);
     // 쿼리문 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     // DB에 데이터가 없을 때
     if (results[0] === undefined) {
       return { state: "등록된댓글없음" };
@@ -366,7 +367,7 @@ export async function userCommentModel(userIndex, page, ip) {
     return { state: "성공적조회", dataOfComment: commentData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -386,7 +387,7 @@ export async function userReviewModel(userIndex, page, ip) {
   try {
     const [results, fields] = await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     // 데이터가 없을 때
     if (results[0] === undefined) {
       return { state: "등록된후기없음" };
@@ -407,7 +408,7 @@ export async function userReviewModel(userIndex, page, ip) {
     return { state: "성공적조회", dataOfReview: reviewData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -420,7 +421,7 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
   try {
     let [results, fields] = await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     // 유저가 입력한 닉네임이 기존에 존재할 때
     if (results[0] !== undefined) {
       return { state: "중복닉네임" };
@@ -437,12 +438,12 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
 
     await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
 
     return { state: "프로필변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -458,13 +459,13 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
   try {
     await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
 
     // 연락처 수정 성공
     return { state: "연락처변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
@@ -478,7 +479,7 @@ export async function editPwModel(inputPw, ip, loginCookie) {
   try {
     const [results, fields] = await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
     // 유효성 검사
     // DB의 유저 pw와 '현재 비밀번호'창에 입력한 pw 비교
     // 1. 입력한 '현재 비밀번호' DB에 있던 pw과 비교
@@ -500,13 +501,13 @@ export async function editPwModel(inputPw, ip, loginCookie) {
 
     await myPool.query(query);
     // 성공 로그
-    await querySuccessLog(ip, query);
+    await modelSuccessLog(ip, query);
 
     // 비밀번호 변경 성공
     return { state: "비밀번호변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await queryFailLog(err, ip, query);
+    await modelFailLog(err, ip, query);
     return { state: "mysql 사용실패" };
   }
 }
