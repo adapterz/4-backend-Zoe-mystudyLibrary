@@ -121,7 +121,7 @@ app.get("/not-found", (req, res) => {
   res.status(404).send("not founded page");
 });
 
-// 도서관 정보 테이블에 넣기
+// 공공데이터 api 도서관 정보 테이블에 넣기
 // import { reqOpenData } from "./CustomModule/RequestOpenApi";
 // reqOpenData();
 
