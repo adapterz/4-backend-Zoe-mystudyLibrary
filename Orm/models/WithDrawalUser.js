@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         comment: "전화번호, ex) 01012345678(- 제외)",
       },
-      nickName: {
+      nickname: {
         type: DataTypes.CHAR(8),
         allowNull: false,
         comment: "닉네임, 2~8글자 한글 or 숫자 or 영어",
