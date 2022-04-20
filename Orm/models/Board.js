@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     {
-      indexes: [{ unique: true, fields: ["userIndex"] }],
+      indexes: [{ fields: ["userIndex"] }],
       charset: "utf8",
       collate: "utf8_general_ci",
       tableName: "board",
