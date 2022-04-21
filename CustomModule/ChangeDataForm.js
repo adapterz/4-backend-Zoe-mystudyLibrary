@@ -49,16 +49,19 @@ export async function changeUnit(viewOrFavoriteCount) {
   else return viewOrFavoriteCount;
 }
 
-// DateTime yyyy-mm-dd 형태로 변경해주는 메서드
+// yyyy-mm-dd 형태로 변경해주는 메서드
 export async function changeTimestampForm(timestamp) {
-  let tempTimestamp = moment(timestamp, "YYYY-MM-DD").toDate();
-  const stringTimestamp =
-    tempTimestamp.getFullYear().toString() +
-    "년 " +
-    (tempTimestamp.getMonth() + 1).toString() +
-    "월 " +
-    tempTimestamp.getDate().toString() +
-    "일";
+  const isToday = moment().isSame(moment(timestamp), "day");
+  let stringTimestamp;
+  // 작성일이 오늘일 때
+  if (isToday) {
+    stringTimestamp = moment(timestamp).format("YYYY년MM월DD일 HH시MM분");
+    // 작성일이 오늘이 아닐 때
+  } else if (!isToday) {
+    stringTimestamp = moment(timestamp).format("YYYY년MM월DD일");
+  }
+
+  console.log(stringTimestamp);
   return stringTimestamp;
 }
 
