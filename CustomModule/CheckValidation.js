@@ -42,12 +42,7 @@ export function isCategoryWhenWrite(req, res, next) {
 export function isSearchOption(req, res, next) {
   // 검색 옵션이 올바르지 않을 때
   if (
-    !(
-      req.query.searchOption === "제목만" ||
-      req.query.searchOption === "내용만" ||
-      req.query.searchOption === "제목 + 내용" ||
-      req.query.searchOption === "닉네임"
-    )
+    !(req.query.searchOption === "제목만" || req.query.searchOption === "내용만" || req.query.searchOption === "닉네임")
   )
     return res.status(400).json({ state: "유효하지않은검색옵션" });
   next();

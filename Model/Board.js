@@ -524,76 +524,57 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (searchOption === "제목만") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
-      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND postTitle LIKE % ${searchContent} % ORDER BY boardIndex DESC LIMIT ${
+      `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
+      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND postTitle LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       } , 10`;
     // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "내용만") {
     query =
-      "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
-      mysql.escape(category) +
-      " AND postContent LIKE " +
-      mysql.escape("%" + searchContent + "%") +
-      "ORDER BY boardIndex DESC LIMIT " +
-      10 * (page - 1) +
-      ", 10";
-
-    // 제목+내용 검색한다고 옵션설정했을 때 검색해주는 쿼리문
-  } else if (searchOption === "제목 + 내용") {
-    query =
-      "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
-      mysql.escape(category) +
-      " AND postContent LIKE " +
-      mysql.escape("%" + searchContent + "%") +
-      "OR postContent LIKE" +
-      mysql.escape("%" + searchContent + "%") +
-      "ORDER BY boardIndex DESC LIMIT " +
-      10 * (page - 1) +
-      ", 10";
+      `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
+      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND postContent LIKE ? ORDER BY boardIndex DESC LIMIT ${
+        10 * (page - 1)
+      }
+      , 10`;
     // 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "닉네임") {
     query =
-      "SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category =" +
-      mysql.escape(category) +
-      " AND nickname LIKE " +
-      mysql.escape("%" + searchContent + "%") +
-      "ORDER BY boardIndex DESC LIMIT " +
-      10 * (page - 1) +
-      ", 10";
+      `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
+      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND nickname LIKE ? ORDER BY boardIndex DESC LIMIT ${
+        10 * (page - 1)
+      }
+      , 10`;
   }
   // 성공시
   try {
     let results = await db.sequelize.query(query, {
-      replacements: [category, searchContent],
+      replacements: [category, "%" + searchContent + "%"],
     });
-    console.log("결과" + results);
-    console.log("결과" + results[0]);
     // 검색결과가 없을 때
     if (results[0] === undefined) {
       return { state: "검색결과없음" };
     }
     // 게시글 정보 파싱
-    for (const index in results) {
+    for (const index in results[0]) {
       // 게시글 제목의 글자수가 25자 미만일 때
-      if (results[index].postTitle.length <= 25) {
+      if (results[0][index].postTitle.length <= 25) {
         const tempData = {
-          postTitle: results[index].postTitle,
-          nickname: await checkExistUser(results[index].nickname),
-          viewCount: await changeUnit(results[index].viewCount),
-          favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeTimestampForm(results[index].createTimestamp),
+          postTitle: results[0][index].postTitle,
+          nickname: await checkExistUser(results[0][index].nickname),
+          viewCount: await changeUnit(results[0][index].viewCount),
+          favoriteCount: await changeUnit(results[0][index].favoriteCount),
+          createDate: await changeTimestampForm(results[0][index].createTimestamp),
         };
         boardData.push(tempData);
       }
       // 게시글 제목의 글자수가 25자 이상일 때
-      else if (results[index].postTitle.length > 25) {
+      else if (results[0][index].postTitle.length > 25) {
         const tempData = {
-          postTitle: results[index].postTitle.substring(0, 25) + "...",
-          nickname: await checkExistUser(results[index].nickname),
-          viewCount: await changeUnit(results[index].viewCount),
-          favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeTimestampForm(results[index].createTimestamp),
+          postTitle: results[0][index].postTitle.substring(0, 25) + "...",
+          nickname: await checkExistUser(results[0][index].nickname),
+          viewCount: await changeUnit(results[0][index].viewCount),
+          favoriteCount: await changeUnit(results[0][index].favoriteCount),
+          createDate: await changeTimestampForm(results[0][index].createTimestamp),
         };
         boardData.push(tempData);
       }

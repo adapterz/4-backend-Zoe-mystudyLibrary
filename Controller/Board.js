@@ -334,7 +334,7 @@ export async function favoriteBoardController(req, res) {
 export async function searchBoardController(req, res) {
   /*
    *  req.query
-   *  searchOption (ex. 제목만, 내용만, 닉네임, 제목 + 내용)
+   *  searchOption (ex. 제목만, 내용만, 닉네임)
    *  searchContent (검색내용)
    *  req.params
    *  category (자유게시판/공부인증샷)
