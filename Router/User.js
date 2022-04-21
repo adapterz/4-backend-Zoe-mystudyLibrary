@@ -141,6 +141,8 @@ router.patch(
   isValidate,
   editPwController
 );
+// 유저 정보 가져오기
+router.get("/info", getUserController);
 
 // 모듈화
 export default router;
