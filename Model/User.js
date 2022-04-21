@@ -561,7 +561,7 @@ export async function getUserModel(ip, loginCookie) {
     else {
       // 프로필 사진 파일 이름은 유저인덱스이므로 파일 이름과 요청 유저의 인덱스가 일치하지 않은 경우 분기처리
       const checkUserIndex = result[0].profileImage.split(".");
-      if (checkUserIndex[0] !== loginCookie) return { state: "올바르지 않은 접근입니다." };
+      if (checkUserIndex[0] !== "profileImage/" + loginCookie) return { state: "올바르지 않은 접근입니다." };
       // 프로필 사진 이름과 요청 유저의 인덱스가 일치할 때
       userData = {
         isProfileImage: true,
