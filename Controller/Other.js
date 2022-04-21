@@ -4,6 +4,8 @@ import { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from "../CustomModule/StatusCode
 import { wiseSayingModel } from "../Model/Other";
 /*
  * 1. 랜덤으로 명언 정보 가져오는 컨트롤러
+ *
+ * 참고: Model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 Model 수행 로그 남기는데 이용
  */
 
 // 1. 랜덤한 명언 정보 가져오는 컨트롤러

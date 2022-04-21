@@ -1,6 +1,6 @@
 // 댓글 컨트롤러
 // 내장 모듈
-import { checkBoardMethod, checkCommentMethod } from "../CustomModule/CheckDataOrAuthority";
+import { checkCommentMethod } from "../CustomModule/CheckDataOrAuthority";
 import {
   deleteCommentModel,
   detailCommentModel,
@@ -26,6 +26,8 @@ import jwt from "jsonwebtoken";
  * 3. 수정시 기존댓글 불러오는 모듈
  * 4. 댓글 수정
  * 5. 댓글 삭제
+ *
+ * 참고: Model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 Model 수행 로그 남기는데 이용
  */
 
 // 댓글 최초 작성

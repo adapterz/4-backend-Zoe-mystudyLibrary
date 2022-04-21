@@ -7,6 +7,8 @@ import { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } from "../CustomModule/StatusCode
  * 1. 전체도서관 정보
  * 2. 입력한 지역의 도서관 정보
  * 3. 특정 인덱스의 도서관 정보
+ *
+ * 참고: Model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 Model 수행 로그 남기는데 이용
  */
 
 // 전체 도서관 정보

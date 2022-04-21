@@ -35,6 +35,8 @@ import { checkUserLibraryMethod } from "../CustomModule/CheckDataOrAuthority";
  * 3. 관심도서관 조회/등록/탈퇴
  * 4. 유저가 작성한 글/댓글/후기 조회
  * 5. 유저 정보 수정
+ *
+ * 참고: Model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 Model 수행 로그 남기는데 이용
  */
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인

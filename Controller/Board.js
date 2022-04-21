@@ -27,6 +27,8 @@ import jwt from "jsonwebtoken";
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
  * 3. 좋아요/검색 기능
+ *
+ * 참고: Model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 Model 수행 로그 남기는데 이용
  */
 
 // 1. 게시글 조회
@@ -47,7 +49,7 @@ export async function entireBoardController(req, res) {
   // 필요 변수 선언
   let reqCategory;
   let page;
-  // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷면 공부인증샷 게시판의 글 정보만 가져오기
+  // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷이면 공부인증샷 게시판의 글 정보만 가져오기
   // 자유게시판
   if (req.params.category === "free-bulletin") reqCategory = 0;
   // 공부인증샷
@@ -113,7 +115,7 @@ export async function writeBoardController(req, res) {
    *  tags: 태그배열 [{content : 태그내용},{content: 태그내용}]
    */
   try {
-    //  필요 변수 선언
+    // 필요 변수 선언
     const loginToken = req.signedCookies.token;
     let loginIndex;
     // 로그인 토큰이 없을 때
@@ -314,7 +316,7 @@ export async function favoriteBoardController(req, res) {
     else if (modelResult.state === "존재하지않는게시글") return res.status(BAD_REQUEST).json(modelResult);
     // 좋아요를 이미 누른적이 있을 때
     else if (modelResult.state === "좋아요 취소") return res.status(OK).end();
-    // 성공적으로 좋아요 요청 수행
+    // 좋아요 요청 수행
     else if (modelResult.state === "좋아요+1") return res.status(OK).end();
   } catch (err) {
     // 만료된 토큰
