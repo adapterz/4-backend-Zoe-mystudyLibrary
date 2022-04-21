@@ -56,8 +56,8 @@ export async function writeCommentController(req, res) {
     else parentIndex = "NULL";
     // 게시글 및 루트 댓글의 존재 유무 체크 및 유저의 권한 체크
     checkComment = await checkCommentMethod(req.query.boardIndex, parentIndex, loginIndex, true, req.ip);
-    // mysql query 메서드 실패
-    if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
+    // sequelize query 메서드 실패
+    if (checkComment.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 게시글이 존재하지 않을 때
     else if (checkComment.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkComment);
     // 댓글이 존재하지 않을 때
@@ -67,8 +67,8 @@ export async function writeCommentController(req, res) {
       // 댓글 작성 모델 실행 결과
       const modelResult = await writeCommentModel(req.query.boardIndex, parentIndex, loginIndex, req.body, req.ip);
       // 모델 실행결과에 따른 분기처리
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 댓글 작성 요청 수행
       else if (modelResult.state === "댓글작성") return res.status(CREATED).end();
       // 대댓글에 대댓글 달기 시도했을 때
@@ -104,8 +104,8 @@ export async function detailCommentController(req, res) {
   const modelResult = await detailCommentModel(req.query.boardIndex, page, req.ip);
 
   // 모델 실행 결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 해당 게시글 정보가 없을 때
   else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
   // 댓글이 없을 때
@@ -139,8 +139,8 @@ export async function getCommentController(req, res) {
       false,
       req.ip
     );
-    // mysql query 메서드 실패
-    if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
+    // sequelize query 메서드 실패
+    if (checkComment.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 게시글이 존재하지 않을 때
     else if (checkComment.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkComment);
     // 댓글이 존재하지 않을 때
@@ -151,8 +151,8 @@ export async function getCommentController(req, res) {
     else if (checkComment.state === "접근성공") {
       // 해당 인덱스의 댓글 정보 가져오기
       const modelResult = await getCommentModel(req.query.commentIndex, loginIndex, req.ip);
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 해당 댓글이 존재하지 않을 때
       else if (modelResult.state === "존재하지않는댓글") return res.status(NOT_FOUND).json(modelResult);
       // 성공적으로 댓글 정보 가져왔을 때
@@ -198,8 +198,8 @@ export async function editCommentController(req, res) {
       false,
       req.ip
     );
-    // mysql query 메서드 실패
-    if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
+    // sequelize query 메서드 실패
+    if (checkComment.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 해당 게시글이 없을 때
     else if (checkComment.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkComment);
     // 해당 댓글이 없을 때
@@ -211,8 +211,8 @@ export async function editCommentController(req, res) {
       // 댓글수정 모델 실행 결과
       const modelResult = await editCommentModel(req.query.commentIndex, loginIndex, req.body, req.ip);
       // 모델 실행결과에 따른 분기처리
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 댓글수정 요청 수행
       else if (modelResult.state === "댓글수정") return res.status(OK).end();
     }
@@ -254,8 +254,8 @@ export async function deleteCommentController(req, res) {
       false,
       req.ip
     );
-    // mysql query 메서드 실패
-    if (checkComment.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
+    // sequelize query 메서드 실패
+    if (checkComment.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 해당 게시글이 존재하지 않거나 이미 삭제됐을 때
     else if (checkComment.state === "존재하지않는게시글") return res.status(BAD_REQUEST).json(checkComment);
     // 해당 댓글이 존재하지 않을 때
@@ -266,8 +266,8 @@ export async function deleteCommentController(req, res) {
     else if (checkComment.state === "접근성공") {
       // 댓글삭제 모델 실행 결과
       const modelResult = await deleteCommentModel(req.query.commentIndex, loginIndex, req.ip);
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 댓글삭제 요청 수행
       else if (modelResult.state === "댓글삭제") return res.status(NO_CONTENT).end();
     }

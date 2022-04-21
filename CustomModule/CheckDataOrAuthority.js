@@ -41,7 +41,7 @@ export async function checkBoardMethod(boardIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkBoardMethod");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -102,7 +102,7 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, is
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkCommentMethod");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -156,7 +156,7 @@ export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkReviewMethod");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -196,6 +196,6 @@ export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkUserLibraryMethod");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }

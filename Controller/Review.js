@@ -53,8 +53,8 @@ export async function registerReviewController(req, res) {
     // 후기 등록 모델 사용 결과
     const modelResult = await registerReviewModel(req.query.libraryIndex, loginIndex, req.body, req.ip);
     // 모델 사용 후 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 기존에 작성한 후기가 있을 때
     if (modelResult.state === "기존에 작성한 후기가 존재합니다.") return res.status(CONFLICT).json(modelResult);
     // 성공적으로 도서관 후기 등록
@@ -88,8 +88,8 @@ export async function detailReviewController(req, res) {
   const modelResult = await detailReviewModel(req.query.libraryIndex, page, req.ip);
 
   // 모델 실행 결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 해당 게시글 정보가 없을 때
   else if (modelResult.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(modelResult);
   // 댓글이 없을 때
@@ -118,8 +118,8 @@ export async function getReviewController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 도서관, 후기 정보가 있는지 확인하고 해당 후기에 대한 유저의 권한 체크
     const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (checkReview.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
+    // sequelize query 메서드 실패
+    if (checkReview.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
     // 해당 도서관이 정보가 없을 때
     else if (checkReview.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(checkReview);
     // 해당 후기 정보가 없을 때
@@ -130,8 +130,8 @@ export async function getReviewController(req, res) {
     else if (checkReview.state === "접근성공") {
       // 해당 인덱스의 후기 정보 가져오기
       const modelResults = await getReviewModel(req.query.reviewIndex, loginIndex, req.ip);
-      // mysql query 메서드 실패
-      if (modelResults.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
+      // sequelize query 메서드 실패
+      if (modelResults.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
       // 해당 후기 정보가 없을 때
       else if (modelResults.state === "존재하지않는후기") return res.status(NOT_FOUND).json(modelResults);
       // 성공적으로 후기 정보 가져왔을 때
@@ -170,8 +170,8 @@ export async function editReviewController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 도서관,후기가 있는제 확인하고 후기에 대한 유저의 권한 체크
     const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (checkReview.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
+    // sequelize query 메서드 실패
+    if (checkReview.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
     // 해당 도서관 정보가 없을 때
     else if (checkReview.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(checkReview);
     // 해당 후기 정보가 없을 때
@@ -183,8 +183,8 @@ export async function editReviewController(req, res) {
       // 댓글수정 모델 실행 결과
       const modelResult = await editReviewModel(req.query.reviewIndex, loginIndex, req.body, req.ip);
       // 모델 실행결과에 따른 분기처리
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 후기수정 요청 수행
       else if (modelResult.state === "후기수정") return res.status(OK).end();
     }
@@ -221,8 +221,8 @@ export async function deleteReviewController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 도서관,후기 존재 유무와 해당 후기에 대한 유저의 권한 체크
     const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (checkReview.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
+    // sequelize query 메서드 실패
+    if (checkReview.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
     // 해당 도서관 정보가 없을 때
     else if (checkReview.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(checkReview);
     // 해당 인덱스의 후기가 존재하지 않거나 이미 삭제됐을 때
@@ -234,8 +234,8 @@ export async function deleteReviewController(req, res) {
       // 후기삭제 모델 실행 결과
       const modelResult = await deleteReviewModel(req.query.reviewIndex, loginIndex, req.ip);
       // 모델 실행결과에 따른 분기처리
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 해당 후기 삭제
       else if (modelResult.state === "후기삭제") return res.status(NO_CONTENT).end();
     }

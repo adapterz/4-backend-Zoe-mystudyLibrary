@@ -1,6 +1,4 @@
 // 댓글 모델
-// 외장모듈
-import mysql from "mysql2/promise";
 // 내장모듈
 import { db, Op } from "../Orm/models/index";
 import { modelFailLog, modelSuccessLog } from "../CustomModule/QueryLog";
@@ -76,7 +74,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "writeCommentModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 게시글에서 댓글 상세 조회
@@ -172,15 +170,12 @@ export async function detailCommentModel(boardIndex, page, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailCommentModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
 // 수정시 기존 댓글 정보 불러오는 모델
 export async function getCommentModel(commentIndex, loginCookie, ip) {
-  const query =
-    "SELECT commentContent FROM COMMENT WHERE deleteTimestamp IS NULL AND boardDeleteTimestamp IS NULL AND commentIndex =" +
-    mysql.escape(commentIndex);
   // 성공시
   try {
     // 존재하는 댓글인지 체크
@@ -204,8 +199,8 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
     return { state: "댓글정보로딩", dataOfComment: commentData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await modelFailLog(err, ip, query);
-    return { state: "mysql 사용실패" };
+    await modelFailLog(err, ip, "getCommentModel");
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -228,7 +223,7 @@ export async function editCommentModel(commentIndex, loginCookie, inputComment, 
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editCommentModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -249,6 +244,6 @@ export async function deleteCommentModel(commentIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteCommentModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }

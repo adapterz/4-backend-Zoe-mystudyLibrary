@@ -47,7 +47,7 @@ export async function allLibraryModel(ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "allLibraryModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -92,7 +92,7 @@ export async function localLibraryModel(inputLocal, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "localLibraryMode");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -139,6 +139,6 @@ export async function detailLibraryModel(libraryIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailLibraryModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }

@@ -42,7 +42,7 @@ export async function registerReviewModel(libraryIndex, userIndex, inputComment,
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "registerReviewModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -92,7 +92,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailReviewModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 수정시 기존 후기 정보 불러오는 모델
@@ -125,7 +125,7 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "getReviewModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -148,7 +148,7 @@ export async function editReviewModel(reviewIndex, loginCookie, inputReview, ip)
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editReviewModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -168,6 +168,6 @@ export async function deleteReviewModel(reviewIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteReviewModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }

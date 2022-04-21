@@ -1,7 +1,4 @@
 // 게시판 모델
-// 필요모듈
-// 외장모듈
-import mysql from "mysql2/promise";
 // 내장모듈
 import { db, Op } from "../Orm/models/index";
 import { modelFailLog, modelSuccessLog } from "../CustomModule/QueryLog";
@@ -78,7 +75,7 @@ export async function getRecentBoardModel(ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "getRecentBoardModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 1-2. 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
@@ -128,7 +125,7 @@ export async function entireBoardModel(category, page, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "entireBoardModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -196,7 +193,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailBoardModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -255,7 +252,7 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
     // 쿼리문 실행시 에러발생
     await modelFailLog(err, ip, "writeBoardModel");
     await transactionObj.rollback();
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 2-2. 게시글 수정시 기존 게시글 정보 불러오기
@@ -309,7 +306,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
   } catch (err) {
     // 쿼리문 실행시 에러발생
     await modelFailLog(err, ip, "getWriteModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 2-3. 게시글 수정 요청
@@ -362,7 +359,7 @@ export async function editBoardModel(inputWrite, boardIndex, userIndex, ip) {
   } catch (err) {
     await modelFailLog(err, ip, "editBoardModel");
     await transactionObj.rollback();
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -412,7 +409,7 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
   } catch (err) {
     await transactionObj.rollback();
     await modelFailLog(err, ip, "deleteBoardModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -510,7 +507,7 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
   } catch (err) {
     await transactionObj.rollback();
     await modelFailLog(err, ip, "favoriteBoardModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -599,6 +596,6 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, query);
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }

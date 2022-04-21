@@ -76,7 +76,7 @@ export async function signUpModel(inputUser, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "signUpModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -119,7 +119,7 @@ export async function dropOutModel(ip, loginCookie) {
   } catch (err) {
     await transactionObj.rollback();
     await modelFailLog(err, ip, "dropOutModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -151,7 +151,7 @@ export async function loginModel(inputLogin, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "loginModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -197,7 +197,7 @@ export async function userLibraryModel(userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userLibraryModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -228,7 +228,7 @@ export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "registerUserLibraryModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 3-3. 관심도서관 삭제
@@ -262,7 +262,7 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteUserLibraryModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -312,7 +312,7 @@ export async function userBoardModel(userIndex, page, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userBoardModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -365,7 +365,7 @@ export async function userCommentModel(userIndex, page, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userCommentModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -404,7 +404,7 @@ export async function userReviewModel(userIndex, page, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userReviewModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 5. 유저 정보 수정
@@ -439,7 +439,7 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editProfileModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 // 5-2. 연락처 변경 모델
@@ -461,7 +461,7 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editPhoneNumberModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }
 
@@ -505,6 +505,6 @@ export async function editPwModel(inputPw, ip, loginCookie) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editPwModel");
-    return { state: "mysql 사용실패" };
+    return { state: "sequelize 사용실패" };
   }
 }

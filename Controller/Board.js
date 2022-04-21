@@ -36,13 +36,13 @@ import jwt from "jsonwebtoken";
 export async function getRecentBoardController(req, res) {
   // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
   const modelResult = await getRecentBoardModel(req.ip);
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 성공적으로 최신글 정보 가져왔을 때
   else if (modelResult.state === "최신글정보")
     return res.status(OK).json([modelResult.dataOfFreeBoard, modelResult.dataOfStudyBoard]);
 }
-
 // 1-2. 전체 게시물 보기
 export async function entireBoardController(req, res) {
   // req.params: category
@@ -60,8 +60,8 @@ export async function entireBoardController(req, res) {
   // 카테고리에 따른 게시글 전체 정보 가져오는 모듈
   const modelResult = await entireBoardModel(reqCategory, page, req.ip);
   // 모델 실행결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // return 해줄 게시글이 없을 때
   else if (modelResult.state === "존재하지않는정보") return res.status(OK).json(modelResult);
   // 성공적으로 게시판 정보 가져오기 수행
@@ -95,8 +95,8 @@ export async function detailBoardController(req, res) {
   const modelResult = await detailBoardModel(reqCategory, boardIndex, req.ip, isViewDuplicated);
 
   // 모델 실행 결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 해당 게시글 정보가 없을 때
   else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
   // 해당 게시글 정보 가져오기
@@ -129,8 +129,8 @@ export async function writeBoardController(req, res) {
     // 게시글 작성 모델 실행 결과 변수
     const modelResult = await writeBoardModel(req.body.category, req.body, loginIndex, req.ip);
     // 모델 실행결과에 따른 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 게시글 작성 요청 성공
     else if (modelResult.state === "게시글작성완료") return res.status(CREATED).end();
   } catch (err) {
@@ -166,8 +166,8 @@ export async function getWriteController(req, res) {
     // 2. 기존의 글 수정하는 경우
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
     const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    // sequelize query 메서드 실패
+    if (checkPost.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
     else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
     // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
@@ -177,8 +177,8 @@ export async function getWriteController(req, res) {
       // 해당 인덱스의 게시글 정보 가져오는 모델
       const modelResult = await getWriteModel(req.query.boardIndex, loginIndex, req.ip);
       // 모델 실행결과에 따른 분기처리
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 해당 게시글 정보가 없을 때
       else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
       // 성공적으로 게시글 정보 가져왔을 때
@@ -220,8 +220,8 @@ export async function editBoardController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
     const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    // sequelize query 메서드 실패
+    if (checkPost.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
     else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
     // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
@@ -230,8 +230,8 @@ export async function editBoardController(req, res) {
     else if (checkPost.state === "접근성공") {
       // 게시글 수정 모델 실행 결과
       const modelResults = await editBoardModel(req.body, req.query.boardIndex, loginIndex, req.ip);
-      // mysql query 메서드 실패
-      if (modelResults.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
+      // sequelize query 메서드 실패
+      if (modelResults.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
       // 성공적으로 게시글 수정 요청 수행
       else if (modelResults.state === "게시글수정") return res.status(OK).end();
     }
@@ -265,8 +265,8 @@ export async function deleteBoardController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
     const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (checkPost.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    // sequelize query 메서드 실패
+    if (checkPost.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
     else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
     // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
@@ -275,8 +275,8 @@ export async function deleteBoardController(req, res) {
     else if (checkPost.state === "접근성공") {
       // 해당 인덱스 게시글 삭제
       const modelResult = await deleteBoardModel(req.query.boardIndex, loginIndex, req.ip);
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 게시글 삭제 요청 수행
       else if (modelResult.state === "게시글삭제") return res.status(NO_CONTENT).end();
     }
@@ -310,8 +310,8 @@ export async function favoriteBoardController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 좋아요 모델 실행 결과
     const modelResult = await favoriteBoardModel(req.query.boardIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 게시글이 없을 때
     else if (modelResult.state === "존재하지않는게시글") return res.status(BAD_REQUEST).json(modelResult);
     // 좋아요를 이미 누른적이 있을 때
@@ -359,8 +359,8 @@ export async function searchBoardController(req, res) {
     page,
     req.ip
   );
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 검색결과가 없을 때
   else if (modelResult.state === "검색결과없음") return res.status(OK).json(modelResult);
   // 검색결과가 있을 때

@@ -72,8 +72,8 @@ export async function signUpController(req, res) {
   // 회원가입 요청 모델 실행 결과
   const modelResult = await signUpModel(req.body, req.ip);
   // 모델 실행결과에 따른 분기처리
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 이미 존재하는 id라 회원가입 불가능
   else if (modelResult.state === "존재하는 아이디") return res.status(BAD_REQUEST).json(modelResult);
   // 이미 존재하는 닉네임이라 회원가입 불가능
@@ -109,8 +109,8 @@ export async function dropOutController(req, res) {
     // 회원탈퇴 모델 실행결과
     const modelResult = await dropOutModel(req.ip, loginIndex);
     // 실행결과에 따라 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 성공적으로 회원탈퇴 요청
     else if (modelResult.state === "회원탈퇴") {
       // 로그인 토큰 삭제
@@ -145,8 +145,8 @@ export async function loginController(req, res) {
   // 로그인 모델 실행 결과
   const modelResult = await loginModel(req.body, req.ip);
   // 로그인 모델 실행 결과에 따라 분기처리
-  // mysql query 메서드 실패
-  if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  // sequelize query 메서드 실패
+  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // DB에 해당 사용자가 로그인 요청한 id가 없을 때
   if (modelResult.state === "일치하는 id 없음") return res.status(NOT_FOUND).json(modelResult);
   // 존재하는 id는 있으나 id에 대한 요청 pw가 일치하지 않을 때
@@ -200,8 +200,8 @@ export async function userLibraryController(req, res) {
     // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오는 모델 실행결과
     const modelResult = await userLibraryModel(loginIndex, req.ip);
     // 모델 실행 결과에 따라 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 등록된 도서관 정보가 없을 때
     else if (modelResult.state === "등록된정보없음") return res.status(OK).json(modelResult);
     // 해당 유저가 지금까지 등록한 관심도서관 정보 응답
@@ -239,8 +239,8 @@ export async function registerUserLibraryController(req, res) {
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
     // 관심도서관 항목 추가 모델 실행 결과
     const modelResult = await registerUserLibraryModel(req.query.libraryIndex, loginIndex, req.ip);
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 기존에 관심도서관으로 등록된 정보
     else if (modelResult.state === "중복된등록요청") return res.status(BAD_REQUEST).json(modelResult);
     // 성공적으로 관심도서관 추가 요청 수행
@@ -278,15 +278,15 @@ export async function deleteUserLibraryController(req, res) {
     if (checkMyLib.state === "존재하지않는도서관") return res.status(NOT_FOUND).json(checkMyLib);
     // 관심도서관으로 등록되지 않은 도서관(도서관 정보는 있지만 해당 유저가 구독하지 않음)
     else if (checkMyLib.state === "등록되지않은관심도서관") return res.status(BAD_REQUEST).json(checkMyLib);
-    // mysql query 메서드 사용실패
-    else if (checkMyLib.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkMyLib);
+    // sequelize query 메서드 사용실패
+    else if (checkMyLib.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkMyLib);
     // 접근성공
     else if (checkMyLib.state === "접근성공") {
       // 해당 유저가 관심도서관으로 등록한 도서관 정보 삭제하는모델 실행결과
       const modelResult = await deleteUserLibraryModel(req.query.libraryIndex, loginIndex, req.ip);
       // 실행결과에 따라 분기처리
-      // mysql query 메서드 실패
-      if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      // sequelize query 메서드 실패
+      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 해당 유저인덱스에 해당 도서관이 관심도서관으로 등록돼있지 않을 때
       if (modelResult.state === "존재하지않는정보") return res.status(NOT_FOUND).json(modelResult);
       // 해당 관심도서관 정보가 삭제됐을 때
@@ -326,8 +326,8 @@ export async function userBoardController(req, res) {
     // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
     const modelResult = await userBoardModel(loginIndex, page, req.ip);
     // 모델 실행결과에 따른 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult.state);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult.state);
     // 유저가 작성한 글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
     else if (modelResult.state === "등록된글이없음") return res.status(OK).json(modelResult.state);
     // 성공적으로 유저가 작성한 게시글 정보 응답
@@ -365,8 +365,8 @@ export async function userCommentController(req, res) {
     // 해당 유저가 작성한 댓글 정보 가져올 모델 실행 결과
     const modelResult = await userCommentModel(loginIndex, page, req.ip);
     // 모델 실행결과에 따른 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 유저가 작성한 댓글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
     else if (modelResult.state === "등록된댓글없음") return res.status(OK).json(modelResult);
     // 성공적으로 유저가 작성한 댓글 정보 응답
@@ -404,8 +404,8 @@ export async function userReviewController(req, res) {
     // 해당 유저가 작성한 후기 정보 가져오는 모델 실행 결과
     const modelResult = await userReviewModel(loginIndex, page, req.ip);
     // 모델 실행결과에 따른 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 유저가 작성한 후기가 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
     else if (modelResult.state === "등록된후기없음") return res.status(OK).json(modelResult);
     // 성공적으로 유저가 작성한 후기 정보 응답
@@ -448,8 +448,8 @@ export async function editProfileController(req, res) {
     const modelResult = await editProfileModel(req.body, req.ip, loginIndex);
 
     // 실행결과에 따라 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 수정요청한 닉네임이 기존에 존재할 때
     else if (modelResult.state === "중복닉네임") return res.status(BAD_REQUEST).json(modelResult);
     // 성공적으로 프로필 변경
@@ -488,8 +488,8 @@ export async function editPhoneNumberController(req, res) {
     // 연락처 수정 요청 모델 실행결과
     const modelResult = await editPhoneNumberModel(req.body, req.ip, loginIndex);
     // 실행결과에 따라 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 성공적으로 연락처 변경요청 수행
     else if (modelResult.state === "연락처변경성공") return res.status(OK).end();
   } catch (err) {
@@ -528,8 +528,8 @@ export async function editPwController(req, res) {
     // 비밀번호 수정 모델 실행결과
     const modelResult = await editPwModel(req.body, req.ip, loginIndex);
     // 실행결과에 따라 분기처리
-    // mysql query 메서드 실패
-    if (modelResult.state === "mysql 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 현재 비밀번호 입력값이 올바르지 않을 때
     else if (modelResult.state === "기존비밀번호 불일치") return res.status(BAD_REQUEST).json(modelResult);
     // 비밀번호와 비밀번호 수정이 올바르지 않을 때
