@@ -64,9 +64,9 @@ export async function detailReviewModel(libraryIndex, page, ip) {
       return { state: "존재하지않는도서관" };
     }
     // 해당 도서관의 후기 가져오는 쿼리문
-    let query = `SELECT nickname,reviewContent,grade,REVIEW.createTimestamp FROM REVIEW LEFT JOIN USER ON USER.userIndex = REVIEW.userIndex WHERE deleteTimestamp IS NULL AND libraryIndex = ? ORDER BY reviewIndex DESC LIMIT ${
-      5 * (page - 1)
-    },5`;
+    let query =
+      `SELECT nickname,reviewContent,grade,REVIEW.createTimestamp FROM REVIEW LEFT JOIN USER ON USER.userIndex = REVIEW.userIndex ` +
+      `WHERE deleteTimestamp IS NULL AND libraryIndex = ? ORDER BY reviewIndex DESC LIMIT ${5 * (page - 1)},5`;
     let [results, metadata] = await db.sequelize.query(query, {
       replacements: [libraryIndex],
     });

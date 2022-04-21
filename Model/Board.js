@@ -17,14 +17,16 @@ export async function getRecentBoardModel(ip) {
   const results = [];
   // 최신글 자유게시판 글 5개 불러오기
   let query =
-    "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
+    "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex" +
+    "WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
   // 성공시
   try {
     let [result, metadata] = await db.sequelize.query(query);
     results.push(result);
     // 최신글 공부인증샷 글 4개 불러오기
     query =
-      "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
+      "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex " +
+      "WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
     [result, metadata] = await db.sequelize.query(query);
     results.push(result);
 
@@ -82,9 +84,9 @@ export async function getRecentBoardModel(ip) {
 export async function entireBoardModel(category, page, ip) {
   const boardData = [];
   // 카테고리에 맞는 전체 게시글 정보 가져오기
-  const query = `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? ORDER BY boardIndex DESC LIMIT ${
-    10 * (page - 1)
-  }, 10`;
+  const query =
+    `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex` +
+    ` WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? ORDER BY boardIndex DESC LIMIT ${10 * (page - 1)}, 10`;
   // 성공시
   try {
     const [results, metadata] = await db.sequelize.query(query, { replacements: [category] });
@@ -136,7 +138,8 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
   const results = [];
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
-    "SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createTimestamp,USER.nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category= ? AND boardIndex = ?";
+    "SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createTimestamp,USER.nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex" +
+    " WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category= ? AND boardIndex = ?";
   // 성공시
   try {
     // 게시글 정보가져오는 쿼리 메서드
@@ -149,7 +152,8 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     }
     // 게시글 정보 가져오는 쿼리 메서드
     query =
-      "SELECT postTitle,USER.nickname,postContent,viewCount,favoriteCount,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category= ? AND boardIndex = ?";
+      "SELECT postTitle,USER.nickname,postContent,viewCount,favoriteCount,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex " +
+      "WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category= ? AND boardIndex = ?";
     [result, metadata] = await db.sequelize.query(query, {
       replacements: [category, boardIndex],
     });
@@ -459,7 +463,8 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
       await transactionObj.commit();
       // 정상적으로 좋아요 수 1증가
       return { state: "좋아요+1" };
-      // 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 TRUE 일 때, favoriteFlag 컬럼값 FALSE 로 바꿔주기 (게시글 조회시 favoriteFlag 의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
+      // 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 TRUE 일 때, favoriteFlag 컬럼값 FALSE 로 바꿔주기
+      // (게시글 조회시 favoriteFlag 의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
     } else if (result[0] !== undefined) {
       if (result[0].favoriteFlag === true) {
         await db["board"].decrement(
@@ -482,7 +487,8 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         await transactionObj.commit();
         // 좋아요 취소
         return { state: "좋아요 취소" };
-        // 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 FALSE 일 때, favoriteFlag 컬럼값 TRUE 로 바꿔주기 (게시글 조회시 favoriteFlag 의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
+        // 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 FALSE 일 때, favoriteFlag 컬럼값 TRUE 로 바꿔주기
+        // (게시글 조회시 favoriteFlag 의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
       } else if (result[0].favoriteFlag === false) {
         await db["board"].increment(
           { favoriteCount: 1 },
@@ -518,9 +524,11 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
   let query;
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (searchOption === "제목만") {
-    query = `SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND postTitle LIKE % ${searchContent} % ORDER BY boardIndex DESC LIMIT ${
-      10 * (page - 1)
-    } , 10`;
+    query =
+      `SELECT postTitle,viewCount,favoriteCount,nickname,createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
+      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND postTitle LIKE % ${searchContent} % ORDER BY boardIndex DESC LIMIT ${
+        10 * (page - 1)
+      } , 10`;
     // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "내용만") {
     query =

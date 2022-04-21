@@ -160,7 +160,11 @@ export async function loginModel(inputLogin, ip) {
 export async function userLibraryModel(userIndex, ip) {
   const libraryData = [];
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
-  let query = `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND USERLIBRARY.deleteTimestamp IS NULL AND USERLIBRARY.userIndex= ? GROUP BY libraryIndex ORDER BY libraryIndex`;
+  let query =
+    `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,` +
+    `nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex ` +
+    `LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL ` +
+    `AND USERLIBRARY.deleteTimestamp IS NULL AND USERLIBRARY.userIndex= ? GROUP BY libraryIndex ORDER BY libraryIndex`;
   // 성공시
   try {
     let [results, metadata] = await db.sequelize.query(query, {
@@ -320,9 +324,11 @@ export async function userBoardModel(userIndex, page, ip) {
 export async function userCommentModel(userIndex, page, ip) {
   const commentData = [];
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
-  const query = `SELECT COMMENT.commentContent,COMMENT.createTimestamp,BOARD.postTitle,COMMENT.boardDeleteTimestamp FROM COMMENT LEFT JOIN BOARD ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteTimestamp IS NULL AND COMMENT.userIndex= ? ORDER BY commentIndex DESC LIMIT ${
-    5 * (page - 1)
-  }, 5`;
+  const query =
+    `SELECT COMMENT.commentContent,COMMENT.createTimestamp,BOARD.postTitle,COMMENT.boardDeleteTimestamp FROM COMMENT LEFT JOIN BOARD ` +
+    `ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteTimestamp IS NULL AND COMMENT.userIndex= ? ORDER BY commentIndex DESC LIMIT ${
+      5 * (page - 1)
+    }, 5`;
   // 성공시
   try {
     let [results, metadata] = await db.sequelize.query(query, {
@@ -373,9 +379,10 @@ export async function userCommentModel(userIndex, page, ip) {
 export async function userReviewModel(userIndex, page, ip) {
   const reviewData = [];
   // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
-  const query = `SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createTimestamp,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteTimestamp IS NULL AND LIBRARY.deleteTimestamp IS NULL AND REVIEW.userIndex= ? ORDER BY reviewIndex DESC LIMIT ${
-    5 * (page - 1)
-  } ,5`;
+  const query =
+    `SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createTimestamp,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ` +
+    `ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteTimestamp IS NULL AND LIBRARY.deleteTimestamp IS NULL AND REVIEW.userIndex= ? ` +
+    `ORDER BY reviewIndex DESC LIMIT ${5 * (page - 1)} ,5`;
 
   // 성공시
   try {

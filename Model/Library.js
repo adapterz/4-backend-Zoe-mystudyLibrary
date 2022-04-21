@@ -17,7 +17,10 @@ import {
 export async function allLibraryModel(ip) {
   let libraryData = [];
   // 전체 도서관 정보 가져오는 쿼리문 + 도서관 별 후기 평균 평점, 평점개수 가져오는 쿼리문
-  const query = `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL GROUP BY libraryIndex`;
+  const query =
+    `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,` +
+    `nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex ` +
+    `AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL GROUP BY libraryIndex`;
   try {
     const [results, metadata] = await db.sequelize.query(query);
     // 전체도서관 데이터 가공
@@ -55,7 +58,10 @@ export async function allLibraryModel(ip) {
 export async function localLibraryModel(inputLocal, ip) {
   const libraryData = [];
   // 유저가 요청한 시도명/시군구명에 맞게 데이터 가져오는 쿼리문
-  const query = `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND nameOfCity = ? AND districts = ? GROUP BY libraryIndex`;
+  const query =
+    `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,` +
+    `nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex ` +
+    `AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND nameOfCity = ? AND districts = ? GROUP BY libraryIndex`;
   try {
     const [results, metadata] = await db.sequelize.query(query, {
       replacements: [inputLocal.nameOfCity, inputLocal.districts],
@@ -99,7 +105,10 @@ export async function localLibraryModel(inputLocal, ip) {
 // 특정 도서관 정보 가져오는 모델
 export async function detailLibraryModel(libraryIndex, ip) {
   // 특정 libraryIndex의 도서관 정보 후기의 평균 평점/평점개수 가져오는 다중 쿼리문
-  const query = `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact,COUNT(grade) countOfGrade,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND LIBRARY.libraryIndex= ? GROUP BY libraryIndex`;
+  const query =
+    `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,` +
+    `nameOfCity,districts,address,libraryContact,COUNT(grade) countOfGrade,AVG(grade) avgOfGrade FROM LIBRARY LEFT JOIN REVIEW ON LIBRARY.libraryIndex=REVIEW.libraryIndex` +
+    ` AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL AND LIBRARY.libraryIndex= ? GROUP BY libraryIndex`;
 
   // 성공시
   try {
