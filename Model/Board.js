@@ -18,7 +18,7 @@ export async function getRecentBoardModel(ip) {
   // 최신글 자유게시판 글 5개 불러오기
   let query =
     "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex" +
-    "WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
+    " WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
   // 성공시
   try {
     let [result, metadata] = await db.sequelize.query(query);
@@ -26,7 +26,7 @@ export async function getRecentBoardModel(ip) {
     // 최신글 공부인증샷 글 4개 불러오기
     query =
       "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex " +
-      "WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
+      " WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
     [result, metadata] = await db.sequelize.query(query);
     results.push(result);
 
@@ -290,14 +290,13 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
     results.push(result);
 
     // DB에 TINYINT로 저장된 정보 문자열로 변경
-    if (results[0].category === 0) results[0].category = "자유게시판";
-    else if (results[0].category === 1) results[0].category = "공부인증샷";
-
+    if (results[0][0].category === 0) results[0][0].category = "자유게시판";
+    else if (results[0][0].category === 1) results[0][0].category = "공부인증샷";
     // 게시글 데이터
     const boardData = {
-      category: results[0].category,
-      postTitle: results[0].postTitle,
-      postContent: results[0].postContent,
+      category: results[0][0].category,
+      postTitle: results[0][0].postTitle,
+      postContent: results[0][0].postContent,
     };
     // 태그 데이터
     for (let tagIndex in results[1]) {
