@@ -61,7 +61,6 @@ export async function changeTimestampForm(timestamp) {
     stringTimestamp = moment(timestamp).format("YYYY년MM월DD일");
   }
 
-  console.log(stringTimestamp);
   return stringTimestamp;
 }
 
