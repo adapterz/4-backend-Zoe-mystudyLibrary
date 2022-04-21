@@ -84,10 +84,10 @@ async function queryData([values]) {
   const query = `INSERT INTO LIBRARY(libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact) VALUES ?`;
   try {
     const [postLibraryRow] = await db.sequelize.query(query, { replacements: [values] });
-    await modelSuccessLog(null, query);
+    await modelSuccessLog(null, "queryData");
     return postLibraryRow;
   } catch (err) {
     // 쿼리문 실행시 에러발생
-    await modelFailLog(err, null, query);
+    await modelFailLog(err, null, "queryData");
   }
 }
