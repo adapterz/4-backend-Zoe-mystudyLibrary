@@ -17,6 +17,7 @@ import { db, Op } from "../Orm/models";
  * 3. 유저 관심도서관 조회/등록/탈퇴
  * 4. 유저가 작성한 글/댓글/후기 조회
  * 5. 유저 정보 수정
+ * 6. 유저 정보 가져오기
  */
 
 // 1. 회원가입/탈퇴
@@ -31,7 +32,6 @@ export async function signUpModel(inputUser, ip) {
         id: { [Op.eq]: inputUser.id },
       },
     });
-    // 성공로그
     // 1. 유저가 입력한 id나 닉네임이 기존에 있을 때
     // 유저가 입력한 아이디가 기존에 존재하는 아이디일 때
     if (result[0] !== undefined) {
@@ -415,8 +415,8 @@ export async function userReviewModel(userIndex, page, ip) {
   }
 }
 // 5. 유저 정보 수정
-// 5-1. 프로필 변경
-export async function editProfileModel(inputRevise, ip, loginCookie) {
+// 5-1. 프로필 - 닉네임 변경
+export async function editProfileNicknameModel(inputRevise, ip, loginCookie) {
   // 성공시
   try {
     // 유저가 입력한 닉네임이 기존에 존재하는지 확인하기 위해 조회
@@ -428,11 +428,11 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
     });
     // 유저가 입력한 닉네임이 기존에 존재할 때
     if (result[0] !== undefined) {
-      await modelSuccessLog(ip, "editProfileModel");
+      await modelSuccessLog(ip, "editProfileNicknameModel");
       return { state: "중복닉네임" };
     }
 
-    // 새 프로필 정보 수정해줄 쿼리문
+    // 새 프로필 닉네임 정보 수정해줄 쿼리문
     await db["user"].update(
       {
         nickname: inputRevise.nickname,
@@ -441,15 +441,37 @@ export async function editProfileModel(inputRevise, ip, loginCookie) {
       { where: { userIndex: loginCookie } }
     );
 
-    await modelSuccessLog(ip, "editProfileModel");
+    await modelSuccessLog(ip, "editProfileNicknameModel");
     return { state: "프로필변경성공" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
-    await modelFailLog(err, ip, "editProfileModel");
+    await modelFailLog(err, ip, "editProfileNicknameModel");
     return { state: "sequelize 사용실패" };
   }
 }
-// 5-2. 연락처 변경 모델
+
+// 5-2. 프로필 - 이미지 변경 모델
+export async function editProfileImageModel(imagePath, ip, loginCookie) {
+  // 성공시
+  try {
+    // 새 프로필 이미지 정보 수정해줄 쿼리문
+    await db["user"].update(
+      {
+        profileImage: imagePath,
+        updateTimestamp: db.sequelize.fn("NOW"),
+      },
+      { where: { userIndex: loginCookie } }
+    );
+
+    await modelSuccessLog(ip, "editProfileImageModel");
+    return { state: "프로필 사진 수정" };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await modelFailLog(err, ip, "editProfileImageModel");
+    return { state: "sequelize 사용실패" };
+  }
+}
+// 5-3. 연락처 변경 모델
 export async function editPhoneNumberModel(newContact, ip, loginCookie) {
   // 성공시
   try {
@@ -472,7 +494,7 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
   }
 }
 
-// 5-3. 비밀번호 수정 요청 모델
+// 5-4. 비밀번호 수정 요청 모델
 export async function editPwModel(inputPw, ip, loginCookie) {
   // 해싱된 새비밀번호 변수 미리 선언
   let hashedNewPw;
@@ -512,6 +534,47 @@ export async function editPwModel(inputPw, ip, loginCookie) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editPwModel");
+    return { state: "sequelize 사용실패" };
+  }
+}
+
+// 6. 유저 정보 가져오기
+export async function getUserModel(ip, loginCookie) {
+  let userData;
+  // 성공시
+  try {
+    // 유저 정보 가져오기
+    const result = await db["user"].findAll({
+      attributes: ["nickname", "profileImage"],
+      where: {
+        userIndex: { [Op.eq]: loginCookie },
+      },
+    });
+    // 등록된 프로필 이미지가 없을 때
+    if (result[0].profileImage === null) {
+      userData = {
+        isProfileImage: false,
+        nickname: result[0].nickname,
+      };
+    }
+    // 등록된 프로필 이미지가 있을 때
+    else {
+      // 프로필 사진 파일 이름은 유저인덱스이므로 파일 이름과 요청 유저의 인덱스가 일치하지 않은 경우 분기처리
+      const checkUserIndex = result[0].profileImage.split(".");
+      if (checkUserIndex[0] !== loginCookie) return { state: "올바르지 않은 접근입니다." };
+      // 프로필 사진 이름과 요청 유저의 인덱스가 일치할 때
+      userData = {
+        isProfileImage: true,
+        nickname: result[0].nickname,
+        profileImage: result[0].profileImage,
+      };
+    }
+
+    await modelSuccessLog(ip, "getUserModel");
+    return { state: "유저 정보", dataOfUser: userData };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await modelFailLog(err, ip, "getUserModel");
     return { state: "sequelize 사용실패" };
   }
 }
