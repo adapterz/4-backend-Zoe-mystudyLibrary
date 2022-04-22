@@ -20,19 +20,19 @@ import "dotenv/config.js";
 
 // 내장모듈
 // 명언 스크래핑 모듈
-import { getScraping } from "./CustomModule/Scraping";
+import { getScraping } from "./customModule/scraping";
 // 날짜/시간 관련 모듈
-import { moment } from "./CustomModule/DateTime";
+import { moment } from "./customModule/dateTime";
 // 시퀄라이저 모듈
-import { db } from "./Orm/models";
+import { db } from "./orm/models";
 
 // 라우터
-import boardRouter from "./Router/Board";
-import commentRouter from "./Router/Comment";
-import libraryRouter from "./Router/Library";
-import reviewRouter from "./Router/Review";
-import userRouter from "./Router/User";
-import otherRouter from "./Router/Other";
+import boardRouter from "./router/board";
+import commentRouter from "./router/comment";
+import libraryRouter from "./router/library";
+import reviewRouter from "./router/review";
+import userRouter from "./router/user";
+import otherRouter from "./router/other";
 
 // 설정
 // 로그에 DB 저장하도록 할 설정
@@ -122,7 +122,7 @@ app.get("/not-found", (req, res) => {
 });
 
 // 공공데이터 api 도서관 정보 테이블에 넣기
-// import { reqOpenData } from "./CustomModule/RequestOpenApi";
+// import { reqOpenData } from "./customModule/RequestOpenApi";
 // reqOpenData();
 
 // 서비스에 필요한 명언 정보 DB 테이블에 넣기
