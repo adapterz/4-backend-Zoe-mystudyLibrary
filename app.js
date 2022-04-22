@@ -116,11 +116,6 @@ app.use("/user", userRouter);
 app.use("/", boardRouter);
 app.use("/", otherRouter);
 
-// 404 에러처리
-app.get("/not-found", (req, res) => {
-  res.status(404).send("not founded page");
-});
-
 // 공공데이터 api 도서관 정보 테이블에 넣기
 // import { reqOpenData } from "./customModule/RequestOpenApi";
 // reqOpenData();
