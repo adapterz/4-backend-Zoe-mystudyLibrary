@@ -96,7 +96,7 @@ export async function detailBoardController(req, res) {
 
   // 모델 실행 결과에 따른 분기처리
   // sequelize query 메서드 실패
-  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 해당 게시글 정보가 없을 때
   else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
   // 해당 게시글 정보 가져오기
