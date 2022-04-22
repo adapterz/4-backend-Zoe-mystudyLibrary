@@ -134,7 +134,6 @@ export async function entireBoardModel(category, page, ip) {
 // 1-3. 특정 게시글 상세보기
 export async function detailBoardModel(category, boardIndex, ip, isViewDuplicated) {
   const tagData = [];
-  let boardData;
   const results = [];
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
@@ -152,7 +151,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     }
     // 게시글 정보 가져오는 쿼리 메서드
     query =
-      "SELECT postTitle,USER.nickname,postContent,viewCount,favoriteCount,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex " +
+      "SELECT postTitle,USER.nickname,USER.profileImage,postContent,viewCount,favoriteCount,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex " +
       "WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category= ? AND boardIndex = ?";
     [result, metadata] = await db.sequelize.query(query, {
       replacements: [category, boardIndex],
@@ -176,9 +175,8 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     }
     // 해당 게시글의 데이터 파싱
     // 게시글 데이터
-    boardData = {
+    const boardData = {
       postTitle: results[0][0].postTitle,
-      nickname: await checkExistUser(results[0][0].nickname),
       postContent: results[0][0].postContent,
       viewCount: await changeUnit(results[0][0].viewCount),
       favoriteCount: await changeUnit(results[0][0].favoriteCount),
@@ -188,11 +186,15 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     for (let tagIndex in results[1]) {
       tagData.push({ tag: results[1][tagIndex].tag });
     }
-
+    // 유저 데이터
+    const userData = {
+      nickname: await checkExistUser(results[0][0].nickname),
+      profileImage: results[0][0].profileImage,
+    };
     // 성공로그
     await modelSuccessLog(ip, "detailBoardModel");
     // 성공적으로 게시글 정보 조회
-    return { state: "게시글상세보기", dataOfBoard: boardData, dataOfTag: tagData };
+    return { state: "게시글상세보기", dataOfBoard: boardData, dataOfTag: tagData, dataOfUser: userData };
 
     // 쿼리문 실행시 에러발생
   } catch (err) {

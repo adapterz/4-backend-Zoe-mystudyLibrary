@@ -101,7 +101,7 @@ export async function detailBoardController(req, res) {
   else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
   // 해당 게시글 정보 가져오기
   else if (modelResult.state === "게시글상세보기") {
-    return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag]);
+    return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag, modelResult.dataOfUser]);
   }
 }
 // 2. 게시글 작성/수정/삭제
