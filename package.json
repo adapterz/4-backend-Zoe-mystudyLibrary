@@ -49,7 +49,7 @@
     "prettier": "^2.5.1"
   },
   "description": "지역을 입력하면 주변 도서관이 검색되고 평점을 남길 수 있는 사이트입니다",
-  "main": ".eslintrc.json",
+  "main": ".eslintrc.js",
   "scripts": {
     "start": "babel-node app.js --exec babel-node",
     "test": "echo \"Error: no test specified\" && exit 1"
