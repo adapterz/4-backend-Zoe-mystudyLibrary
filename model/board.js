@@ -73,11 +73,11 @@ export async function getRecentBoardModel(ip) {
     }
     // 성공로그
     await modelSuccessLog(ip, "getRecentBoardModel");
-    return { state: "최신글정보", dataOfFreeBoard: freeBoardData, dataOfStudyBoard: studyBoardData };
+    return { state: "recent_board_information", dataOfFreeBoard: freeBoardData, dataOfStudyBoard: studyBoardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "getRecentBoardModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 1-2. 전체 게시글 정보 (글제목, 글쓴이(닉네임), 조회수, 좋아요 수, 작성날짜)
@@ -92,7 +92,7 @@ export async function entireBoardModel(category, page, ip) {
     const [results, metadata] = await db.sequelize.query(query, { replacements: [category] });
     // 게시글 정보가 없을 때
     if (results[0] === undefined) {
-      return { state: "존재하지않는정보" };
+      return { state: "not_exist" };
     }
     // 게시글 정보 파싱
     for (const index in results) {
@@ -123,11 +123,11 @@ export async function entireBoardModel(category, page, ip) {
     // 성공로그
     await modelSuccessLog(ip, "entireBoardModel");
     // 가져온 게시글 정보 return
-    return { state: "전체게시글", dataOfBoard: boardData };
+    return { state: "entire_board_information", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "entireBoardModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -147,7 +147,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     });
     // 요청한 게시글 인덱스의 게시물이 존재하지 않을 때
     if (result[0] === undefined) {
-      return { state: "존재하지않는게시글" };
+      return { state: "not_exist" };
     }
     // 게시글 정보 가져오는 쿼리 메서드
     query =
@@ -194,12 +194,12 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     // 성공로그
     await modelSuccessLog(ip, "detailBoardModel");
     // 성공적으로 게시글 정보 조회
-    return { state: "게시글상세보기", dataOfBoard: boardData, dataOfTag: tagData, dataOfUser: userData };
+    return { state: "detail_board_information", dataOfBoard: boardData, dataOfTag: tagData, dataOfUser: userData };
 
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailBoardModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -253,12 +253,12 @@ export async function writeBoardModel(category, inputWrite, userIndex, ip) {
     // 성공 로그찍기, 커밋하기
     await modelSuccessLog(ip, "writeBoardModel");
     await transactionObj.commit();
-    return { state: "게시글작성완료" };
+    return { state: "write_complete" };
   } catch (err) {
     // 쿼리문 실행시 에러발생
     await modelFailLog(err, ip, "writeBoardModel");
     await transactionObj.rollback();
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 2-2. 게시글 수정시 기존 게시글 정보 불러오기
@@ -278,7 +278,7 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
     results.push(result);
     // 해당 게시글이 없을 때
     if (results[0] === undefined) {
-      return { state: "존재하지않는게시글" };
+      return { state: "not_exist" };
     }
     // 해당 게시글의 태그 정보 불러오기
     result = await db["tag"].findAll({
@@ -307,11 +307,11 @@ export async function getWriteModel(boardIndex, userIndex, ip) {
 
     // 성공로그
     await modelSuccessLog(ip, "getWriteModel");
-    return { state: "게시글정보로딩", dataOfBoard: boardData, dataOfTag: tagData };
+    return { state: "board_information", dataOfBoard: boardData, dataOfTag: tagData };
   } catch (err) {
     // 쿼리문 실행시 에러발생
     await modelFailLog(err, ip, "getWriteModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 2-3. 게시글 수정 요청
@@ -360,11 +360,11 @@ export async function editBoardModel(inputWrite, boardIndex, userIndex, ip) {
     // 성공 로그찍기, 커밋하기
     await modelSuccessLog(ip, "editBoardModel");
     await transactionObj.commit();
-    return { state: "게시글수정" };
+    return { state: "edit_board" };
   } catch (err) {
     await modelFailLog(err, ip, "editBoardModel");
     await transactionObj.rollback();
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -409,12 +409,12 @@ export async function deleteBoardModel(boardIndex, userIndex, ip) {
     // 로그찍기
     await modelSuccessLog(ip, "deleteBoardModel");
     await transactionObj.commit();
-    return { state: "게시글삭제" };
+    return { state: "delete_board" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await transactionObj.rollback();
     await modelFailLog(err, ip, "deleteBoardModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -432,7 +432,7 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         boardIndex: { [Op.eq]: boardIndex },
       },
     });
-    if (result[0] === undefined) return { state: "존재하지않는게시글" };
+    if (result[0] === undefined) return { state: "not_exist" };
 
     // favoritePost 테이블에 해당 게시글에 해당 유저가 좋아요 누른 정보 있나 체크
     result = await db["favoritePost"].findAll({
@@ -463,7 +463,7 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
       await modelSuccessLog(ip, "favoriteBoardModel");
       await transactionObj.commit();
       // 정상적으로 좋아요 수 1증가
-      return { state: "좋아요+1" };
+      return { state: "favorite +1" };
       // 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 TRUE 일 때, favoriteFlag 컬럼값 FALSE 로 바꿔주기
       // (게시글 조회시 favoriteFlag 의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
     } else if (result[0] !== undefined) {
@@ -487,7 +487,7 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         await modelSuccessLog(ip, "favoriteBoardModel");
         await transactionObj.commit();
         // 좋아요 취소
-        return { state: "좋아요 취소" };
+        return { state: "cancel_favorite" };
         // 좋아요를 이미 누른 적이 있고 favoriteFlag 컬럼값이 FALSE 일 때, favoriteFlag 컬럼값 TRUE 로 바꿔주기
         // (게시글 조회시 favoriteFlag 의 값이 TRUE 로 돼있는 수만큼만 좋아요 수 집계, 0: FALSE, 1: TRUE)
       } else if (result[0].favoriteFlag === false) {
@@ -507,14 +507,14 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         await transactionObj.commit();
         await modelSuccessLog(ip, "favoriteBoardModel");
         // 좋아요 +1
-        return { state: "좋아요+1" };
+        return { state: "favorite +1" };
       }
     }
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await transactionObj.rollback();
     await modelFailLog(err, ip, "favoriteBoardModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -554,7 +554,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     });
     // 검색결과가 없을 때
     if (results[0] === undefined) {
-      return { state: "검색결과없음" };
+      return { state: "not_found" };
     }
     // 게시글 정보 파싱
     for (const index in results[0]) {
@@ -582,10 +582,10 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
       }
     }
     // 검색결과가 있을 때
-    return { state: "검색글정보", dataOfBoard: boardData };
+    return { state: "search_board_information", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, query);
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }

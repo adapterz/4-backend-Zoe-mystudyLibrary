@@ -39,9 +39,9 @@ export async function getRecentBoardController(req, res) {
   const modelResult = await getRecentBoardModel(req.ip);
 
   // sequelize query 메서드 실패
-  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 성공적으로 최신글 정보 가져왔을 때
-  else if (modelResult.state === "최신글정보")
+  else if (modelResult.state === "recent_board_information")
     return res.status(OK).json([modelResult.dataOfFreeBoard, modelResult.dataOfStudyBoard]);
 }
 // 1-2. 전체 게시물 보기
@@ -62,11 +62,11 @@ export async function entireBoardController(req, res) {
   const modelResult = await entireBoardModel(reqCategory, page, req.ip);
   // 모델 실행결과에 따른 분기처리
   // sequelize query 메서드 실패
-  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // return 해줄 게시글이 없을 때
-  else if (modelResult.state === "존재하지않는정보") return res.status(OK).json(modelResult);
+  else if (modelResult.state === "not_exist") return res.status(OK).json(modelResult);
   // 성공적으로 게시판 정보 가져오기 수행
-  else if (modelResult.state === "전체게시글") return res.status(OK).json(modelResult.dataOfBoard);
+  else if (modelResult.state === "entire_board_information") return res.status(OK).json(modelResult.dataOfBoard);
 }
 
 // 1-3. 게시물 상세보기
@@ -99,9 +99,9 @@ export async function detailBoardController(req, res) {
   // sequelize query 메서드 실패
   if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 해당 게시글 정보가 없을 때
-  else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
+  else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
   // 해당 게시글 정보 가져오기
-  else if (modelResult.state === "게시글상세보기") {
+  else if (modelResult.state === "detail_board_information") {
     return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag, modelResult.dataOfUser]);
   }
 }
@@ -120,29 +120,29 @@ export async function writeBoardController(req, res) {
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+      return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
-    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 게시글 작성 모델 실행 결과 변수
     const modelResult = await writeBoardModel(req.body.category, req.body, loginIndex, req.ip);
     // 모델 실행결과에 따른 분기처리
     // sequelize query 메서드 실패
-    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 게시글 작성 요청 성공
-    else if (modelResult.state === "게시글작성완료") return res.status(CREATED).end();
+    else if (modelResult.state === "write_complete") return res.status(CREATED).end();
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
-      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+      return res.status(UNAUTHORIZED).json({ state: "expired_token" });
     }
     // 유효하지 않은 토큰일 때
     if (err.message === "invalid signature") {
-      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+      return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    return res.status(FORBIDDEN).json({ state: "not_authorization" });
   }
 }
 
@@ -150,50 +150,50 @@ export async function writeBoardController(req, res) {
 export async function getWriteController(req, res) {
   // req.query : boardIndex
   try {
-    //  필요 변수 선언
+    // 필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+      return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
-    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 1. 글 새로 작성하는 경우
     if (req.query.boardIndex === "") return res.status(OK).end();
     // 2. 기존의 글 수정하는 경우
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
     const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
-    if (checkPost.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    if (checkPost.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
-    else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
+    else if (checkPost.state === "not_exist") return res.status(NOT_FOUND).json(checkPost);
     // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-    else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
+    else if (checkPost.state === "not_authorization") return res.status(FORBIDDEN).json(checkPost);
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-    else if (checkPost.state === "접근성공") {
+    else if (checkPost.state === "success_access") {
       // 해당 인덱스의 게시글 정보 가져오는 모델
       const modelResult = await getWriteModel(req.query.boardIndex, loginIndex, req.ip);
       // 모델 실행결과에 따른 분기처리
       // sequelize query 메서드 실패
-      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 해당 게시글 정보가 없을 때
-      else if (modelResult.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(modelResult);
+      else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
       // 성공적으로 게시글 정보 가져왔을 때
-      else if (modelResult.state === "게시글정보로딩")
+      else if (modelResult.state === "board_information")
         return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag]);
     }
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
-      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+      return res.status(UNAUTHORIZED).json({ state: "expired_token" });
     }
     // 유효하지 않은 토큰일 때
     if (err.message === "invalid signature") {
-      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+      return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    return res.status(FORBIDDEN).json({ state: "not_authorization" });
   }
 }
 // 2-3. 게시글 수정요청
@@ -206,43 +206,43 @@ export async function editBoardController(req, res) {
    *  tags: 태그배열
    */
   try {
-    //  필요 변수 선언
+    // 필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+      return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
-    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
     const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
-    if (checkPost.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    if (checkPost.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
-    else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
+    else if (checkPost.state === "not_exist") return res.status(NOT_FOUND).json(checkPost);
     // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-    else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
+    else if (checkPost.state === "not_authorization") return res.status(FORBIDDEN).json(checkPost);
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-    else if (checkPost.state === "접근성공") {
+    else if (checkPost.state === "success_access") {
       // 게시글 수정 모델 실행 결과
       const modelResults = await editBoardModel(req.body, req.query.boardIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
-      if (modelResults.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
+      if (modelResults.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
       // 성공적으로 게시글 수정 요청 수행
-      else if (modelResults.state === "게시글수정") return res.status(OK).end();
+      else if (modelResults.state === "edit_board") return res.status(OK).end();
     }
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
-      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+      return res.status(UNAUTHORIZED).json({ state: "expired_token" });
     }
     // 유효하지 않은 토큰일 때
     if (err.message === "invalid signature") {
-      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+      return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    return res.status(FORBIDDEN).json({ state: "not_authorization" });
   }
 }
 
@@ -250,43 +250,43 @@ export async function editBoardController(req, res) {
 export async function deleteBoardController(req, res) {
   // req.query: boardIndex
   try {
-    //  필요 변수 선언
+    // 필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+      return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
-    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
     const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
-    if (checkPost.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
+    if (checkPost.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
-    else if (checkPost.state === "존재하지않는게시글") return res.status(NOT_FOUND).json(checkPost);
+    else if (checkPost.state === "not_exist") return res.status(NOT_FOUND).json(checkPost);
     // 로그인돼있는 유저와 해당 게시물 작성 유저가 일치하지 않을 때
-    else if (checkPost.state === "접근권한없음") return res.status(FORBIDDEN).json(checkPost);
+    else if (checkPost.state === "not_authorization") return res.status(FORBIDDEN).json(checkPost);
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
-    else if (checkPost.state === "접근성공") {
+    else if (checkPost.state === "success_access") {
       // 해당 인덱스 게시글 삭제
       const modelResult = await deleteBoardModel(req.query.boardIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
-      if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+      if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 게시글 삭제 요청 수행
-      else if (modelResult.state === "게시글삭제") return res.status(NO_CONTENT).end();
+      else if (modelResult.state === "delete_board") return res.status(NO_CONTENT).end();
     }
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
-      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+      return res.status(UNAUTHORIZED).json({ state: "expired_token" });
     }
     // 유효하지 않은 토큰일 때
     if (err.message === "invalid signature") {
-      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+      return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    return res.status(FORBIDDEN).json({ state: "not_authorization" });
   }
 }
 // 3. 좋아요/검색기능
@@ -294,36 +294,36 @@ export async function deleteBoardController(req, res) {
 export async function favoriteBoardController(req, res) {
   // req.query: boardIndex
   try {
-    //  필요 변수 선언
+    // 필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+      return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
-    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 좋아요 모델 실행 결과
     const modelResult = await favoriteBoardModel(req.query.boardIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
-    if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 게시글이 없을 때
-    else if (modelResult.state === "존재하지않는게시글") return res.status(BAD_REQUEST).json(modelResult);
+    else if (modelResult.state === "not_exist") return res.status(BAD_REQUEST).json(modelResult);
     // 좋아요를 이미 누른적이 있을 때
-    else if (modelResult.state === "좋아요 취소") return res.status(OK).end();
+    else if (modelResult.state === "cancel_favorite") return res.status(OK).end();
     // 좋아요 요청 수행
-    else if (modelResult.state === "좋아요+1") return res.status(OK).end();
+    else if (modelResult.state === "favorite +1") return res.status(OK).end();
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
-      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+      return res.status(UNAUTHORIZED).json({ state: "expired_token" });
     }
     // 유효하지 않은 토큰일 때
     if (err.message === "invalid signature") {
-      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+      return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    return res.status(FORBIDDEN).json({ state: "not_authorization" });
   }
 }
 // 3-2. 게시글 검색기능
@@ -356,9 +356,9 @@ export async function searchBoardController(req, res) {
     req.ip
   );
   // sequelize query 메서드 실패
-  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 검색결과가 없을 때
-  else if (modelResult.state === "검색결과없음") return res.status(OK).json(modelResult);
+  else if (modelResult.state === "not_found") return res.status(OK).json(modelResult);
   // 검색결과가 있을 때
-  else if (modelResult.state === "검색글정보") return res.status(OK).json(modelResult.dataOfBoard);
+  else if (modelResult.state === "search_board_information") return res.status(OK).json(modelResult.dataOfBoard);
 }
