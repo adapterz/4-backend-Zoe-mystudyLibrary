@@ -1,13 +1,13 @@
 // 도서관 모델
 // 내장모듈
-import { db } from "../orm/models/index";
-import { modelFailLog, modelSuccessLog } from "../customModule/modelLog";
+import { db } from "../orm/models/index.js";
+import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
 import {
   changeGradeForm,
   changeLibraryDataForm,
   changeLibrarysDataForm,
   changeLibraryType,
-} from "../customModule/changeDataForm";
+} from "../customModule/changeDataForm.js";
 /*
  * 1. 전체도서관 정보
  * 2. 입력한 지역의 도서관 정보

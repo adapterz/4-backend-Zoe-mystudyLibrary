@@ -1,7 +1,7 @@
 // 데이터의 유무나 권한 체크하는 모듈
 // 내장모듈
-import { modelFailLog, modelSuccessLog } from "./modelLog";
-import { db, Op } from "../orm/models";
+import { modelFailLog, modelSuccessLog } from "./modelLog.js";
+import { db, Op } from "../orm/models/index.js";
 
 // 삭제/수정 요청시 해당 게시글의 존재유무 체크, 해당 게시글의 작성자인지 체크 하는 함수
 export async function checkBoardMethod(boardIndex, userIndex, ip) {

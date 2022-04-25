@@ -1,7 +1,7 @@
 // 도서관 컨트롤러
 // 내장모듈
-import { allLibraryModel, detailLibraryModel, localLibraryModel } from "../model/library";
-import { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } from "../customModule/statusCode";
+import { allLibraryModel, detailLibraryModel, localLibraryModel } from "../model/library.js";
+import { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } from "../customModule/statusCode.js";
 
 /*
  * 1. 전체도서관 정보

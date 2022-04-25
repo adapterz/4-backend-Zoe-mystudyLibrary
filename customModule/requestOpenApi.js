@@ -2,8 +2,8 @@
 // 외장모듈
 import request from "request";
 // 내장모듈
-import { db } from "../orm/models";
-const { modelSuccessLog, modelFailLog } = require("./modelLog");
+import { db } from "../orm/models.js";
+import { modelSuccessLog, modelFailLog } from "./modelLog.js";
 
 // 공공데이터 요청
 export async function reqOpenData() {

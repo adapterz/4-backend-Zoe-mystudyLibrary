@@ -1,6 +1,9 @@
 // 도서관 후기 컨트롤러
-// 내장모듈
-import { checkReviewMethod } from "../customModule/checkDataOrAuthority";
+// 외장 모듈
+import jwt from "jsonwebtoken";
+
+// 내장 모듈
+import { checkReviewMethod } from "../customModule/checkDataOrAuthority.js";
 import {
   FORBIDDEN,
   UNAUTHORIZED,
@@ -10,15 +13,14 @@ import {
   OK,
   CREATED,
   CONFLICT,
-} from "../customModule/statusCode";
+} from "../customModule/statusCode.js";
 import {
   deleteReviewModel,
   detailReviewModel,
   editReviewModel,
   getReviewModel,
   registerReviewModel,
-} from "../model/review";
-import jwt from "jsonwebtoken";
+} from "../model/review.js";
 
 /*
  * 1. 도서관 후기 등록

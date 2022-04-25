@@ -1,17 +1,17 @@
 // 도서관 후기 라우터
 // 외장모듈
 import express from "express";
-const { body, query } = require("express-validator");
+import { body, query } from "express-validator";
 
 // 내장모듈
-import { checkPageValidation, isExist, isValidate } from "../customModule/checkValidation";
+import { checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js";
 import {
   deleteReviewController,
   detailReviewController,
   editReviewController,
   getReviewController,
   registerReviewController,
-} from "../controller/review";
+} from "../controller/review.js";
 // 라우터 변수
 const router = express.Router();
 

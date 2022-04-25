@@ -20,19 +20,23 @@ import "dotenv/config.js";
 
 // 내장모듈
 // 명언 스크래핑 모듈
-import { getScraping } from "./customModule/scraping";
+import { getScraping } from "./customModule/scraping.js";
 // 날짜/시간 관련 모듈
-import { moment } from "./customModule/dateTime";
+import { moment } from "./customModule/dateTime.js";
 // 시퀄라이저 모듈
-import { db } from "./orm/models";
+import { db } from "./orm/models/index.js";
+
+// es6 환경에서 require 사용할 수 있게하기
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 
 // 라우터
-import boardRouter from "./router/board";
-import commentRouter from "./router/comment";
-import libraryRouter from "./router/library";
-import reviewRouter from "./router/review";
-import userRouter from "./router/user";
-import wiseSayingRouter from "./router/wiseSaying";
+import boardRouter from "./router/board.js";
+import commentRouter from "./router/comment.js";
+import libraryRouter from "./router/library.js";
+import reviewRouter from "./router/review.js";
+import userRouter from "./router/user.js";
+import wiseSayingRouter from "./router/wiseSaying.js";
 
 // 설정
 // 로그에 DB 저장하도록 할 설정

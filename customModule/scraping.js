@@ -2,8 +2,8 @@
 import axios from "axios";
 import cheerio from "cheerio";
 // 내장모듈
-import { db } from "../orm/models";
-import { modelFailLog, modelSuccessLog } from "./modelLog";
+import { db } from "../orm/models/index.js";
+import { modelFailLog, modelSuccessLog } from "./modelLog.js";
 
 // 해당 url html 파일 가져오기 (성공을 위한 명언 50가지)
 async function getHtml() {

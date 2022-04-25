@@ -4,7 +4,7 @@ import multer from "multer";
 import path from "path";
 import jwt from "jsonwebtoken";
 // 내부모듈
-import { FORBIDDEN, UNAUTHORIZED } from "./statusCode";
+import { FORBIDDEN, UNAUTHORIZED } from "./statusCode.js";
 
 // 유효성 검사(이미지 파일인지 확인)
 const imageValidation = function (req, file, cb) {

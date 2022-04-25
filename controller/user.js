@@ -2,6 +2,9 @@
 // 외장모듈
 import path from "path";
 import jwt from "jsonwebtoken";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
 // 내장모듈
 import {
   BAD_REQUEST,
@@ -13,7 +16,7 @@ import {
   NO_CONTENT,
   CONFLICT,
   OK,
-} from "../customModule/statusCode";
+} from "../customModule/statusCode.js";
 import {
   deleteUserLibraryModel,
   dropOutModel,
@@ -29,8 +32,8 @@ import {
   userCommentModel,
   userLibraryModel,
   userReviewModel,
-} from "../model/user";
-import { checkUserLibraryMethod } from "../customModule/checkDataOrAuthority";
+} from "../model/user.js";
+import { checkUserLibraryMethod } from "../customModule/checkDataOrAuthority.js";
 /*
  * 1. 회원가입/탈퇴
  * 2. 로그인/로그아웃
@@ -44,6 +47,8 @@ import { checkUserLibraryMethod } from "../customModule/checkDataOrAuthority";
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인
 export async function signUpGuideController(req, res) {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
   return res.status(OK).sendFile(path.join(__dirname, "..", "terms/signUpGuide.html"));
 }
 

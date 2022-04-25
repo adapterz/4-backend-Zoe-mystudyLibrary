@@ -1,16 +1,18 @@
 // 유저 모델
-// 내장모듈
-import { modelFailLog, modelSuccessLog } from "../customModule/modelLog";
+// 외장 모듈
 import bcrypt from "bcrypt";
-import { hashPw } from "../customModule/pwBcrypt";
+
+// 내장 모듈
+import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
+import { hashPw } from "../customModule/pwBcrypt.js";
 import {
   changeTimestampForm,
   changeGradeForm,
   changeLibrarysDataForm,
   changeUnit,
   changeLibraryType,
-} from "../customModule/changeDataForm";
-import { db, Op } from "../orm/models";
+} from "../customModule/changeDataForm.js";
+import { db, Op } from "../orm/models/index.js";
 /*
  * 1. 회원가입/탈퇴
  * 2. 로그인/(로그아웃 - 모델x)

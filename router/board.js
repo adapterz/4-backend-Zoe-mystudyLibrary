@@ -14,7 +14,7 @@ import {
   searchBoardController,
   writeBoardController,
   getWriteController,
-} from "../controller/board";
+} from "../controller/board.js";
 import {
   checkPageValidation,
   isCategory,
@@ -22,7 +22,7 @@ import {
   isExist,
   isSearchOption,
   isValidate,
-} from "../customModule/checkValidation";
+} from "../customModule/checkValidation.js";
 
 // 라우터 변수
 const router = express.Router();

@@ -1,6 +1,7 @@
 // 외장모듈
 import express from "express";
-import { wiseSayingController } from "../controller/wiseSaying";
+// 내장모듈
+import { wiseSayingController } from "../controller/wiseSaying.js";
 
 // 라우터 변수
 const router = express.Router();

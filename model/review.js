@@ -1,8 +1,8 @@
 // 후기 모델
 // 내장모듈
-import { db, Op } from "../orm/models/index";
-import { modelFailLog, modelSuccessLog } from "../customModule/modelLog";
-import { changeTimestampForm, checkExistUser } from "../customModule/changeDataForm";
+import { db, Op } from "../orm/models/index.js";
+import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
+import { changeTimestampForm, checkExistUser } from "../customModule/changeDataForm.js";
 /*
  * 1. 도서관 후기 등록
  * 2. 도서관의 후기 정보

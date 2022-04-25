@@ -1,13 +1,16 @@
 // 댓글 컨트롤러
+// 외장 모듈
+import jwt from "jsonwebtoken";
+
 // 내장 모듈
-import { checkCommentMethod } from "../customModule/checkDataOrAuthority";
+import { checkCommentMethod } from "../customModule/checkDataOrAuthority.js";
 import {
   deleteCommentModel,
   detailCommentModel,
   editCommentModel,
   getCommentModel,
   writeCommentModel,
-} from "../model/comment";
+} from "../model/comment.js";
 import {
   FORBIDDEN,
   UNAUTHORIZED,
@@ -17,9 +20,7 @@ import {
   NO_CONTENT,
   CREATED,
   OK,
-} from "../customModule/statusCode";
-import jwt from "jsonwebtoken";
-
+} from "../customModule/statusCode.js";
 /*
  * 1. 댓글 작성
  * 2. 게시글의 댓글정보

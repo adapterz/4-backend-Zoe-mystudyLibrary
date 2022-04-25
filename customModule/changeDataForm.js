@@ -1,5 +1,5 @@
 // 내부모듈
-import { moment } from "./dateTime";
+import { moment } from "./dateTime.js";
 /*
  * 1. 조회수/좋아요 수 단위 바꿔주는 메서드
  * 2. 도서관 후기 평균 평점 정보 가공

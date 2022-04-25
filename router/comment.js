@@ -4,14 +4,14 @@ import express from "express";
 import { body, query } from "express-validator";
 
 // 내장모듈
-import { checkCommentValidation, checkPageValidation, isExist, isValidate } from "../customModule/checkValidation";
+import { checkCommentValidation, checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js";
 import {
   deleteCommentController,
   detailCommentController,
   editCommentController,
   getCommentController,
   writeCommentController,
-} from "../controller/comment";
+} from "../controller/comment.js";
 
 /*
  * 1. 댓글 작성

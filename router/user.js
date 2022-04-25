@@ -1,10 +1,10 @@
 // 유저 라우터
 // 외장모듈
 import express from "express";
-const { body, query } = require("express-validator");
+import { body, query } from "express-validator";
 
 // 내장모듈
-import { checkPageValidation, isExist, isValidate } from "../customModule/checkValidation";
+import { checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js";
 import {
   deleteUserLibraryController,
   dropOutController,
@@ -16,15 +16,14 @@ import {
   registerUserLibraryController,
   signUpController,
   signUpGuideController,
-  signUpGuideConfirm,
   userBoardController,
   userCommentController,
   userLibraryController,
   userReviewController,
   editProfileImageController,
   getUserController,
-} from "../controller/user";
-import { uploadImage, checkLoginToken } from "../customModule/uploadImage";
+} from "../controller/user.js";
+import { uploadImage, checkLoginToken } from "../customModule/uploadImage.js";
 
 // 라우터 변수
 const router = express.Router();

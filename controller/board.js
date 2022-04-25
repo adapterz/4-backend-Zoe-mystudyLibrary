@@ -1,6 +1,8 @@
 // 게시판 컨트롤러
+// 외장 모듈
+import jwt from "jsonwebtoken";
 // 내장 모듈
-import { checkBoardMethod } from "../customModule/checkDataOrAuthority";
+import { checkBoardMethod } from "../customModule/checkDataOrAuthority.js";
 import {
   deleteBoardModel,
   detailBoardModel,
@@ -11,7 +13,7 @@ import {
   getWriteModel,
   searchBoardModel,
   writeBoardModel,
-} from "../model/board";
+} from "../model/board.js";
 import {
   OK,
   INTERNAL_SERVER_ERROR,
@@ -21,8 +23,7 @@ import {
   UNAUTHORIZED,
   NO_CONTENT,
   BAD_REQUEST,
-} from "../customModule/statusCode";
-import jwt from "jsonwebtoken";
+} from "../customModule/statusCode.js";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제

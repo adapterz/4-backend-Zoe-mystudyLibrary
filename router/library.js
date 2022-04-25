@@ -1,12 +1,11 @@
 // 도서관 라우터
 // 외장모듈
 import express from "express";
-const { query, param } = require("express-validator");
+import { query, param } from "express-validator";
 
 // 내장모듈
-import { isExist, isValidate } from "../customModule/checkValidation";
-import { allLibraryController, detailLibraryController, localLibraryController } from "../controller/library";
-import path from "path";
+import { isExist, isValidate } from "../customModule/checkValidation.js";
+import { allLibraryController, detailLibraryController, localLibraryController } from "../controller/library.js";
 
 // 라우터 변수
 const router = express.Router();

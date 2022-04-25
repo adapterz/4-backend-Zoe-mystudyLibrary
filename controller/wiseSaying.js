@@ -1,7 +1,7 @@
 // 메인 리소스가 아닌 리소스의 컨트롤러
 // 내부모듈
-import { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from "../customModule/statusCode";
-import { wiseSayingModel } from "../model/wiseSaying";
+import { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from "../customModule/statusCode.js";
+import { wiseSayingModel } from "../model/wiseSaying.js";
 /*
  * 1. 랜덤으로 명언 정보 가져오는 컨트롤러
  *

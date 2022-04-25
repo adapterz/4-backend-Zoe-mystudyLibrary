@@ -1,8 +1,8 @@
 // 게시판 모델
 // 내장모듈
-import { db, Op } from "../orm/models/index";
-import { modelFailLog, modelSuccessLog } from "../customModule/modelLog";
-import { changeTimestampForm, changeUnit, checkExistUser } from "../customModule/changeDataForm";
+import { db, Op } from "../orm/models/index.js";
+import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
+import { changeTimestampForm, changeUnit, checkExistUser } from "../customModule/changeDataForm.js";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
