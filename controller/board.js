@@ -118,12 +118,11 @@ export async function writeBoardController(req, res) {
   try {
     // 필요 변수 선언
     const loginToken = req.signedCookies.token;
-    let loginIndex;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
       return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
-    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
@@ -153,12 +152,11 @@ export async function getWriteController(req, res) {
   try {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
-    let loginIndex;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
       return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
-    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
@@ -210,12 +208,11 @@ export async function editBoardController(req, res) {
   try {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
-    let loginIndex;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
       return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
-    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
@@ -255,12 +252,11 @@ export async function deleteBoardController(req, res) {
   try {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
-    let loginIndex;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
       return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
-    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
@@ -300,12 +296,11 @@ export async function favoriteBoardController(req, res) {
   try {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
-    let loginIndex;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
       return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
-    loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
