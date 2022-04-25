@@ -24,11 +24,7 @@ import { getScraping } from "./customModule/scraping.js";
 // 날짜/시간 관련 모듈
 import { moment } from "./customModule/dateTime.js";
 // 시퀄라이저 모듈
-import { db } from "./orm/models/index.js";
-
-// es6 환경에서 require 사용할 수 있게하기
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
+import { db } from "./orm/models/index.mjs";
 
 // 라우터
 import boardRouter from "./router/board.js";

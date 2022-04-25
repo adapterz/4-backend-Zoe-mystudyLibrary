@@ -1,5 +1,5 @@
 // withdrawal 테이블 model
-export default (sequelize, DataTypes) => {
+module.exports = (sequelize, DataTypes) => {
   const withdrawalUser = sequelize.define(
     "withdrawalUser",
     // 컬럼 정의

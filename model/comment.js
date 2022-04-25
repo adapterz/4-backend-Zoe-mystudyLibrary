@@ -1,6 +1,6 @@
 // 댓글 모델
 // 내장모듈
-import { db, Op } from "../orm/models/index.js";
+import { db, Op } from "../orm/models/index.mjs";
 import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
 import { changeTimestampForm, checkExistUser } from "../customModule/changeDataForm.js";
 

@@ -1,6 +1,6 @@
 // 도서관 모델
 // 내장모듈
-import { db } from "../orm/models/index.js";
+import { db } from "../orm/models/index.mjs";
 import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
 import {
   changeGradeForm,

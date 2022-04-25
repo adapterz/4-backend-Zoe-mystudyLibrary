@@ -12,7 +12,7 @@ import {
   changeUnit,
   changeLibraryType,
 } from "../customModule/changeDataForm.js";
-import { db, Op } from "../orm/models/index.js";
+import { db, Op } from "../orm/models/index.mjs";
 /*
  * 1. 회원가입/탈퇴
  * 2. 로그인/(로그아웃 - 모델x)
@@ -136,7 +136,7 @@ export async function loginModel(inputLogin, ip) {
         id: { [Op.eq]: inputLogin.id },
       },
     });
-
+    console.log(result[0]);
     // 1. 요청한 id와 일치하는 아이디가 없을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "loginModel");
