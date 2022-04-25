@@ -46,11 +46,11 @@ export async function allLibraryModel(ip) {
     }
     // 성공 로그찍기
     await modelSuccessLog(ip, "allLibraryModel");
-    return { state: "전체도서관정보", dataOfLibrary: libraryData };
+    return { state: "entire_library_information", dataOfLibrary: libraryData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "allLibraryModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -69,7 +69,7 @@ export async function localLibraryModel(inputLocal, ip) {
     // 유저가 요청한 지역에 도서관이 존재하지 않을 때
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "localLibraryModel");
-      return { state: "존재하지않는정보" };
+      return { state: "non_existent_library" };
     }
     // 검색된도서관 데이터 가공
     for (const index in results) {
@@ -94,11 +94,11 @@ export async function localLibraryModel(inputLocal, ip) {
     }
     // 유저가 요청한 지역에 도서관이 존재할 때
     await modelSuccessLog(ip, "localLibraryModel");
-    return { state: "주변도서관", dataOfLibrary: libraryData };
+    return { state: "local_library_information", dataOfLibrary: libraryData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "localLibraryMode");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -118,7 +118,7 @@ export async function detailLibraryModel(libraryIndex, ip) {
     // 유저가 요청한 인덱스의 도서관 정보가 존재하지 않을 때
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "detailLibraryModel");
-      return { state: "존재하지않는정보" };
+      return { state: "non_existent_library" };
     }
     // 해당 도서관인덱스의 데이터 가공
     // 평점 둘째자리에서 반올림한 후 평점 데이터 가공
@@ -144,10 +144,10 @@ export async function detailLibraryModel(libraryIndex, ip) {
     };
     // 유저가 요청한 도서관 정보가 존재할 때
     await modelSuccessLog(ip, "detailLibraryModel");
-    return { state: "상세도서관정보", dataOfLibrary: libraryData };
+    return { state: "detail_library_information", dataOfLibrary: libraryData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailLibraryModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }

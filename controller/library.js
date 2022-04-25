@@ -17,9 +17,9 @@ export async function allLibraryController(req, res) {
   const modelResult = await allLibraryModel(req.ip);
   // 모델 실행결과에 따른 분기처리
   // sequelize query 메서드 실패
-  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 전체 도서관 정보 응답
-  else if (modelResult.state === "전체도서관정보") return res.status(OK).json(modelResult.dataOfLibrary);
+  else if (modelResult.state === "entire_library_information") return res.status(OK).json(modelResult.dataOfLibrary);
 }
 
 // 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 메서드
@@ -33,11 +33,11 @@ export async function localLibraryController(req, res) {
   const modelResult = await localLibraryModel(req.query, req.ip);
   // 모델 실행 결과에 따른 분기처리
   // sequelize query 메서드 실패
-  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 도서관 정보가 없을 때(올바른 요청이지만 안타깝게도 정보가 존재하지 않을 때)
-  else if (modelResult.state === "존재하지않는정보") return res.status(OK).json(modelResult);
+  else if (modelResult.state === "non_existent_library") return res.status(OK).json(modelResult);
   // 도서관 정보가 있을 때 도서관 정보 응답
-  else if (modelResult.state === "주변도서관") return res.status(OK).json(modelResult.dataOfLibrary);
+  else if (modelResult.state === "local_library_information") return res.status(OK).json(modelResult.dataOfLibrary);
 }
 
 // 특정 도서관인덱스의 도서관 정보 응답
@@ -47,9 +47,9 @@ export async function detailLibraryController(req, res) {
   const modelResult = await detailLibraryModel(req.params.libraryIndex, req.ip);
   // 결과에 따른 분기처리
   // sequelize query 메서드 실패
-  if (modelResult.state === "sequelize 사용실패") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 해당 도서관 정보가 존재하지 않거나 삭제됐을 때
-  else if (modelResult.state === "존재하지않는정보") return res.status(NOT_FOUND).json(modelResult);
+  else if (modelResult.state === "non_existent_library") return res.status(NOT_FOUND).json(modelResult);
   // 성공적으로 해당 도서관 정보 응답
-  else if (modelResult.state === "상세도서관정보") return res.status(OK).json(modelResult.dataOfLibrary);
+  else if (modelResult.state === "detail_library_information") return res.status(OK).json(modelResult.dataOfLibrary);
 }
