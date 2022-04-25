@@ -39,9 +39,6 @@ const router = express.Router();
 // 회원가입 약관확인
 router.get("/sign-up/guide", signUpGuideController);
 
-// 회원가입 약관확인
-router.post("/sign-up/guide", body("checkBox").isBoolean(), isValidate, signUpGuideConfirm);
-
 // 회원가입 요청
 router.post(
   "/sign-up",

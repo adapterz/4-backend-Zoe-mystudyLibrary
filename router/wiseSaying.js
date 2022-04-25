@@ -8,7 +8,7 @@ const router = express.Router();
 /*
  * 1. 랜덤으로 명언 정보 가져오는 컨트롤러
  */
-router.get("/wise-saying", wiseSayingController);
+router.get("/", wiseSayingController);
 
 // 모듈화
 export default router;

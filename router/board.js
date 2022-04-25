@@ -36,11 +36,11 @@ const router = express.Router();
 // 유효성 검사를 위한 모듈
 // 1. 게시글 조회
 // 1-1. 최신글 자유게시판 5개, 공부인증샷 4개 정보
-router.get("/board", isExist, getRecentBoardController);
+router.get("/", isExist, getRecentBoardController);
 // 1-2. 전체 게시물 목록보기
-router.get("/board/:category", isCategory, checkPageValidation, entireBoardController);
+router.get("/:category", isCategory, checkPageValidation, entireBoardController);
 // 1-3. 각 게시물 상세보기
-router.get("/board/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, detailBoardController);
+router.get("/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, detailBoardController);
 // 2. 게시글 작성/수정/삭제
 // 2-1. 최초 게시글 작성 요청
 router.post(

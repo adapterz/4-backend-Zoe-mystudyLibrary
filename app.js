@@ -32,7 +32,7 @@ import commentRouter from "./router/comment";
 import libraryRouter from "./router/library";
 import reviewRouter from "./router/review";
 import userRouter from "./router/user";
-import otherRouter from "./router/other";
+import wiseSayingRouter from "./router/wiseSaying";
 
 // 설정
 // 로그에 DB 저장하도록 할 설정
@@ -110,11 +110,11 @@ app.use("/api", apiLimiter);
 
 // 경로별로 라우팅
 app.use("/comment", commentRouter);
-app.use("/", libraryRouter);
+app.use("/library", libraryRouter);
 app.use("/review", reviewRouter);
 app.use("/user", userRouter);
-app.use("/", boardRouter);
-app.use("/", otherRouter);
+app.use("/board", boardRouter);
+app.use("/wise-saying", wiseSayingRouter);
 
 // 공공데이터 api 도서관 정보 테이블에 넣기
 // import { reqOpenData } from "./customModule/RequestOpenApi";
