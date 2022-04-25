@@ -26,7 +26,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
         createTimestamp: db.sequelize.fn("NOW"),
       });
       await modelSuccessLog(ip, "writeCommentModel");
-      return { state: "댓글작성" };
+      return { state: "write_parent_comment" };
     }
     // 대댓글 작성
     else {
@@ -43,7 +43,7 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
       // 대댓글 다려고 시도한 댓글이 루트댓글이 아닐 때
       if (result[0] !== undefined) {
         await modelSuccessLog(ip, "writeCommentModel");
-        return { state: "대댓글에대댓글달기시도" };
+        return { state: "try_write_child_comment" };
       }
       // 해당 댓글 묶음의 마지막 commentSequence 구하기
       result = await db["comment"].findAll({
@@ -69,12 +69,12 @@ export async function writeCommentModel(boardIndex, parentIndex, userIndex, inpu
         createTimestamp: db.sequelize.fn("NOW"),
       });
       await modelSuccessLog(ip, "writeCommentModel");
-      return { state: "대댓글작성" };
+      return { state: "write_child_comment" };
     }
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "writeCommentModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 게시글에서 댓글 상세 조회
@@ -94,7 +94,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     // 게시글이 존재하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "detailCommentModel");
-      return { state: "존재하지않는게시글" };
+      return { state: "not_exist" };
     }
     // 해당 게시글의 루트 댓글만 가져오는 쿼리문
     const rootCommentQuery =
@@ -106,7 +106,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     });
     if (rootResult[0] === undefined) {
       await modelSuccessLog(ip, "detailCommentModel");
-      return { state: "댓글없음" };
+      return { state: "no_comment" };
     }
     // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
     childCommentQuery =
@@ -168,12 +168,12 @@ export async function detailCommentModel(boardIndex, page, ip) {
     }
 
     await modelSuccessLog(ip, "detailCommentModel");
-    return { state: "게시글의댓글정보", data: commentData };
+    return { state: "comment_information", data: commentData };
 
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailCommentModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -193,17 +193,17 @@ export async function getCommentModel(commentIndex, loginCookie, ip) {
     // DB에 데이터가 없을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "getCommentModel");
-      return { state: "존재하지않는댓글" };
+      return { state: "no_comment" };
     }
     const commentData = {
       commentContent: result[0].commentContent,
     };
     // DB에 데이터가 있을 때
-    return { state: "댓글정보로딩", dataOfComment: commentData };
+    return { state: "comment_information", dataOfComment: commentData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "getCommentModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -222,11 +222,11 @@ export async function editCommentModel(commentIndex, loginCookie, inputComment, 
     // 성공 로그
     await modelSuccessLog(ip, "editCommentModel");
     // DB에 해당 인덱스의 댓글이 있을 때
-    return { state: "댓글수정" };
+    return { state: "edit_comment" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editCommentModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -243,10 +243,10 @@ export async function deleteCommentModel(commentIndex, userIndex, ip) {
     );
     // 성공 로그찍기
     await modelSuccessLog(ip, "deleteCommentModel");
-    return { state: "댓글삭제" };
+    return { state: "delete_comment" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteCommentModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
