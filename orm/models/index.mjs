@@ -1,17 +1,25 @@
 "use strict";
 
+// 외부모듈
 import fs from "fs";
 import path from "path";
 import Sequelize from "sequelize";
-
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+
+// 내부모듈
+import { development } from "../../ormConfig.js";
+
+// es6 버전에서 __filename, __dirname 사용할 수 있게하기
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const basename = path.basename(__filename);
-import { development } from "../../ormConfig.js";
 export const db = {};
+
+// es6 환경에서 require 사용할 수 있게하기
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 
 // 시퀄라이즈 객체
 export const sequelize = new Sequelize(development.database, development.username, development.password, {
@@ -31,11 +39,12 @@ export const sequelize = new Sequelize(development.database, development.usernam
 
 fs.readdirSync(__dirname)
   .filter((file) => {
-    return file.indexOf(".") !== 0 && file !== basename && file.slice(-3) === ".js";
+    return file.indexOf(".") !== 0 && file !== basename && file.slice(-4) === ".cjs";
   })
   .forEach((file) => {
     console.log(file);
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+    console.log(model);
     db[model.name] = model;
   });
 
