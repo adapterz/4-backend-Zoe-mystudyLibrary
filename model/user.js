@@ -38,7 +38,7 @@ export async function signUpModel(inputUser, ip) {
     // 유저가 입력한 아이디가 기존에 존재하는 아이디일 때
     if (result[0] !== undefined) {
       await modelSuccessLog(ip, "signUpModel");
-      return { state: "존재하는 아이디" };
+      return { state: "already_exist_id" };
     }
     // 유저가 입력한 닉네임이 기존에 있는지 체크
     result = await db["user"].findAll({
@@ -51,7 +51,7 @@ export async function signUpModel(inputUser, ip) {
     // 유저가 입력한 닉네임이 기존에 존재하는 닉네임일 때
     if (result[0] !== undefined) {
       await modelSuccessLog(ip, "signUpModel");
-      return { state: "존재하는 닉네임" };
+      return { state: "already_exist_nickname" };
     }
 
     // 2. 비밀번호 유효성 검사
@@ -59,7 +59,7 @@ export async function signUpModel(inputUser, ip) {
     const hashedPw = await hashPw(inputUser.pw);
     if (!bcrypt.compareSync(inputUser.confirmPw, hashedPw)) {
       await modelSuccessLog(ip, "signUpModel");
-      return { state: "비밀번호/비밀번호확인 불일치" };
+      return { state: "pw/pw_confirm_mismatched" };
     }
 
     // 모든 유효성 검사 통과 후 회원정보 추가
@@ -74,11 +74,11 @@ export async function signUpModel(inputUser, ip) {
     });
 
     await modelSuccessLog(ip, "signUpModel");
-    return { state: "회원가입" };
+    return { state: "sign_up" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "signUpModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -116,12 +116,12 @@ export async function dropOutModel(ip, loginCookie) {
     await modelSuccessLog(ip, "dropOutModel");
     await transactionObj.commit();
     // 성공적으로 회원탈퇴
-    return { state: "회원탈퇴" };
+    return { state: "user_withdrawal" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await transactionObj.rollback();
     await modelFailLog(err, ip, "dropOutModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -140,20 +140,20 @@ export async function loginModel(inputLogin, ip) {
     // 1. 요청한 id와 일치하는 아이디가 없을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "loginModel");
-      return { state: "일치하는 id 없음" };
+      return { state: "no_matching_id" };
     }
     // 2. 등록된 유저 pw와 입력한 pw가 다르면 로그인 실패
     if (!bcrypt.compareSync(inputLogin.pw, result[0].pw)) {
       await modelSuccessLog(ip, "loginModel");
-      return { state: "비밀번호 불일치" };
+      return { state: "pw_mismatched" };
     }
     // 유효성 검사 통과 - 로그인 성공
     await modelSuccessLog(ip, "loginModel");
-    return { state: "로그인성공", userIndex: result[0].userIndex };
+    return { state: "login", userIndex: result[0].userIndex };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "loginModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -174,7 +174,7 @@ export async function userLibraryModel(userIndex, ip) {
     });
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "userLibraryModel");
-      return { state: "등록된정보없음" };
+      return { state: "no_registered_information" };
     }
     // 유저도서관 데이터 가공
     for (const index in results) {
@@ -199,11 +199,11 @@ export async function userLibraryModel(userIndex, ip) {
     }
 
     await modelSuccessLog(ip, "userLibraryModel");
-    return { state: "유저의관심도서관", dataOfLibrary: libraryData };
+    return { state: "user_library_information", dataOfLibrary: libraryData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userLibraryModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -221,7 +221,7 @@ export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
     });
     if (results[0] !== undefined) {
       await modelSuccessLog(ip, "registerUserLibraryModel");
-      return { state: "중복된등록요청" };
+      return { state: "duplicated_registration_request" };
     }
     // USERLIBRARY 테이블에 유저인덱스와 해당 유저가 등록한 도서관인덱스 추가
     await db["userLibrary"].create({
@@ -230,11 +230,11 @@ export async function registerUserLibraryModel(libraryIndex, userIndex, ip) {
       updateTimestamp: db.sequelize.fn("NOW"),
     });
     await modelSuccessLog(ip, "registerUserLibraryModel");
-    return { state: "관심도서관추가" };
+    return { state: "additional_user_library" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "registerUserLibraryModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 3-3. 관심도서관 삭제
@@ -251,7 +251,7 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
     // 기존에 해당 유저 인덱스로 해당 관심도서관이 등록되지 않았을 때
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "deleteUserLibraryModel");
-      return { state: "존재하지않는정보" };
+      return { state: "no_registered_information" };
     }
     // 등록한 관심도서관 삭제
     await db["userLibrary"].update(
@@ -264,11 +264,11 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
     );
 
     await modelSuccessLog(ip, "deleteUserLibraryModel");
-    return { state: "관심도서관삭제" };
+    return { state: "delete_user_library" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteUserLibraryModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -288,7 +288,7 @@ export async function userBoardModel(userIndex, page, ip) {
     // 요청한 데이터가 없을 때
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "userBoardModel");
-      return { state: "등록된글이없음" };
+      return { state: "no_registered_information" };
     }
     // 게시글 정보 파싱
     for (const index in results) {
@@ -314,11 +314,11 @@ export async function userBoardModel(userIndex, page, ip) {
       }
     }
     await modelSuccessLog(ip, "userBoardModel");
-    return { state: "내작성글조회", dataOfBoard: boardData };
+    return { state: "user_board", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userBoardModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -341,7 +341,7 @@ export async function userCommentModel(userIndex, page, ip) {
     // DB에 데이터가 없을 때
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "userCommentModel");
-      return { state: "등록된댓글없음" };
+      return { state: "no_registered_information" };
     }
     // 댓글 정보
     for (const index in results) {
@@ -369,11 +369,11 @@ export async function userCommentModel(userIndex, page, ip) {
 
     // DB에 데이터가 있을 때
     await modelSuccessLog(ip, "userCommentModel");
-    return { state: "성공적조회", dataOfComment: commentData };
+    return { state: "user_comment", dataOfComment: commentData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userCommentModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -394,7 +394,7 @@ export async function userReviewModel(userIndex, page, ip) {
     // 데이터가 없을 때
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "userReviewModel");
-      return { state: "등록된후기없음" };
+      return { state: "no_registered_information" };
     }
     // 데이터가 있을 때
 
@@ -409,11 +409,11 @@ export async function userReviewModel(userIndex, page, ip) {
     }
 
     await modelSuccessLog(ip, "userReviewModel");
-    return { state: "성공적조회", dataOfReview: reviewData };
+    return { state: "user_review", dataOfReview: reviewData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "userReviewModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 5. 유저 정보 수정
@@ -431,7 +431,7 @@ export async function editProfileNicknameModel(inputRevise, ip, loginCookie) {
     // 유저가 입력한 닉네임이 기존에 존재할 때
     if (result[0] !== undefined) {
       await modelSuccessLog(ip, "editProfileNicknameModel");
-      return { state: "중복닉네임" };
+      return { state: "duplicated_nickname" };
     }
 
     // 새 프로필 닉네임 정보 수정해줄 쿼리문
@@ -444,11 +444,11 @@ export async function editProfileNicknameModel(inputRevise, ip, loginCookie) {
     );
 
     await modelSuccessLog(ip, "editProfileNicknameModel");
-    return { state: "프로필변경성공" };
+    return { state: "edit_nickname" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editProfileNicknameModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -466,11 +466,11 @@ export async function editProfileImageModel(imagePath, ip, loginCookie) {
     );
 
     await modelSuccessLog(ip, "editProfileImageModel");
-    return { state: "프로필 사진 수정" };
+    return { state: "edit_profile_image" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editProfileImageModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 5-3. 연락처 변경 모델
@@ -488,11 +488,11 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
 
     // 연락처 수정 성공
     await modelSuccessLog(ip, "editPhoneNumberModel");
-    return { state: "연락처변경성공" };
+    return { state: "edit_contact" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editPhoneNumberModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -513,13 +513,13 @@ export async function editPwModel(inputPw, ip, loginCookie) {
     // 1. 입력한 '현재 비밀번호' DB에 있던 pw과 비교
     if (!bcrypt.compareSync(inputPw.pw, result[0].pw)) {
       await modelSuccessLog(ip, "editPwModel");
-      return { state: "기존비밀번호 불일치" };
+      return { state: "pw_mismatched" };
     }
     // 2. '새 비밀번호'와 '새 비밀번호 확인'이 일치하지 않으면 비밀번호 변경 불가
     hashedNewPw = await hashPw(inputPw.newPw);
     if (!bcrypt.compareSync(inputPw.confirmPw, hashedNewPw)) {
       await modelSuccessLog(ip, "editPwModel");
-      return { state: "비밀번호/비밀번호확인 불일치" };
+      return { state: "pw/pw_confirm_mismatched" };
     }
     // 유효성 검사 통과
     // 비밀번호 수정
@@ -532,11 +532,11 @@ export async function editPwModel(inputPw, ip, loginCookie) {
     );
     // 비밀번호 변경 성공
     await modelSuccessLog(ip, "editPwModel");
-    return { state: "비밀번호변경성공" };
+    return { state: "edit_pw" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editPwModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -563,7 +563,7 @@ export async function getUserModel(ip, loginCookie) {
     else {
       // 프로필 사진 파일 이름은 유저인덱스이므로 파일 이름과 요청 유저의 인덱스가 일치하지 않은 경우 분기처리
       const checkUserIndex = result[0].profileImage.split(".");
-      if (checkUserIndex[0] !== "profileImage/" + loginCookie) return { state: "올바르지 않은 접근입니다." };
+      if (checkUserIndex[0] !== "profileImage/" + loginCookie) return { state: "incorrect_access" };
       // 프로필 사진 이름과 요청 유저의 인덱스가 일치할 때
       userData = {
         isProfileImage: true,
@@ -573,10 +573,10 @@ export async function getUserModel(ip, loginCookie) {
     }
 
     await modelSuccessLog(ip, "getUserModel");
-    return { state: "유저 정보", dataOfUser: userData };
+    return { state: "user_information", dataOfUser: userData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "getUserModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
