@@ -46,21 +46,8 @@ import { checkUserLibraryMethod } from "../customModule/checkDataOrAuthority";
 export async function signUpGuideController(req, res) {
   return res.status(OK).sendFile(path.join(__dirname, "..", "terms/signUpGuide.html"));
 }
-// 1-2. 회원가입 약관 확인 요청
-export async function signUpGuideConfirm(req, res) {
-  /*
-   * req.body
-   *  checkBox: 약관동의 체크박스에 체크했는지 여부 - boolean값
-   */
 
-  const isAgreed = req.body.checkBox;
-  // 약관확인에서 체크박스에 모두 체크를 했을 때
-  if (isAgreed) return res.status(OK).end();
-  // 체크박스에 체크하지 않았을 때
-  return res.status(BAD_REQUEST).json({ state: "안내사항을 읽고 동의해주세요." });
-}
-
-// 1-3. 회원가입 요청
+// 1-2. 회원가입 요청
 export async function signUpController(req, res) {
   /*
    * req.body
@@ -87,7 +74,7 @@ export async function signUpController(req, res) {
   else if (modelResult.state === "회원가입") return res.status(CREATED).json(modelResult);
 }
 
-// 1-4. 회원탈퇴 요청
+// 1-3. 회원탈퇴 요청
 export async function dropOutController(req, res) {
   /*
    * req.body
