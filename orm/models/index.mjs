@@ -42,9 +42,7 @@ fs.readdirSync(__dirname)
     return file.indexOf(".") !== 0 && file !== basename && file.slice(-4) === ".cjs";
   })
   .forEach((file) => {
-    console.log(file);
     const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    console.log(model);
     db[model.name] = model;
   });
 
