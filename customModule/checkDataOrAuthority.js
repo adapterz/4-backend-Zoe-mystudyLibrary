@@ -18,7 +18,7 @@ export async function checkBoardMethod(boardIndex, userIndex, ip) {
     // 요청한 게시글이 존재하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkBoardMethod");
-      return { state: "존재하지않는게시글" };
+      return { state: "not_exist" };
     }
 
     // 해당 게시글이 요청 유저가 작성한 것인지 체크
@@ -33,15 +33,15 @@ export async function checkBoardMethod(boardIndex, userIndex, ip) {
     // 해당 게시글의 작성자와 요청유저가 일치하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkBoardMethod");
-      return { state: "접근권한없음" };
+      return { state: "not_authorization" };
     }
     // 해당 게시글이 존재하고 게시글의 작성자와 요청유저가 일치할 때
     await modelSuccessLog(ip, "checkBoardMethod");
-    return { state: "접근성공" };
+    return { state: "success_access" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkBoardMethod");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -60,7 +60,7 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, is
     // 게시글이 존재하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkCommentMethod");
-      return { state: "존재하지않는게시글" };
+      return { state: "not_exist" };
     }
 
     // 해당 댓글이 존재하는지 확인
@@ -77,7 +77,7 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, is
       // 댓글이 존재하지 않을 때
       if (result[0] === undefined) {
         await modelSuccessLog(ip, "checkCommentMethod");
-        return { state: "존재하지않는댓글" };
+        return { state: "no_comment" };
       }
     }
     // 댓글 수정 혹은 삭제 요청일 때 해당 댓글을 요청 유저가 작성한 것인지 확인(댓글 최초 작성시에는 해당 조건문 진입하지 않음)
@@ -93,16 +93,16 @@ export async function checkCommentMethod(boardIndex, commentIndex, userIndex, is
       // 해당 댓글의 작성자와 요청유저가 일치하지 않을 때
       if (result[0] === undefined) {
         await modelSuccessLog(ip, "checkCommentMethod");
-        return { state: "접근권한없음" };
+        return { state: "not_authorization" };
       }
     }
     // 게시글과 댓글이 존재하고 댓글작성자와 요청유저가 일치할 때
     await modelSuccessLog(ip, "checkCommentMethod");
-    return { state: "접근성공" };
+    return { state: "success_access" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkCommentMethod");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -121,7 +121,7 @@ export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip
     // 도서관 정보가 존재하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkReviewMethod");
-      return { state: "존재하지않는도서관" };
+      return { state: "non_existent_library" };
     }
     // 해당 후기가 존재하는지 확인
     result = await db["review"].findAll({
@@ -134,7 +134,7 @@ export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip
     // 해당 후기가 존재하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkReviewMethod");
-      return { state: "존재하지않는후기" };
+      return { state: "no_review" };
     }
     // 해당 댓글을 해당 유저가 작성한 것인지 확인
     result = await db["review"].findAll({
@@ -148,15 +148,15 @@ export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip
     // 해당 후기의 작성자와 요청유저가 일치하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkReviewMethod");
-      return { state: "접근권한없음" };
+      return { state: "not_authorization" };
     }
     // 도서관과 후기가 존재하고 해당 후기의 작성자와 요청유저가 일치할 때
     await modelSuccessLog(ip, "checkReviewMethod");
-    return { state: "접근성공" };
+    return { state: "success_access" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkReviewMethod");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -175,7 +175,7 @@ export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
     // 해당 도서관이 존재하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkUserLibraryMethod");
-      return { state: "존재하지않는도서관" };
+      return { state: "non_existent_library" };
     }
     // 해당 유저가 관심도서관 등록한 적이 있는지 확인
     result = await db["userLibrary"].findAll({
@@ -189,13 +189,13 @@ export async function checkUserLibraryMethod(libraryIndex, userIndex, ip) {
     // 기존에 관심도서관으로 등록되지 않았을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "checkUserLibraryMethod");
-      return { state: "등록되지않은관심도서관" };
+      return { state: "no_registered_information" };
     }
     // 도서관이 존재하고 해당 도서관이 관심도서관으로 등록돼 있을 때
-    return { state: "접근성공" };
+    return { state: "success_access" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "checkUserLibraryMethod");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
