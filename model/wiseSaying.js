@@ -19,7 +19,7 @@ export async function wiseSayingModel(ip) {
     if (result[0] === undefined) {
       // 성공 로그찍기
       await modelSuccessLog(ip, "wiseSayingModel");
-      return { state: "존재하지않는정보" };
+      return { state: "not_exist" };
     }
     // 가져온 정보 가공
 
@@ -30,10 +30,10 @@ export async function wiseSayingModel(ip) {
       celebrity: result[0].celebrity,
     };
     // 가져온 게시글 정보 return
-    return { state: "명언정보", dataOfWiseSaying: wiseSayingData };
+    return { state: "wiseSaying_information", dataOfWiseSaying: wiseSayingData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "wiseSayingModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
