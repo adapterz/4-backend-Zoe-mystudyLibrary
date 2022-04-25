@@ -27,7 +27,7 @@ export async function registerReviewModel(libraryIndex, userIndex, inputComment,
 
     if (result[0] !== undefined) {
       await modelSuccessLog(ip, "registerReviewModel");
-      return { state: "기존에 작성한 후기가 존재합니다." };
+      return { state: "already_written" };
     }
     // 후기 등록
     await db["review"].create({
@@ -38,11 +38,11 @@ export async function registerReviewModel(libraryIndex, userIndex, inputComment,
       createTimestamp: db.sequelize.fn("NOW"),
     });
     await modelSuccessLog(ip, "registerReviewModel");
-    return { state: "도서관후기등록" };
+    return { state: "register_review" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "registerReviewModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -61,7 +61,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
     // 해당 도서관이 존재하지 않을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "detailReviewModel");
-      return { state: "존재하지않는도서관" };
+      return { state: "non_existent_library" };
     }
     // 해당 도서관의 후기 가져오는 쿼리문
     let query =
@@ -73,7 +73,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
     // 해당 도서관에 후기가 없을 때
     if (results[0] === undefined) {
       await modelSuccessLog(ip, "detailReviewModel");
-      return { state: "후기없음" };
+      return { state: "no_review" };
     }
     // 후기 정보 데이터
     for (let index in results) {
@@ -87,12 +87,12 @@ export async function detailReviewModel(libraryIndex, page, ip) {
     }
 
     await modelSuccessLog(ip, "detailReviewModel");
-    return { state: "도서관의후기정보", dataOfReview: reviewData };
+    return { state: "library's_review", dataOfReview: reviewData };
 
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "detailReviewModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 // 수정시 기존 후기 정보 불러오는 모델
@@ -110,7 +110,7 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
     // DB에 데이터가 없을 때
     if (result[0] === undefined) {
       await modelSuccessLog(ip, "getReviewModel");
-      return { state: "존재하지않는후기" };
+      return { state: "no_review" };
     }
 
     // 리뷰 데이터 가공
@@ -121,11 +121,11 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
 
     // DB에 데이터가 있을 때
     await modelSuccessLog(ip, "getReviewModel");
-    return { state: "후기정보로딩", dataOfReview: reviewData };
+    return { state: "review_information", dataOfReview: reviewData };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "getReviewModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -144,11 +144,11 @@ export async function editReviewModel(reviewIndex, loginCookie, inputReview, ip)
     );
     // DB에 해당 인덱스의 댓글이 있을 때
     await modelSuccessLog(ip, "editReviewModel");
-    return { state: "후기수정" };
+    return { state: "edit_review" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "editReviewModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
 
@@ -164,10 +164,10 @@ export async function deleteReviewModel(reviewIndex, userIndex, ip) {
       { where: { reviewIndex: reviewIndex, userIndex: userIndex } }
     );
     await modelSuccessLog(ip, "deleteReviewModel");
-    return { state: "후기삭제" };
+    return { state: "delete_review" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteReviewModel");
-    return { state: "sequelize 사용실패" };
+    return { state: "fail_sequelize" };
   }
 }
