@@ -5,10 +5,9 @@ import { moment } from "./dateTime.js";
  * 2. 도서관 후기 평균 평점 정보 가공
  * 3. 도서관 정보 가공(전체도서관/ 지역도서관)
  * 4. 도서관 정보 가공(특정 인덱스 도서관정보)
- * 5. 평점만큼 별 개수 출력하는 문자열로 가공하는 메서드
- * 6. 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
- * 7. 특정 글자수 단위로 개행문자 넣어주는 메서드
- * 8. 도서관 종류(Int)를 문자열로 바꿔주는 메서드
+ * 5. 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
+ * 6. 특정 글자수 단위로 개행문자 넣어주는 메서드
+ * 7. 도서관 종류(Int)를 문자열로 바꿔주는 메서드
  */
 // 조회수/좋아요 수 단위 바꿔주는 메서드
 export async function changeUnit(viewOrFavoriteCount) {
@@ -140,23 +139,6 @@ export async function changeLibraryDataForm(libraryData) {
   return libraryData;
 }
 
-/*
- * 평점만큼 별 개수 출력하는 문자열로 가공하는 메서드
- * 예시: 5점 일경우 ⭐⭐⭐⭐⭐ 5
- * 예시: 2점 일경우 ⭐⭐☆☆☆ 2
- */
-export async function changeGradeStarForm(reviewData) {
-  // 평점만큼 별 개수 출력하게 하기
-  let tempStar = "";
-  for (let i = 1; i <= 5; ++i) {
-    if (i <= reviewData.grade) tempStar += "⭐";
-    else tempStar += "☆";
-  }
-  tempStar += " " + reviewData.grade;
-
-  reviewData.grade = tempStar;
-  return reviewData;
-}
 // 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
 export async function checkExistUser(nickname) {
   // 닉네임이 null이면 삭제된 닉네임 취급

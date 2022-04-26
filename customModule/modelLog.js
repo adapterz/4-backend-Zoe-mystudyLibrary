@@ -4,7 +4,7 @@ import { moment } from "./dateTime.js";
 export async function modelFailLog(err, ip, method) {
   console.log(
     (
-      "sequelize 모듈사용 실패:" +
+      "using_sequelize_module_fail:" +
       err +
       "\nCLIENT IP: " +
       ip +
@@ -19,7 +19,7 @@ export async function modelFailLog(err, ip, method) {
 export async function modelSuccessLog(ip, method) {
   console.log(
     (
-      "sequelize 모듈사용 성공 \nCLIENT IP: " +
+      "using_sequelize_module_success: \nCLIENT IP: " +
       ip +
       "\nDATETIME: " +
       moment().format("YYYY-MM-DD HH:mm:ss") +

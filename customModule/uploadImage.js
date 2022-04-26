@@ -47,22 +47,22 @@ export async function checkLoginToken(req, res, next) {
     let loginIndex;
     // 로그인 토큰이 없을 때
     if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state: "해당 서비스 이용을 위해서는 로그인을 해야합니다." });
+      return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
-    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     next();
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
-      return res.status(UNAUTHORIZED).json({ state: "만료된 토큰입니다." });
+      return res.status(UNAUTHORIZED).json({ state: "expired_token" });
     }
     // 유효하지 않은 토큰일 때
     if (err.message === "invalid signature") {
-      return res.status(FORBIDDEN).json({ state: "올바르지 않은 접근입니다." });
+      return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "접근 권한이 없습니다." });
+    return res.status(FORBIDDEN).json({ state: "not_authorization" });
   }
 }
