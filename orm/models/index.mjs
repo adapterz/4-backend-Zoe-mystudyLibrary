@@ -36,7 +36,6 @@ export const sequelize = new Sequelize(development.database, development.usernam
 });
 
 // 모델(테이블) 읽기
-
 fs.readdirSync(__dirname)
   .filter((file) => {
     return file.indexOf(".") !== 0 && file !== basename && file.slice(-4) === ".cjs";
