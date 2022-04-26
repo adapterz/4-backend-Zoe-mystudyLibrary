@@ -84,7 +84,7 @@ const apiLimiter = rateLimit({
 db.sequelize
   .sync({ force: false })
   .then(() => {
-    console.log("데이터베이스 연결 성공".rainbow);
+    console.log("success_db_access_by_sequelize".rainbow);
   })
   .catch((err) => {
     console.log(("err: " + err).red);
@@ -106,7 +106,7 @@ app.use(
   })
 );
 app.use(morgan("combined", { stream: logger.stream }));
-app.use("/api", apiLimiter);
+app.use(apiLimiter);
 
 // 경로별로 라우팅
 app.use("/comment", commentRouter);
