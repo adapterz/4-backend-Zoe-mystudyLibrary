@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     "winston_logs",
     // 컬럼 정의
     {
-      idx: {
+      id: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         primaryKey: true,
@@ -21,13 +21,13 @@ module.exports = (sequelize, DataTypes) => {
         comment: "로그 내용",
       },
       meta: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       timestamp: {
-        type: "TIMESTAMP",
-        comment: "YYYY-MM-DD HH:MM:SS",
-        allowNull: true,
+        type: "timestamp",
+        allowNull: false,
+        defalutValue: sequelize.literal("now()"),
       },
     },
     {
