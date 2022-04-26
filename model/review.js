@@ -9,6 +9,7 @@ import { changeTimestampForm, checkExistUser } from "../customModule/changeDataF
  * 3. 수정시 기존 후기 정보 불러오기
  * 4. 후기 수정 요청
  * 5. 후기 삭제 요청
+ * 6. 유저가 작성한 후기 조회
  */
 
 // 도서관 후기 등록하는 모델
@@ -168,6 +169,47 @@ export async function deleteReviewModel(reviewIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteReviewModel");
+    return { state: "fail_sequelize" };
+  }
+}
+
+
+// 유저가 작성한 후기 조회
+export async function userReviewModel(userIndex, page, ip) {
+  const reviewData = [];
+  // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
+  const query =
+    `SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createTimestamp,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ` +
+    `ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteTimestamp IS NULL AND LIBRARY.deleteTimestamp IS NULL AND REVIEW.userIndex= ? ` +
+    `ORDER BY reviewIndex DESC LIMIT ${5 * (page - 1)} ,5`;
+
+  // 성공시
+  try {
+    let [results, metadata] = await db.sequelize.query(query, {
+      replacements: [userIndex],
+    });
+    // 데이터가 없을 때
+    if (results[0] === undefined) {
+      await modelSuccessLog(ip, "userReviewModel");
+      return { state: "no_registered_information" };
+    }
+    // 데이터가 있을 때
+
+    for (const index in results) {
+      const tempData = {
+        libraryName: results[index].libraryName,
+        reviewContent: results[index].reviewContent,
+        createDate: await changeTimestampForm(results[index].createTimestamp),
+        grade: results[index].grade,
+      };
+      reviewData.push(tempData);
+    }
+
+    await modelSuccessLog(ip, "userReviewModel");
+    return { state: "user_review", dataOfReview: reviewData };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await modelFailLog(err, ip, "userReviewModel");
     return { state: "fail_sequelize" };
   }
 }

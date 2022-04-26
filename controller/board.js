@@ -13,6 +13,7 @@ import {
   getWriteModel,
   searchBoardModel,
   writeBoardModel,
+  userBoardModel
 } from "../model/board.js";
 import {
   OK,
@@ -28,6 +29,7 @@ import {
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
  * 3. 좋아요/검색 기능
+ * 4. 유저가 작성한 글 조회
  *
  * 참고: model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 model 수행 로그 남기는데 이용
  */
@@ -361,4 +363,42 @@ export async function searchBoardController(req, res) {
   else if (modelResult.state === "not_found") return res.status(OK).json(modelResult);
   // 검색결과가 있을 때
   else if (modelResult.state === "search_board_information") return res.status(OK).json(modelResult.dataOfBoard);
+}
+
+// 유저가 작성한 글 조회
+export async function userBoardController(req, res) {
+  try {
+    //  필요 변수 선언
+    const loginToken = req.signedCookies.token;
+    let page;
+    // 로그인 토큰이 없을 때
+    if (loginToken === undefined) return res.status(UNAUTHORIZED).json({ state: "login_required" });
+    // 로그인했을 때 토큰의 유저인덱스 불러오기
+    const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
+    const payloadIndex = await jwt.decode(loginToken).idx;
+    // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
+    if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    // page 값
+    if (req.query.page !== undefined) page = req.query.page;
+    else page = 1;
+    // 해당 유저가 작성한 글 목록 가져올 모델 실행결과
+    const modelResult = await userBoardModel(loginIndex, page, req.ip);
+    // 모델 실행결과에 따른 분기처리
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult.state);
+    // 유저가 작성한 글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
+    else if (modelResult.state === "no_registered_information") return res.status(OK).json(modelResult.state);
+    // 성공적으로 유저가 작성한 게시글 정보 응답
+    else if (modelResult.state === "user_board") return res.status(OK).json(modelResult.dataOfBoard);
+  } catch (err) {
+    // 만료된 토큰
+    if (err.message === "jwt expired") {
+      return res.status(UNAUTHORIZED).json({ state: "expired_token" });
+    }
+    // 유효하지 않은 토큰일 때
+    if (err.message === "invalid signature") {
+      return res.status(FORBIDDEN).json({ state: "incorrect_access" });
+    }
+    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+  }
 }

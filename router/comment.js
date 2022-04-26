@@ -11,6 +11,7 @@ import {
   editCommentController,
   getCommentController,
   writeCommentController,
+  userCommentController
 } from "../controller/comment.js";
 
 /*
@@ -19,6 +20,7 @@ import {
  * 3. 수정시 기존댓글 불러오는 모듈
  * 4. 댓글 수정
  * 5. 댓글 삭제
+ * 6. 유저가 작성한 댓글 조회
  */
 // 라우터 변수
 const router = express.Router();
@@ -61,6 +63,8 @@ router.delete(
   isExist,
   deleteCommentController
 );
+// 유저가 작성한 댓글 목록 조회
+router.get("/comment", checkPageValidation, userCommentController);
 
 // 모듈화
 export default router;

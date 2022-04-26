@@ -4,7 +4,7 @@ import express from "express";
 import { body, query } from "express-validator";
 
 // 내장모듈
-import { checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js";
+import { isExist, isValidate } from "../customModule/checkValidation.js";
 import {
   deleteUserLibraryController,
   dropOutController,
@@ -16,10 +16,7 @@ import {
   registerUserLibraryController,
   signUpController,
   signUpGuideController,
-  userBoardController,
-  userCommentController,
   userLibraryController,
-  userReviewController,
   editProfileImageController,
   getUserController,
 } from "../controller/user.js";
@@ -31,8 +28,8 @@ const router = express.Router();
  * 1. 회원가입/탈퇴
  * 2. 로그인/(로그아웃 - 모델x)
  * 3. 관심도서관 조회/등록/탈퇴
- * 4. 유저가 작성한 글/댓글/후기 조회
- * 5. 유저 정보 수정
+ * 4. 유저 정보 수정
+ * 5. 유저 정보 조회
  */
 // 1. 회원가입/탈퇴
 // 회원가입 약관확인
@@ -95,16 +92,7 @@ router.delete(
   isExist,
   deleteUserLibraryController
 );
-
-// 4. 유저가 작성한 글/댓글/후기
-// 유저가 쓴 글 목록 가져오기
-router.get("/post", checkPageValidation, userBoardController);
-// 유저가 쓴 댓글 목록 가져오기
-router.get("/comment", checkPageValidation, userCommentController);
-// 유저가 작성한 도서관 후기 목록 가져오기
-router.get("/review", checkPageValidation, userReviewController);
-
-// 5. 유저 정보 수정
+// 4. 유저 정보 수정
 // 내 닉네임 변경
 router.patch(
   "/profile/nickname",
@@ -137,7 +125,7 @@ router.patch(
   isValidate,
   editPwController
 );
-// 유저 정보 가져오기
+// 5. 유저 정보 가져오기
 router.get("/info", getUserController);
 
 // 모듈화

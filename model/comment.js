@@ -10,6 +10,7 @@ import { changeTimestampForm, checkExistUser } from "../customModule/changeDataF
  * 3. 수정시 기존댓글 불러오는 모듈
  * 4. 댓글 수정
  * 5. 댓글 삭제
+ * 6. 유저가 작성한 댓글 조회
  */
 // 새 댓글 작성 모델
 export async function writeCommentModel(boardIndex, parentIndex, userIndex, inputComment, ip) {
@@ -247,6 +248,61 @@ export async function deleteCommentModel(commentIndex, userIndex, ip) {
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, "deleteCommentModel");
+    return { state: "fail_sequelize" };
+  }
+}
+
+// 유저가 작성한 댓글 조회
+export async function userCommentModel(userIndex, page, ip) {
+  const commentData = [];
+  // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
+  const query =
+    `SELECT COMMENT.commentContent,COMMENT.createTimestamp,BOARD.postTitle,COMMENT.boardDeleteTimestamp FROM COMMENT LEFT JOIN BOARD ` +
+    `ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteTimestamp IS NULL AND COMMENT.userIndex= ? ORDER BY commentIndex DESC LIMIT ${
+      5 * (page - 1)
+    }, 5`;
+  // 성공시
+  try {
+    let [results, metadata] = await db.sequelize.query(query, {
+      replacements: [userIndex],
+    });
+    // 쿼리문 성공 로그
+    await modelSuccessLog(ip, query);
+    // DB에 데이터가 없을 때
+    if (results[0] === undefined) {
+      await modelSuccessLog(ip, "userCommentModel");
+      return { state: "no_registered_information" };
+    }
+    // 댓글 정보
+    for (const index in results) {
+      // 삭제된 게시글인 경우 제목 바꿔주기
+      if (results[index].boardDeleteTimestamp !== null) results[index].postTitle = "삭제된 게시글입니다";
+      // 게시글 제목의 글자수가 25자 미만일 때
+      if (results[index].postTitle.length <= 25) {
+        const tempData = {
+          postTitle: results[index].postTitle,
+          commentContent: results[index].commentContent,
+          createDate: await changeTimestampForm(results[index].createTimestamp),
+        };
+        commentData.push(tempData);
+      }
+      // 게시글 제목의 글자수가 25자 이상일 때
+      else if (results[index].postTitle.length > 25) {
+        const tempData = {
+          postTitle: results[index].postTitle.substring(0, 25) + "...",
+          commentContent: results[index].commentContent,
+          createDate: await changeTimestampForm(results[index].createTimestamp),
+        };
+        commentData.push(tempData);
+      }
+    }
+
+    // DB에 데이터가 있을 때
+    await modelSuccessLog(ip, "userCommentModel");
+    return { state: "user_comment", dataOfComment: commentData };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await modelFailLog(err, ip, "userCommentModel");
     return { state: "fail_sequelize" };
   }
 }

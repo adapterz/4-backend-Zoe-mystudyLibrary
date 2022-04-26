@@ -11,6 +11,7 @@ import {
   editReviewController,
   getReviewController,
   registerReviewController,
+  userReviewController
 } from "../controller/review.js";
 // 라우터 변수
 const router = express.Router();
@@ -21,6 +22,7 @@ const router = express.Router();
  * 3. 수정시 기존 후기 정보 불러오기
  * 4. 후기 수정 요청
  * 5. 후기 삭제 요청
+ * 6. 유저가 작성한 후기 조회
  */
 
 // 후기 등록
@@ -56,6 +58,8 @@ router.delete(
   isExist,
   deleteReviewController
 );
+// 유저가 작성한 도서관 후기 목록 가져오기
+router.get("/review", checkPageValidation, userReviewController);
 
 // 모듈화
 export default router;

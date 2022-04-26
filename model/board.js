@@ -7,6 +7,7 @@ import { changeTimestampForm, changeUnit, checkExistUser } from "../customModule
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
  * 3. 좋아요/검색 기능
+ * 4. 유저가 작성한 게시글 조회
  */
 
 // 1. 게시글 조회
@@ -586,6 +587,55 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 쿼리문 실행시 에러발생
   } catch (err) {
     await modelFailLog(err, ip, query);
+    return { state: "fail_sequelize" };
+  }
+}
+
+// 4. 유저가 작성한 글 조회
+export async function userBoardModel(userIndex, page, ip) {
+  const boardData = [];
+  // 해당 유저가 작성한 게시글 정보 가져오기
+  const query = `SELECT postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteTimestamp IS NULL AND userIndex = ? ORDER BY boardIndex DESC LIMIT ${
+    10 * (page - 1)
+  }, 10`;
+  // 성공시
+  try {
+    let [results, metadata] = await db.sequelize.query(query, {
+      replacements: [userIndex],
+    });
+    // 요청한 데이터가 없을 때
+    if (results[0] === undefined) {
+      await modelSuccessLog(ip, "userBoardModel");
+      return { state: "no_registered_information" };
+    }
+    // 게시글 정보 파싱
+    for (const index in results) {
+      // 게시글 제목의 글자수가 25자 미만일 때
+      if (results[index].postTitle.length <= 25) {
+        const tempData = {
+          postTitle: results[index].postTitle,
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
+        };
+        boardData.push(tempData);
+      }
+      // 게시글 제목의 글자수가 25자 이상일 때
+      else if (results[index].postTitle.length > 25) {
+        const tempData = {
+          postTitle: results[index].postTitle.substring(0, 25) + "...",
+          viewCount: await changeUnit(results[index].viewCount),
+          favoriteCount: await changeUnit(results[index].favoriteCount),
+          createDate: await changeTimestampForm(results[index].createTimestamp),
+        };
+        boardData.push(tempData);
+      }
+    }
+    await modelSuccessLog(ip, "userBoardModel");
+    return { state: "user_board", dataOfBoard: boardData };
+    // 쿼리문 실행시 에러발생
+  } catch (err) {
+    await modelFailLog(err, ip, "userBoardModel");
     return { state: "fail_sequelize" };
   }
 }

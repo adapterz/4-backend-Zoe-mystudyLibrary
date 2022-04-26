@@ -14,6 +14,7 @@ import {
   searchBoardController,
   writeBoardController,
   getWriteController,
+  userBoardController
 } from "../controller/board.js";
 import {
   checkPageValidation,
@@ -31,6 +32,7 @@ const router = express.Router();
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
  * 3. 좋아요/검색 기능
+ * 4. 유저가 작성한 글 목록 조회
  */
 
 // 유효성 검사를 위한 모듈
@@ -78,6 +80,7 @@ router.patch(
 );
 // 2-4. 게시물 삭제 요청
 router.delete("/delete", query("boardIndex").isInt(), isExist, deleteBoardController);
+
 // 3. 좋아요/검색기능
 // 3-1. 좋아요 기능
 router.patch("/like", query("boardIndex").isInt(), isExist, favoriteBoardController);
@@ -91,6 +94,9 @@ router.get(
   checkPageValidation,
   searchBoardController
 );
+
+// 4. 유저가 쓴 글 목록 가져오기
+router.get("/post", checkPageValidation, userBoardController);
 
 // 모듈화
 export default router;

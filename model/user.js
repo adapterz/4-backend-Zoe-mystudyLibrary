@@ -6,10 +6,8 @@ import bcrypt from "bcrypt";
 import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
 import { hashPw } from "../customModule/pwBcrypt.js";
 import {
-  changeTimestampForm,
   changeGradeForm,
   changeLibrarysDataForm,
-  changeUnit,
   changeLibraryType,
 } from "../customModule/changeDataForm.js";
 import { db, Op } from "../orm/models/index.mjs";
@@ -17,9 +15,8 @@ import { db, Op } from "../orm/models/index.mjs";
  * 1. 회원가입/탈퇴
  * 2. 로그인/(로그아웃 - 모델x)
  * 3. 유저 관심도서관 조회/등록/탈퇴
- * 4. 유저가 작성한 글/댓글/후기 조회
- * 5. 유저 정보 수정
- * 6. 유저 정보 가져오기
+ * 4. 유저 정보 수정
+ * 5. 유저 정보 가져오기
  */
 
 // 1. 회원가입/탈퇴
@@ -272,152 +269,8 @@ export async function deleteUserLibraryModel(libraryIndex, userIndex, ip) {
   }
 }
 
-// 4. 유저가 작성한 글/댓글/후기 조회
-// 4-1. 유저가 작성한 글
-export async function userBoardModel(userIndex, page, ip) {
-  const boardData = [];
-  // 해당 유저가 작성한 게시글 정보 가져오기
-  const query = `SELECT postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteTimestamp IS NULL AND userIndex = ? ORDER BY boardIndex DESC LIMIT ${
-    10 * (page - 1)
-  }, 10`;
-  // 성공시
-  try {
-    let [results, metadata] = await db.sequelize.query(query, {
-      replacements: [userIndex],
-    });
-    // 요청한 데이터가 없을 때
-    if (results[0] === undefined) {
-      await modelSuccessLog(ip, "userBoardModel");
-      return { state: "no_registered_information" };
-    }
-    // 게시글 정보 파싱
-    for (const index in results) {
-      // 게시글 제목의 글자수가 25자 미만일 때
-      if (results[index].postTitle.length <= 25) {
-        const tempData = {
-          postTitle: results[index].postTitle,
-          viewCount: await changeUnit(results[index].viewCount),
-          favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeTimestampForm(results[index].createTimestamp),
-        };
-        boardData.push(tempData);
-      }
-      // 게시글 제목의 글자수가 25자 이상일 때
-      else if (results[index].postTitle.length > 25) {
-        const tempData = {
-          postTitle: results[index].postTitle.substring(0, 25) + "...",
-          viewCount: await changeUnit(results[index].viewCount),
-          favoriteCount: await changeUnit(results[index].favoriteCount),
-          createDate: await changeTimestampForm(results[index].createTimestamp),
-        };
-        boardData.push(tempData);
-      }
-    }
-    await modelSuccessLog(ip, "userBoardModel");
-    return { state: "user_board", dataOfBoard: boardData };
-    // 쿼리문 실행시 에러발생
-  } catch (err) {
-    await modelFailLog(err, ip, "userBoardModel");
-    return { state: "fail_sequelize" };
-  }
-}
-
-// 4-2. 유저가 작성한 댓글
-export async function userCommentModel(userIndex, page, ip) {
-  const commentData = [];
-  // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
-  const query =
-    `SELECT COMMENT.commentContent,COMMENT.createTimestamp,BOARD.postTitle,COMMENT.boardDeleteTimestamp FROM COMMENT LEFT JOIN BOARD ` +
-    `ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteTimestamp IS NULL AND COMMENT.userIndex= ? ORDER BY commentIndex DESC LIMIT ${
-      5 * (page - 1)
-    }, 5`;
-  // 성공시
-  try {
-    let [results, metadata] = await db.sequelize.query(query, {
-      replacements: [userIndex],
-    });
-    // 쿼리문 성공 로그
-    await modelSuccessLog(ip, query);
-    // DB에 데이터가 없을 때
-    if (results[0] === undefined) {
-      await modelSuccessLog(ip, "userCommentModel");
-      return { state: "no_registered_information" };
-    }
-    // 댓글 정보
-    for (const index in results) {
-      // 삭제된 게시글인 경우 제목 바꿔주기
-      if (results[index].boardDeleteTimestamp !== null) results[index].postTitle = "삭제된 게시글입니다";
-      // 게시글 제목의 글자수가 25자 미만일 때
-      if (results[index].postTitle.length <= 25) {
-        const tempData = {
-          postTitle: results[index].postTitle,
-          commentContent: results[index].commentContent,
-          createDate: await changeTimestampForm(results[index].createTimestamp),
-        };
-        commentData.push(tempData);
-      }
-      // 게시글 제목의 글자수가 25자 이상일 때
-      else if (results[index].postTitle.length > 25) {
-        const tempData = {
-          postTitle: results[index].postTitle.substring(0, 25) + "...",
-          commentContent: results[index].commentContent,
-          createDate: await changeTimestampForm(results[index].createTimestamp),
-        };
-        commentData.push(tempData);
-      }
-    }
-
-    // DB에 데이터가 있을 때
-    await modelSuccessLog(ip, "userCommentModel");
-    return { state: "user_comment", dataOfComment: commentData };
-    // 쿼리문 실행시 에러발생
-  } catch (err) {
-    await modelFailLog(err, ip, "userCommentModel");
-    return { state: "fail_sequelize" };
-  }
-}
-
-// 4-3. 유저가 작성한 후기
-export async function userReviewModel(userIndex, page, ip) {
-  const reviewData = [];
-  // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
-  const query =
-    `SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createTimestamp,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ` +
-    `ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteTimestamp IS NULL AND LIBRARY.deleteTimestamp IS NULL AND REVIEW.userIndex= ? ` +
-    `ORDER BY reviewIndex DESC LIMIT ${5 * (page - 1)} ,5`;
-
-  // 성공시
-  try {
-    let [results, metadata] = await db.sequelize.query(query, {
-      replacements: [userIndex],
-    });
-    // 데이터가 없을 때
-    if (results[0] === undefined) {
-      await modelSuccessLog(ip, "userReviewModel");
-      return { state: "no_registered_information" };
-    }
-    // 데이터가 있을 때
-
-    for (const index in results) {
-      const tempData = {
-        libraryName: results[index].libraryName,
-        reviewContent: results[index].reviewContent,
-        createDate: await changeTimestampForm(results[index].createTimestamp),
-        grade: results[index].grade,
-      };
-      reviewData.push(tempData);
-    }
-
-    await modelSuccessLog(ip, "userReviewModel");
-    return { state: "user_review", dataOfReview: reviewData };
-    // 쿼리문 실행시 에러발생
-  } catch (err) {
-    await modelFailLog(err, ip, "userReviewModel");
-    return { state: "fail_sequelize" };
-  }
-}
-// 5. 유저 정보 수정
-// 5-1. 프로필 - 닉네임 변경
+// 4. 유저 정보 수정
+// 4-1. 프로필 - 닉네임 변경
 export async function editProfileNicknameModel(inputRevise, ip, loginCookie) {
   // 성공시
   try {
@@ -452,7 +305,7 @@ export async function editProfileNicknameModel(inputRevise, ip, loginCookie) {
   }
 }
 
-// 5-2. 프로필 - 이미지 변경 모델
+// 4-2. 프로필 - 이미지 변경 모델
 export async function editProfileImageModel(imagePath, ip, loginCookie) {
   // 성공시
   try {
@@ -473,7 +326,7 @@ export async function editProfileImageModel(imagePath, ip, loginCookie) {
     return { state: "fail_sequelize" };
   }
 }
-// 5-3. 연락처 변경 모델
+// 4-3. 연락처 변경 모델
 export async function editPhoneNumberModel(newContact, ip, loginCookie) {
   // 성공시
   try {
@@ -496,7 +349,7 @@ export async function editPhoneNumberModel(newContact, ip, loginCookie) {
   }
 }
 
-// 5-4. 비밀번호 수정 요청 모델
+// 4-4. 비밀번호 수정 요청 모델
 export async function editPwModel(inputPw, ip, loginCookie) {
   // 해싱된 새비밀번호 변수 미리 선언
   let hashedNewPw;
@@ -540,7 +393,7 @@ export async function editPwModel(inputPw, ip, loginCookie) {
   }
 }
 
-// 6. 유저 정보 가져오기
+// 5. 유저 정보 가져오기
 export async function getUserModel(ip, loginCookie) {
   let userData;
   // 성공시
