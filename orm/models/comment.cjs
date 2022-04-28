@@ -37,22 +37,22 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       boardDeleteTimestamp: {
-        type: "TIMESTAMP",
+        type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
         allowNull: true,
       },
       createTimestamp: {
-        type: "TIMESTAMP",
+        type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
         allowNull: false,
       },
       updateTimestamp: {
-        type: "TIMESTAMP",
+        type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
         allowNull: true,
       },
       deleteTimestamp: {
-        type: "TIMESTAMP",
+        type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
         allowNull: true,
       },

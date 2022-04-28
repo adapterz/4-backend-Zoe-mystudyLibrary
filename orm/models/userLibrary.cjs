@@ -22,12 +22,12 @@ module.exports = (sequelize, DataTypes) => {
         comment: "(인덱스) library 테이블과 연결",
       },
       updateTimestamp: {
-        type: "TIMESTAMP",
+        type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
         allowNull: false,
       },
       deleteTimestamp: {
-        type: "TIMESTAMP",
+        type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
         allowNull: true,
       },

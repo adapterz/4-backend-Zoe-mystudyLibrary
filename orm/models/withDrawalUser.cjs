@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
         comment: "URI",
       },
       withdrawalTimestamp: {
-        type: "TIMESTAMP",
+        type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
         allowNull: false,
       },
