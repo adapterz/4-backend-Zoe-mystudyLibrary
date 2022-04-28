@@ -455,7 +455,7 @@ export async function favoriteBoardModel(boardIndex, userIndex, ip) {
         {
           boardIndex: boardIndex,
           userIndex: userIndex,
-          favoriteFlag: 0,
+          favoriteFlag: 1,
           updateTimestamp: db.sequelize.fn("NOW"),
         },
         { transaction: transactionObj }
