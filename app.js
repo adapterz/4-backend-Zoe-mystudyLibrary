@@ -131,10 +131,10 @@ app.use("/board", boardRouter);
 app.use("/wise-saying", wiseSayingRouter);
 
 // 공공데이터 api 도서관 정보 테이블에 넣기
- reqOpenData();
+// reqOpenData();
 
 // 서비스에 필요한 명언 정보 DB 테이블에 넣기
- getScraping();
+// getScraping();
 
 // 서버 시작
 app.listen(process.env.PORT, () => {
