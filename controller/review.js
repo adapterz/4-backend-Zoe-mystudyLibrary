@@ -20,7 +20,7 @@ import {
   editReviewModel,
   getReviewModel,
   registerReviewModel,
-  userReviewModel
+  userReviewModel,
 } from "../model/review.js";
 
 /*
@@ -46,8 +46,7 @@ export async function registerReviewController(req, res) {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
-    if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state:  "login_required" });
+    if (loginToken === undefined) return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
@@ -111,8 +110,7 @@ export async function getReviewController(req, res) {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
-    if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state:  "login_required" });
+    if (loginToken === undefined) return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
@@ -131,7 +129,7 @@ export async function getReviewController(req, res) {
     // 해당 후기 작성 유저와 로그인한 유저가 일치할 때
     else if (checkReview.state === "success_access") {
       // 해당 인덱스의 후기 정보 가져오기
-      const modelResults = await getReviewModel(req.query.reviewIndex, loginIndex, req.ip);
+      const modelResults = await getReviewModel(req.query.reviewIndex, req.query.libraryIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
       if (modelResults.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
       // 해당 후기 정보가 없을 때
@@ -162,8 +160,7 @@ export async function editReviewController(req, res) {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
-    if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state:  "login_required" });
+    if (loginToken === undefined) return res.status(UNAUTHORIZED).json({ state: "login_required" });
     /// 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;
@@ -182,7 +179,7 @@ export async function editReviewController(req, res) {
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkReview.state === "success_access") {
       // 댓글수정 모델 실행 결과
-      const modelResult = await editReviewModel(req.query.reviewIndex, loginIndex, req.body, req.ip);
+      const modelResult = await editReviewModel(req.query.reviewIndex,req.query.libraryIndex, loginIndex, req.body, req.ip);
       // 모델 실행결과에 따른 분기처리
       // sequelize query 메서드 실패
       if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -212,8 +209,7 @@ export async function deleteReviewController(req, res) {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
     // 로그인 토큰이 없을 때
-    if (loginToken === undefined)
-      return res.status(UNAUTHORIZED).json({ state:  "login_required" });
+    if (loginToken === undefined) return res.status(UNAUTHORIZED).json({ state: "login_required" });
     // 로그인했을 때 토큰의 유저인덱스 불러오기
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const payloadIndex = await jwt.decode(loginToken).idx;

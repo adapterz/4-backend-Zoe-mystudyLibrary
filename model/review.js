@@ -97,7 +97,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
   }
 }
 // 수정시 기존 후기 정보 불러오는 모델
-export async function getReviewModel(reviewIndex, loginCookie, ip) {
+export async function getReviewModel(reviewIndex, libraryIndex, loginCookie, ip) {
   // 성공시
   try {
     // 해당 reviewIndex 의 기존 리뷰정보 불러오기
@@ -106,6 +106,7 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
       where: {
         deleteTimestamp: { [Op.is]: null },
         reviewIndex: { [Op.eq]: reviewIndex },
+        libraryIndex: { [Op.eq]: libraryIndex },
       },
     });
     // DB에 데이터가 없을 때
@@ -131,7 +132,7 @@ export async function getReviewModel(reviewIndex, loginCookie, ip) {
 }
 
 // 후기 수정 요청
-export async function editReviewModel(reviewIndex, loginCookie, inputReview, ip) {
+export async function editReviewModel(reviewIndex, libraryIndex, loginCookie, inputReview, ip) {
   // 성공시
   try {
     // 후기 수정
@@ -141,7 +142,13 @@ export async function editReviewModel(reviewIndex, loginCookie, inputReview, ip)
         grade: inputReview.grade,
         updateTimestamp: db.sequelize.fn("NOW"),
       },
-      { where: { reviewIndex: reviewIndex } }
+      {
+        where: {
+          deleteTimestamp: { [Op.is]: null },
+          reviewIndex: { [Op.eq]: reviewIndex },
+          libraryIndex: { [Op.eq]: libraryIndex },
+        },
+      }
     );
     // DB에 해당 인덱스의 댓글이 있을 때
     await modelSuccessLog(ip, "editReviewModel");
@@ -172,7 +179,6 @@ export async function deleteReviewModel(reviewIndex, userIndex, ip) {
     return { state: "fail_sequelize" };
   }
 }
-
 
 // 유저가 작성한 후기 조회
 export async function userReviewModel(userIndex, page, ip) {

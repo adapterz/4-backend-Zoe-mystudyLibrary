@@ -129,6 +129,7 @@ export async function checkReviewMethod(libraryIndex, reviewIndex, userIndex, ip
       where: {
         deleteTimestamp: { [Op.is]: null },
         reviewIndex: { [Op.eq]: reviewIndex },
+        libraryIndex: { [Op.eq]: libraryIndex },
       },
     });
     // 해당 후기가 존재하지 않을 때

@@ -2,7 +2,7 @@
 // 외장모듈
 import request from "request";
 // 내장모듈
-import { db } from "../orm/models.js";
+import { db } from "../orm/models/index.mjs";
 import { modelSuccessLog, modelFailLog } from "./modelLog.js";
 
 // 공공데이터 요청
