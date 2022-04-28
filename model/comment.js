@@ -99,8 +99,8 @@ export async function detailCommentModel(boardIndex, page, ip) {
     }
     // 해당 게시글의 루트 댓글만 가져오는 쿼리문
     const rootCommentQuery =
-      `SELECT commentIndex,commentContent,User.nickname, Comment.createTimestamp,deleteTimestamp FROM COMMENT ` +
-      `LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND parentIndex IS NULL AND boardIndex = ? ` +
+      `SELECT commentIndex,commentContent,user.nickname, comment.createTimestamp,deleteTimestamp FROM comment ` +
+      `LEFT JOIN user ON comment.userIndex=user.userIndex WHERE boardDeleteTimestamp IS NULL AND parentIndex IS NULL AND boardIndex = ? ` +
       `ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT ${5 * (page - 1)},5;`;
     let [rootResult, metadata1] = await db.sequelize.query(rootCommentQuery, {
       replacements: [boardIndex],
@@ -111,8 +111,8 @@ export async function detailCommentModel(boardIndex, page, ip) {
     }
     // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
     childCommentQuery =
-      `SELECT commentContent,User.nickname, Comment.createTimestamp,deleteTimestamp, parentIndex FROM COMMENT ` +
-      `LEFT JOIN USER ON COMMENT.userIndex=USER.userIndex WHERE boardDeleteTimestamp IS NULL AND boardIndex = ?`;
+      `SELECT commentContent,user.nickname, comment.createTimestamp,deleteTimestamp, parentIndex FROM comment ` +
+      `LEFT JOIN user ON comment.userIndex=user.userIndex WHERE boardDeleteTimestamp IS NULL AND boardIndex = ?`;
     for (let commentIndex in rootResult) {
       childCommentQuery += ` OR parentIndex = ${rootResult[commentIndex].commentIndex}`;
     }
@@ -257,8 +257,8 @@ export async function userCommentModel(userIndex, page, ip) {
   const commentData = [];
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
-    `SELECT COMMENT.commentContent,COMMENT.createTimestamp,BOARD.postTitle,COMMENT.boardDeleteTimestamp FROM COMMENT LEFT JOIN BOARD ` +
-    `ON COMMENT.boardIndex =BOARD.boardIndex WHERE COMMENT.deleteTimestamp IS NULL AND COMMENT.userIndex= ? ORDER BY commentIndex DESC LIMIT ${
+    `SELECT comment.commentContent,comment.createTimestamp,board.postTitle,comment.boardDeleteTimestamp FROM comment LEFT JOIN board ` +
+    `ON comment.boardIndex =board.boardIndex WHERE comment.deleteTimestamp IS NULL AND comment.userIndex= ? ORDER BY commentIndex DESC LIMIT ${
       5 * (page - 1)
     }, 5`;
   // 성공시

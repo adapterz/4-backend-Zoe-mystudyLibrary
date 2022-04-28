@@ -18,16 +18,16 @@ export async function getRecentBoardModel(ip) {
   const results = [];
   // 최신글 자유게시판 글 5개 불러오기
   let query =
-    "SELECT postTitle,nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex" +
-    " WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
+    "SELECT postTitle,nickname FROM board LEFT JOIN USER ON board.userIndex=user.userIndex" +
+    " WHERE board.deleteTimestamp IS NULL AND board.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
   // 성공시
   try {
     let [result, metadata] = await db.sequelize.query(query);
     results.push(result);
     // 최신글 공부인증샷 글 4개 불러오기
     query =
-      "SELECT postTitle,nickname,viewCount,favoriteCount FROM BOARD LEFT JOIN USER ON BOARD.userIndex=USER.userIndex " +
-      " WHERE BOARD.deleteTimestamp IS NULL AND BOARD.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
+      "SELECT postTitle,nickname,viewCount,favoriteCount FROM board LEFT JOIN USER ON board.userIndex=user.userIndex " +
+      " WHERE board.deleteTimestamp IS NULL AND board.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
     [result, metadata] = await db.sequelize.query(query);
     results.push(result);
 
@@ -86,8 +86,8 @@ export async function entireBoardModel(category, page, ip) {
   const boardData = [];
   // 카테고리에 맞는 전체 게시글 정보 가져오기
   const query =
-    `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex` +
-    ` WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? ORDER BY boardIndex DESC LIMIT ${10 * (page - 1)}, 10`;
+    `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex` +
+    ` WHERE board.deleteTimestamp IS NULL AND board.category = ? ORDER BY boardIndex DESC LIMIT ${10 * (page - 1)}, 10`;
   // 성공시
   try {
     const [results, metadata] = await db.sequelize.query(query, { replacements: [category] });
@@ -138,8 +138,8 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
   const results = [];
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
-    "SELECT postTitle,postContent,viewCount,favoriteCount,BOARD.createTimestamp,USER.nickname FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex" +
-    " WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category= ? AND boardIndex = ?";
+    "SELECT postTitle,postContent,viewCount,favoriteCount,board.createTimestamp,user.nickname FROM board LEFT JOIN user ON board.userIndex = user.userIndex" +
+    " WHERE board.deleteTimestamp IS NULL AND board.category= ? AND boardIndex = ?";
   // 성공시
   try {
     // 게시글 정보가져오는 쿼리 메서드
@@ -152,8 +152,8 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     }
     // 게시글 정보 가져오는 쿼리 메서드
     query =
-      "SELECT postTitle,USER.nickname,USER.profileImage,postContent,viewCount,favoriteCount,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = USER.userIndex " +
-      "WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category= ? AND boardIndex = ?";
+      "SELECT postTitle,user.nickname,user.profileImage,postContent,viewCount,favoriteCount,board.createTimestamp FROM board LEFT JOIN user ON " +
+      "board.userIndex = user.userIndex WHERE board.deleteTimestamp IS NULL AND board.category= ? AND boardIndex = ?";
     [result, metadata] = await db.sequelize.query(query, {
       replacements: [category, boardIndex],
     });
@@ -527,23 +527,23 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (searchOption === "제목만") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
-      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND postTitle LIKE ? ORDER BY boardIndex DESC LIMIT ${
+      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN USER ON board.userIndex = user.userIndex ` +
+      `WHERE board.deleteTimestamp IS NULL AND board.category = ? AND postTitle LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       } , 10`;
     // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "내용만") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
-      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND postContent LIKE ? ORDER BY boardIndex DESC LIMIT ${
+      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
+      `WHERE board.deleteTimestamp IS NULL AND board.category = ? AND postContent LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       }
       , 10`;
     // 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "닉네임") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,BOARD.createTimestamp FROM BOARD LEFT JOIN USER ON BOARD.userIndex = User.userIndex ` +
-      `WHERE BOARD.deleteTimestamp IS NULL AND BOARD.category = ? AND nickname LIKE ? ORDER BY boardIndex DESC LIMIT ${
+      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
+      `WHERE board.deleteTimestamp IS NULL AND board.category = ? AND nickname LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       }
       , 10`;
@@ -595,7 +595,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 export async function userBoardModel(userIndex, page, ip) {
   const boardData = [];
   // 해당 유저가 작성한 게시글 정보 가져오기
-  const query = `SELECT postTitle,viewCount,favoriteCount FROM BOARD WHERE deleteTimestamp IS NULL AND userIndex = ? ORDER BY boardIndex DESC LIMIT ${
+  const query = `SELECT postTitle,viewCount,favoriteCount FROM board WHERE deleteTimestamp IS NULL AND userIndex = ? ORDER BY boardIndex DESC LIMIT ${
     10 * (page - 1)
   }, 10`;
   // 성공시

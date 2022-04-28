@@ -159,10 +159,10 @@ export async function userLibraryModel(userIndex, ip) {
   const libraryData = [];
   // 해당 유저가 관심도서관으로 등록한 도서관 정보 가져오기
   let query =
-    `SELECT LIBRARY.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,` +
-    `nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM USERLIBRARY LEFT JOIN LIBRARY ON LIBRARY.libraryIndex = USERLIBRARY.libraryIndex ` +
-    `LEFT JOIN REVIEW ON USERLIBRARY.libraryIndex = REVIEW.libraryIndex AND REVIEW.deleteTimestamp IS NULL WHERE LIBRARY.deleteTimestamp IS NULL ` +
-    `AND USERLIBRARY.deleteTimestamp IS NULL AND USERLIBRARY.userIndex= ? GROUP BY libraryIndex ORDER BY libraryIndex`;
+    `SELECT library.libraryIndex,libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,` +
+    `nameOfCity,districts,address,libraryContact,AVG(grade) avgOfGrade FROM userLibrary LEFT JOIN library ON library.libraryIndex = userLibrary.libraryIndex ` +
+    `LEFT JOIN review ON userLibrary.libraryIndex = review.libraryIndex AND review.deleteTimestamp IS NULL WHERE library.deleteTimestamp IS NULL ` +
+    `AND userLibrary.deleteTimestamp IS NULL AND userLibrary.userIndex= ? GROUP BY libraryIndex ORDER BY libraryIndex`;
   // 성공시
   try {
     let [results, metadata] = await db.sequelize.query(query, {

@@ -66,7 +66,7 @@ export async function detailReviewModel(libraryIndex, page, ip) {
     }
     // 해당 도서관의 후기 가져오는 쿼리문
     let query =
-      `SELECT nickname,reviewContent,grade,REVIEW.createTimestamp FROM REVIEW LEFT JOIN USER ON USER.userIndex = REVIEW.userIndex ` +
+      `SELECT nickname,reviewContent,grade,review.createTimestamp FROM review LEFT JOIN user ON user.userIndex = review.userIndex ` +
       `WHERE deleteTimestamp IS NULL AND libraryIndex = ? ORDER BY reviewIndex DESC LIMIT ${5 * (page - 1)},5`;
     let [results, metadata] = await db.sequelize.query(query, {
       replacements: [libraryIndex],
@@ -185,8 +185,8 @@ export async function userReviewModel(userIndex, page, ip) {
   const reviewData = [];
   // 해당 유저가 작성한 후기 정보 가져오는 쿼리문
   const query =
-    `SELECT REVIEW.reviewContent,REVIEW.grade,REVIEW.createTimestamp,LIBRARY.libraryName FROM REVIEW INNER JOIN LIBRARY ` +
-    `ON REVIEW.libraryIndex = LIBRARY.libraryIndex WHERE REVIEW.deleteTimestamp IS NULL AND LIBRARY.deleteTimestamp IS NULL AND REVIEW.userIndex= ? ` +
+    `SELECT review.reviewContent,review.grade,review.createTimestamp,library.libraryName FROM review INNER JOIN library ` +
+    `ON review.libraryIndex = library.libraryIndex WHERE review.deleteTimestamp IS NULL AND library.deleteTimestamp IS NULL AND review.userIndex= ? ` +
     `ORDER BY reviewIndex DESC LIMIT ${5 * (page - 1)} ,5`;
 
   // 성공시

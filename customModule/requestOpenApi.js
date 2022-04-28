@@ -81,7 +81,7 @@ async function requestData(page) {
 }
 // DB에 배열에 저장된 도서관정보 전달해줄 메서드
 async function queryData([values]) {
-  const query = `INSERT INTO LIBRARY(libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact) VALUES ?`;
+  const query = `INSERT INTO library(libraryName,libraryType,closeDay,openWeekday,endWeekday,openSaturday,endSaturday,openHoliday,endHoliday,nameOfCity,districts,address,libraryContact) VALUES ?`;
   try {
     const [postLibraryRow] = await db.sequelize.query(query, { replacements: [values] });
     await modelSuccessLog(null, "queryData");

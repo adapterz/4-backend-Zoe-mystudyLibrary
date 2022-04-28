@@ -41,7 +41,7 @@ import wiseSayingRouter from "./router/wiseSaying.js";
 
 // 시퀄라이저 연결
 db.sequelize
-  .sync({ force: true }, { alter: true })
+  .sync({ force: false }, { alter: false })
   .then(() => {
     console.log("success_db_access_by_sequelize".rainbow);
   })
@@ -53,7 +53,7 @@ db.sequelize
 const transport = new WinstonTransportSequelize({
   level: "info",
   sequelize: db.sequelize,
-  tableName: "Winston_logs",
+  tableName: "winston_logs",
   meta: { project: "myStudyLibrary" },
   fields: {
     logIndex: {
@@ -131,10 +131,10 @@ app.use("/board", boardRouter);
 app.use("/wise-saying", wiseSayingRouter);
 
 // 공공데이터 api 도서관 정보 테이블에 넣기
-reqOpenData();
+ reqOpenData();
 
 // 서비스에 필요한 명언 정보 DB 테이블에 넣기
-getScraping();
+ getScraping();
 
 // 서버 시작
 app.listen(process.env.PORT, () => {
