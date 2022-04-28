@@ -160,7 +160,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
                 isDeleted: true,
                 nickname: await checkExistUser(childResult[childIndex].nickname),
                 commentContent: "삭제된 댓글입니다",
-                createDate: null,
+                createDate: await changeTimestampForm(childResult[childIndex].createTimestamp),
               };
           }
           commentData.push(tempChild);
