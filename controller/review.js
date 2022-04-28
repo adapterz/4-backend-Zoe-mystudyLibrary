@@ -95,7 +95,7 @@ export async function detailReviewController(req, res) {
   if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 해당 게시글 정보가 없을 때
   else if (modelResult.state === "non_existent_library") return res.status(NOT_FOUND).json(modelResult);
-  // 댓글이 없을 때
+  // 후기가 없을 때
   else if (modelResult.state === "no_review") return res.status(OK).json(modelResult);
   // 해당 게시글 정보 가져오기
   else if (modelResult.state === "library's_review") return res.status(OK).json(modelResult.dataOfReview);
@@ -169,7 +169,7 @@ export async function editReviewController(req, res) {
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
-    // 해당 도서관,후기가 있는제 확인하고 후기에 대한 유저의 권한 체크
+    // 해당 도서관,후기가 있는지 확인하고 후기에 대한 유저의 권한 체크
     const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
     if (checkReview.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
