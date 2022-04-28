@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     "winston_logs",
     // 컬럼 정의
     {
-      id: {
+      logIndex: {
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         primaryKey: true,
