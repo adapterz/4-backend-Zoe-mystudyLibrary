@@ -46,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       createTimestamp: {
         type: DataTypes.TIMESTAMP,
         comment: "YYYY-MM-DD HH:MM:SS",
+        defaultValue: sequelize.literal("now()"),
         allowNull: false,
       },
       updateTimestamp: {

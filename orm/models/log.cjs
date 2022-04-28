@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       timestamp: {
         type: DataTypes.TIMESTAMP,
         allowNull: false,
-        defalutValue: sequelize.literal("now()"),
+        defaultValue: sequelize.literal("now()"),
       },
     },
     {
