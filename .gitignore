@@ -102,4 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# 유저의 프로필 사진 안올라가도록 하기
 /profileImage/
