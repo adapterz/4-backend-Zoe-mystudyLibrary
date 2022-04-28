@@ -26,6 +26,8 @@ import { getScraping } from "./customModule/scraping.js";
 import { moment } from "./customModule/dateTime.js";
 // 시퀄라이저 모듈
 import { db, sequelize } from "./orm/models/index.mjs";
+// 상태코드
+import { OK } from "./customModule/statusCode.js";
 
 // 라우터
 import boardRouter from "./router/board.js";
@@ -104,6 +106,16 @@ app.use(
 app.use(morgan("combined", { stream: logger.stream }));
 // 디도스 방어 모듈 모든 요청에 대해 사용
 app.use(apiLimiter);
+
+// 홈
+// 라우터 변수
+const router = express.Router();
+app.use(
+  "/",
+  router.get("/", function (req, res) {
+    return res.status(OK).send("myStudyLibrary");
+  })
+);
 
 // 경로별로 라우팅
 app.use("/comment", commentRouter);
