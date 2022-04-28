@@ -64,7 +64,7 @@ router.delete(
   deleteCommentController
 );
 // 유저가 작성한 댓글 목록 조회
-router.get("/comment", checkPageValidation, userCommentController);
+router.get("/user", checkPageValidation, userCommentController);
 
 // 모듈화
 export default router;

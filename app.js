@@ -20,6 +20,8 @@ import winston from "winston";
 import WinstonTransportSequelize from "winston-transport-sequelize";
 
 // 내장모듈
+// 공공데이터 가져오는 모듈
+import { reqOpenData } from "./customModule/requestOpenApi.js";
 // 명언 스크래핑 모듈
 import { getScraping } from "./customModule/scraping.js";
 // 날짜/시간 관련 모듈
@@ -126,11 +128,10 @@ app.use("/board", boardRouter);
 app.use("/wise-saying", wiseSayingRouter);
 
 // 공공데이터 api 도서관 정보 테이블에 넣기
-// import { reqOpenData } from "./customModule/RequestOpenApi";
-// reqOpenData();
+//reqOpenData();
 
 // 서비스에 필요한 명언 정보 DB 테이블에 넣기
-// getScraping();
+//getScraping();
 
 // 서버 시작
 app.listen(process.env.PORT, () => {

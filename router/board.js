@@ -96,7 +96,7 @@ router.get(
 );
 
 // 4. 유저가 쓴 글 목록 가져오기
-router.get("/post", checkPageValidation, userBoardController);
+router.get("/user", checkPageValidation, userBoardController);
 
 // 모듈화
 export default router;

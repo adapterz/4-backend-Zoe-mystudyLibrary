@@ -59,7 +59,7 @@ router.delete(
   deleteReviewController
 );
 // 유저가 작성한 도서관 후기 목록 가져오기
-router.get("/review", checkPageValidation, userReviewController);
+router.get("/user", checkPageValidation, userReviewController);
 
 // 모듈화
 export default router;
