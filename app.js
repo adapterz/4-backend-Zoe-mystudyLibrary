@@ -50,9 +50,9 @@ const transport = new WinstonTransportSequelize({
   level: "info",
   sequelize: db.sequelize,
   tableName: "Winston_logs",
-  meta: { project: "myProject" },
+  meta: { project: "myStudyLibrary" },
   fields: {
-    id: {
+    logIndex: {
       type: db.Sequelize.INTEGER.UNSIGNED,
       allowNull: false,
       primaryKey: true,
