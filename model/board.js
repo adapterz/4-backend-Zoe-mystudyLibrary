@@ -18,7 +18,7 @@ export async function getRecentBoardModel(ip) {
   const results = [];
   // 최신글 자유게시판 글 5개 불러오기
   let query =
-    "SELECT postTitle,nickname FROM board LEFT JOIN USER ON board.userIndex=user.userIndex" +
+    "SELECT postTitle,nickname FROM board LEFT JOIN user ON board.userIndex=user.userIndex" +
     " WHERE board.deleteTimestamp IS NULL AND board.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
   // 성공시
   try {
@@ -26,7 +26,7 @@ export async function getRecentBoardModel(ip) {
     results.push(result);
     // 최신글 공부인증샷 글 4개 불러오기
     query =
-      "SELECT postTitle,nickname,viewCount,favoriteCount FROM board LEFT JOIN USER ON board.userIndex=user.userIndex " +
+      "SELECT postTitle,nickname,viewCount,favoriteCount FROM board LEFT JOIN user ON board.userIndex=user.userIndex " +
       " WHERE board.deleteTimestamp IS NULL AND board.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
     [result, metadata] = await db.sequelize.query(query);
     results.push(result);
@@ -527,7 +527,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (searchOption === "제목만") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN USER ON board.userIndex = user.userIndex ` +
+      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
       `WHERE board.deleteTimestamp IS NULL AND board.category = ? AND postTitle LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       } , 10`;
