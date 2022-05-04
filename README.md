@@ -25,7 +25,7 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 
 -------------------------------------
 ## 프로젝트 구조
-![image](https://user-images.githubusercontent.com/98700133/166646797-f6f3a886-3091-4fdd-9aeb-6e579bb1e6c4.png)
+![image](https://user-images.githubusercontent.com/98700133/166647004-e903aab2-f4ed-44db-9cac-f97b5b3e5cd0.png)
 
 위의 구조대로 프로젝트를 구성했습니다.
 
