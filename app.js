@@ -82,14 +82,14 @@ logger.stream = {
     logger.info(message);
   },
 };
-
 // 디도스 방어 모듈 설정(요청 제한)
 const apiLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000,
-  max: 100,
+  windowMs: 1 * 60 * 1000,
+  max: 25000,
   standardHeaders: true,
   legacyHeaders: false,
 });
+
 
 // 서버 설정
 const app = express();
