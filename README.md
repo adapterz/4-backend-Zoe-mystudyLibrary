@@ -1,4 +1,4 @@
-# 4-fulllstack-Zoe-mystudyLibrary
+# 4-backend-Zoe-mystudyLibrary
 ------------------------------------
 
 내 주변의 도서관 찾는 사이트
@@ -9,7 +9,14 @@
   
   각 개별 도서관에 평점, 후기를 남길 수 있고 사이트 사용자들끼리 커뮤니티 글을 공유할 수 있습니다.
 
-  
+------------------------------------
+## 프로젝트 기획
+https://ovenapp.io/view/sM4TbEvWMLijyHLw5oZIhUubP99mgGUD/gHdLH
+
+왼쪽 하단의 '메모 표시'를 누르면 각 페이지와 기능에 대한 설명을 볼 수 있습니다.
+화살표를 누르거나 '페이지 목록'을 누르면 다른 페이지로 넘어갈 수 있습니다.
+'링크 영역 표시'를 누르면 누를 수 있는 영역을 확인할 수 있습니다.
+
 ------------------------------------
 ## 프로젝트 DB 테이블
 
@@ -18,20 +25,20 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 
 -------------------------------------
 ## 프로젝트 구조
-![image](https://user-images.githubusercontent.com/98700133/160259273-0556e259-ffd2-4c48-a97f-851f331522e4.png)
+![image](https://user-images.githubusercontent.com/98700133/166646797-f6f3a886-3091-4fdd-9aeb-6e579bb1e6c4.png)
 
 위의 구조대로 프로젝트를 구성했습니다.
 
 
 
 ### 해당 프로젝트 폴더 구조
-![image](https://user-images.githubusercontent.com/98700133/160256063-cbe1452d-d083-433a-bd81-c0e8d6749f9a.png)
+![image](https://user-images.githubusercontent.com/98700133/166646865-e7d6aafd-644d-4210-b574-e974d8893630.png)
 
-+ Controller: 모델을 관리해주는 역할
-+ Rout: 경로 설정
-+ Model: DB에 직접적으로 접근하도록 나누어서 코드 작성
-+ CustomModule: 해당 프로젝트에 필요한 모듈/메서드들이 정의 및 설정돼있는 파일들을 모아 둔 폴더
-+ Terms: 이용약관 html 파일이 있는 폴더
++ controller: 모델을 관리해주는 역할
++ route: 경로 설정
++ model: DB에 직접적으로 접근하도록 나누어서 코드 작성
++ customModule: 해당 프로젝트에 필요한 모듈/메서드들이 정의 및 설정돼있는 파일들을 모아 둔 폴더
++ terms: 이용약관 html 파일이 있는 폴더
 
 --------------------------------------
 ## 사용 언어 및 패키지
