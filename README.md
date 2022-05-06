@@ -27,18 +27,24 @@ https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af8
 ## 프로젝트 구조
 ![image](https://user-images.githubusercontent.com/98700133/166647004-e903aab2-f4ed-44db-9cac-f97b5b3e5cd0.png)
 
-위의 구조대로 프로젝트를 구성했습니다.
+위의 구조를 기반으로 프로젝트를 구성했습니다. 
+(model-controller-route)
 
 
 
-### 해당 프로젝트 폴더 구조
+
+
+### 해당 프로젝트 디렉토리 구조
 ![image](https://user-images.githubusercontent.com/98700133/166646865-e7d6aafd-644d-4210-b574-e974d8893630.png)
 
-+ controller: 모델을 관리해주는 역할
-+ route: 경로 설정
-+ model: DB에 직접적으로 접근하도록 나누어서 코드 작성
-+ customModule: 해당 프로젝트에 필요한 모듈/메서드들이 정의 및 설정돼있는 파일들을 모아 둔 폴더
+보편화 된 디렉토리
++ route: 리퀘스트를 통해 전달된 http 메서드와 url 경로를 처리하기 위해 적절한 controller로 연결하는 역할을 하는 코드 섹션
++ controller: model을 조작하며 리스폰스 상태코드 및 응답값 정의 하는 코드 섹션
++ model: controller로부터 받은 값에 따라 DB에 직접적으로 접근하는 역할을 하는 코드 섹션
 + terms: 이용약관 html 파일이 있는 폴더
+
+사용자 정의 디렉토리
++ customModule: 보편화 된 디렉토리에 포함되지 않으며 해당 프로젝트에 필요한 모듈/메서드들이 정의 및 설정돼있는 메서드들을 모아 둔 디렉토리
 
 --------------------------------------
 ## 사용 언어 및 패키지
