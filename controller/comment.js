@@ -282,9 +282,6 @@ export async function deleteCommentController(req, res) {
 }
 
 // 유저가 작성한 댓글 조회
-
-
-// 4-2. 유저가 작성한 댓글 조회
 export async function userCommentController(req, res) {
   try {
     //  필요 변수 선언
