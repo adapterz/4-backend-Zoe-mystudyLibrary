@@ -430,7 +430,7 @@ export async function editPwController(req, res) {
     // 비밀번호와 비밀번호 수정이 올바르지 않을 때
     else if (modelResult.state === "pw/pw_confirm_mismatched") return res.status(BAD_REQUEST).json(modelResult);
     // 성공적으로 비밀번호 변경 요청 수행
-    else if (modelResult.state === "edit_pw") return res.status(OK).json(modelResult);
+    else if (modelResult.state === "edit_pw") return res.status(OK).end();
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
