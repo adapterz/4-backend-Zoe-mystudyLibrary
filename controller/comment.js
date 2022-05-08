@@ -254,7 +254,7 @@ export async function deleteCommentController(req, res) {
     // sequelize query 메서드 실패
     if (checkComment.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkComment);
     // 해당 게시글이 존재하지 않거나 이미 삭제됐을 때
-    else if (checkComment.state === "not_exist") return res.status(BAD_REQUEST).json(checkComment);
+    else if (checkComment.state === "not_exist") return res.status(NOT_FOUND).json(checkComment);
     // 해당 댓글이 존재하지 않을 때
     else if (checkComment.state === "no_comment") return res.status(NOT_FOUND).json(checkComment);
     // 로그인돼있는 유저와 해당 댓글 작성 유저가 일치하지 않을 때

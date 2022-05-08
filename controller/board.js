@@ -311,7 +311,7 @@ export async function favoriteBoardController(req, res) {
     // sequelize query 메서드 실패
     if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 게시글이 없을 때
-    else if (modelResult.state === "not_exist") return res.status(BAD_REQUEST).json(modelResult);
+    else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
     // 좋아요를 이미 누른적이 있을 때
     else if (modelResult.state === "cancel_favorite") return res.status(OK).end();
     // 좋아요 요청 수행
@@ -365,7 +365,7 @@ export async function searchBoardController(req, res) {
   else if (modelResult.state === "search_board_information") return res.status(OK).json(modelResult.dataOfBoard);
 }
 
-// 유저가 작성한 글 조회
+// 4. 유저가 작성한 글 조회
 export async function userBoardController(req, res) {
   try {
     //  필요 변수 선언
