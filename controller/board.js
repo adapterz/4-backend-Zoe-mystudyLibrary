@@ -385,9 +385,9 @@ export async function userBoardController(req, res) {
     const modelResult = await userBoardModel(loginIndex, page, req.ip);
     // 모델 실행결과에 따른 분기처리
     // sequelize query 메서드 실패
-    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult.state);
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 유저가 작성한 글이 없을 때 (요청은 올바르지만 안타깝게도 응답해줄 DB 정보가 없을 때)
-    else if (modelResult.state === "no_registered_information") return res.status(OK).json(modelResult.state);
+    else if (modelResult.state === "no_registered_information") return res.status(OK).json(modelResult);
     // 성공적으로 유저가 작성한 게시글 정보 응답
     else if (modelResult.state === "user_board") return res.status(OK).json(modelResult.dataOfBoard);
   } catch (err) {
