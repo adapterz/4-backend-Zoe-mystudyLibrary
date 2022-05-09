@@ -5,7 +5,7 @@ import { query, param } from "express-validator";
 
 // 내장모듈
 import { isExist, isValidate } from "../customModule/checkValidation.js";
-import { allLibraryController, detailLibraryController, localLibraryController } from "../controller/library.js";
+import { allLibraryController, detailLibraryController, localLibraryController } from "../controllers/library.js";
 
 // 라우터 변수
 const router = express.Router();

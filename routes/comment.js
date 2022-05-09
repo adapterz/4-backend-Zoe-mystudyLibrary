@@ -12,7 +12,7 @@ import {
   getCommentController,
   writeCommentController,
   userCommentController
-} from "../controller/comment.js";
+} from "../controllers/comment.js";
 
 /*
  * 1. 댓글 작성

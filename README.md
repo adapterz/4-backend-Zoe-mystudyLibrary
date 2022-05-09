@@ -44,14 +44,14 @@ aquerytool 사이트를 이용해서 테이블 설계
 
   
 ```bash
-├── controller
+├── controllers
 │   ├── board.js
 │   ├── comment.js
 │   ├── library.js
 │   ├── review.js
 │   ├── user.js
 │   └── wiseSaying.js
-├── model
+├── models
 │   ├── board.js
 │   ├── comment.js
 │   ├── library.js

@@ -1,4 +1,4 @@
-// board 테이블 model
+// board 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const board = sequelize.define(
     "board",

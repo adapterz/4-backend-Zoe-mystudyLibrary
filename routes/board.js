@@ -15,7 +15,7 @@ import {
   writeBoardController,
   getWriteController,
   userBoardController
-} from "../controller/board.js";
+} from "../controllers/board.js";
 import {
   checkPageValidation,
   isCategory,

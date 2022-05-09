@@ -1,4 +1,4 @@
-// library 테이블 model
+// library 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const library = sequelize.define(
     "library",

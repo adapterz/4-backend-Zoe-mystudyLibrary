@@ -1,4 +1,4 @@
-// withdrawal 테이블 model
+// withdrawal 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const withdrawalUser = sequelize.define(
     "withdrawalUser",

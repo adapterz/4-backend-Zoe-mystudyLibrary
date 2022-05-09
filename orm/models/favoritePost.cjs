@@ -1,4 +1,4 @@
-// favoritePost 테이블 model
+// favoritePost 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const favoritePost = sequelize.define(
     "favoritePost",

@@ -1,4 +1,4 @@
-// wiseSaying 테이블 model
+// wiseSaying 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const wiseSaying = sequelize.define(
     "wiseSaying",

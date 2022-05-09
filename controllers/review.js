@@ -21,7 +21,7 @@ import {
   getReviewModel,
   registerReviewModel,
   userReviewModel,
-} from "../model/review.js";
+} from "../models/review.js";
 
 /*
  * 1. 도서관 후기 등록
@@ -31,7 +31,7 @@ import {
  * 5. 후기 삭제 요청
  * 6. 유저가 작성한 후기 조회
  *
- * 참고: model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 model 수행 로그 남기는데 이용
+ * 참고: models 메서드에 인자로 보낸 요청한 유저의 ip 정보는 models 수행 로그 남기는데 이용
  */
 
 // 특정 도서관 이용 후 후기 등록

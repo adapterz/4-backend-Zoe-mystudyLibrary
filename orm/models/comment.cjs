@@ -1,4 +1,4 @@
-// comment 테이블 model
+// comment 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const comment = sequelize.define(
     "comment",

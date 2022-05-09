@@ -1,4 +1,4 @@
-// user 테이블 model
+// user 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const user = sequelize.define(
     "user",

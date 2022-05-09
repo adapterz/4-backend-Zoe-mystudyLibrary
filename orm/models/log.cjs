@@ -1,4 +1,4 @@
-// winston_logs 테이블 model
+// winston_logs 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const log = sequelize.define(
     "winston_logs",

@@ -1,4 +1,4 @@
-// review 테이블 model
+// review 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const review = sequelize.define(
     "review",

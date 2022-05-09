@@ -19,7 +19,7 @@ import {
   userLibraryController,
   editProfileImageController,
   getUserController,
-} from "../controller/user.js";
+} from "../controllers/user.js";
 import { uploadImage, checkLoginToken } from "../customModule/uploadImage.js";
 
 // 라우터 변수

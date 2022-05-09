@@ -1,4 +1,4 @@
-// tag 테이블 model
+// tag 테이블 models
 module.exports = (sequelize, DataTypes) => {
   const tag = sequelize.define(
     "tag",

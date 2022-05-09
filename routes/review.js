@@ -12,7 +12,7 @@ import {
   getReviewController,
   registerReviewController,
   userReviewController
-} from "../controller/review.js";
+} from "../controllers/review.js";
 // 라우터 변수
 const router = express.Router();
 

@@ -29,7 +29,7 @@ import {
   registerUserLibraryModel,
   signUpModel,
   userLibraryModel,
-} from "../model/user.js";
+} from "../models/user.js";
 import { checkUserLibraryMethod } from "../customModule/checkDataOrAuthority.js";
 /*
  * 1. 회원가입/탈퇴
@@ -38,7 +38,7 @@ import { checkUserLibraryMethod } from "../customModule/checkDataOrAuthority.js"
  * 4. 유저 정보 수정
  * 5. 유저 정보 가져오기
  *
- * 참고: model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 model 수행 로그 남기는데 이용
+ * 참고: models 메서드에 인자로 보낸 요청한 유저의 ip 정보는 models 수행 로그 남기는데 이용
  */
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인

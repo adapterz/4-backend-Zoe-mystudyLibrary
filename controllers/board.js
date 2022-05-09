@@ -14,7 +14,7 @@ import {
   searchBoardModel,
   writeBoardModel,
   userBoardModel
-} from "../model/board.js";
+} from "../models/board.js";
 import {
   OK,
   INTERNAL_SERVER_ERROR,
@@ -31,7 +31,7 @@ import {
  * 3. 좋아요/검색 기능
  * 4. 유저가 작성한 글 조회
  *
- * 참고: model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 model 수행 로그 남기는데 이용
+ * 참고: models 메서드에 인자로 보낸 요청한 유저의 ip 정보는 models 수행 로그 남기는데 이용
  */
 
 // 1. 게시글 조회

@@ -1,11 +1,11 @@
 // 메인 리소스가 아닌 리소스의 컨트롤러
 // 내부모듈
 import { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from "../customModule/statusCode.js";
-import { wiseSayingModel } from "../model/wiseSaying.js";
+import { wiseSayingModel } from "../models/wiseSaying.js";
 /*
  * 1. 랜덤으로 명언 정보 가져오는 컨트롤러
  *
- * 참고: model 메서드에 인자로 보낸 요청한 유저의 ip 정보는 model 수행 로그 남기는데 이용
+ * 참고: models 메서드에 인자로 보낸 요청한 유저의 ip 정보는 models 수행 로그 남기는데 이용
  */
 
 // 1. 랜덤한 명언 정보 가져오는 컨트롤러
