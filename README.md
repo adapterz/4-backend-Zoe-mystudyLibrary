@@ -1,4 +1,4 @@
-# 4-backend-Zoe-mystudyLibrary
+# 4-backend-Zoe-mytudyLibrary
 ------------------------------------
 
  :books: 내 주변의 도서관 찾는 사이트  :books:
@@ -20,14 +20,19 @@
 ------------------------------------
 ## :ledger: 프로젝트 DB 테이블
 
+aquerytool 사이트를 이용해서 테이블 설계 
+
 :clipboard: [테이블과 테이블 구성요소](https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af83cf3e55)
 
 -------------------------------------
 ## :green_book: 프로젝트 구조
 ![image](https://user-images.githubusercontent.com/98700133/166647004-e903aab2-f4ed-44db-9cac-f97b5b3e5cd0.png)
 
+:clipboard: [출처](https://developer.mozilla.org/ko/docs/Learn/Server-side/Express_Nodejs/routes)
+
 위의 구조를 기반으로 프로젝트를 구성했습니다. 
 (model-controller-route)
+
 
 
 
@@ -113,17 +118,36 @@
 + customModule: 보편화 된 디렉토리에 포함되지 않으며 해당 프로젝트에 필요한 모듈/메서드들이 정의 및 설정돼있는 메서드들을 모아 둔 디렉토리
 
 --------------------------------------
-## api 주요 기능 정리
+## :blue_book: 주요 기능(보류)
+<details>
+    <summary> 회원가입 </summary>
+ 
+ 
+ 
+* 회원가입을 위해 아이디, 비밀번호, 비밀번호 확인, 이름, 전화번호, 닉네임, 성별 정보 필요
+  * 유저가 회원가입 요청한 아이디, 닉네임이 기존에 존재하는지 DB 조회해서 중복여부 확인
+  * 비밀번호와 비밀번호 확인이 일치하지 않은지 확인
+* bcrypt 모듈을 이용해 비밀번호를 암호화해서 DB에 저장 
 
-https://docs.google.com/spreadsheets/d/1ILv18z0Ckho2yMjsH23r4AeFmRbhaJ7szSSHIAQCU3U/edit#gid=0
+<!-- summary 아래 한칸 공백 두고 내용 삽입 -->
 
+</details>
+
+
+:clipboard: [전체 api 스프레드시트](https://docs.google.com/spreadsheets/d/1ILv18z0Ckho2yMjsH23r4AeFmRbhaJ7szSSHIAQCU3U/edit#gid=0)
 
 -------------------------------------
-## 사용 언어 및 패키지
+## :closed_book: 개발 스택
 
-+ 사용언어: JS
-+ 사용모듈: bcrypt, body-parser, colors, cookie-parser,dotenv,express, express-rate-limit, express,session,express-validator, helmet, moment, moment-timezone,morgan,
-           mysql2,request,winston,winston-sql-transport, eslint, eslint-config-prettier, eslint-plugin-prettier, prettier
++ 사용언어: JS ES6 + 일부 commonJS(orm model 정의 부분)
++ 그 밖의 스택: Node.js + Express, MySQL, GitHub
+
+--------------------------------------
+## :orange_book: 서버 설계
+![image](https://user-images.githubusercontent.com/98700133/167326809-4190651f-756b-4330-a46e-f40a17ba8baa.png)
+
+
+:clipboard: [해당 사이트 url](mystudylibrary.pe.kr) 
 
 --------------------------------------
 ## 문제사항과 해결방안
