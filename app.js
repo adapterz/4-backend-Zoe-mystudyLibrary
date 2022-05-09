@@ -136,5 +136,5 @@ app.use("/wise-saying", wiseSayingRouter)
 
 // 서버 시작
 app.listen(process.env.PORT, () => {
-  console.log(("Start Lib Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold)
+  console.log(("Start Backend Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold)
 })
