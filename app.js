@@ -32,12 +32,12 @@ import { db, sequelize } from "./orm/models/index.mjs";
 import { OK } from "./customModule/statusCode.js";
 
 // 라우터
-import boardRouter from "./router/board.js";
-import commentRouter from "./router/comment.js";
-import libraryRouter from "./router/library.js";
-import reviewRouter from "./router/review.js";
-import userRouter from "./router/user.js";
-import wiseSayingRouter from "./router/wiseSaying.js";
+import boardRouter from "./routes/board.js";
+import commentRouter from "./routes/comment.js";
+import libraryRouter from "./routes/library.js";
+import reviewRouter from "./routes/review.js";
+import userRouter from "./routes/user.js";
+import wiseSayingRouter from "./routes/wiseSaying.js";
 
 // 시퀄라이저 연결
 db.sequelize
