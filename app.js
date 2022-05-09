@@ -95,7 +95,6 @@ const app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extends: false }))
 app.use(helmet())
-app.disable("x-powered-by")
 app.use(cookieParser(process.env.COOKIE_SECRET))
 app.use(
   session({
