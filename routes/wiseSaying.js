@@ -1,15 +1,15 @@
 // 외장모듈
-import express from "express";
+import express from "express"
 // 내장모듈
-import { wiseSayingController } from "../controllers/wiseSaying.js";
+import { wiseSayingController } from "../controllers/wiseSaying.js"
 
 // 라우터 변수
-const router = express.Router();
+const router = express.Router()
 
 /*
  * 1. 랜덤으로 명언 정보 가져오는 컨트롤러
  */
-router.get("/", wiseSayingController);
+router.get("/", wiseSayingController)
 
 // 모듈화
-export default router;
+export default router

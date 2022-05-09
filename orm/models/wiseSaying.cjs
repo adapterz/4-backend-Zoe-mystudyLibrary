@@ -29,6 +29,6 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
       initialAutoIncrement: 1,
     }
-  );
-  return wiseSaying;
-};
+  )
+  return wiseSaying
+}

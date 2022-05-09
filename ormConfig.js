@@ -6,7 +6,7 @@ export const development = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   dialect: "mysql",
-};
+}
 export const test = {
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -14,7 +14,7 @@ export const test = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   dialect: "mysql",
-};
+}
 export const production = {
   username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -22,4 +22,4 @@ export const production = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   dialect: "mysql",
-};
+}

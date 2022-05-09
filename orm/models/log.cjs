@@ -37,6 +37,6 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
       initialAutoIncrement: 1,
     }
-  );
-  return log;
-};
+  )
+  return log
+}
