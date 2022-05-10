@@ -33,7 +33,7 @@ import {
  * 참고: models 메서드에 인자로 보낸 요청한 유저의 ip 정보는 models 수행 로그 남기는데 이용
  */
 
-// 댓글 최초 작성
+// 1. 댓글 최초 작성
 export async function writeCommentController(req, res) {
   /*
    * req.query
@@ -89,7 +89,8 @@ export async function writeCommentController(req, res) {
     return res.status(FORBIDDEN).json({ state: "not_authorization" })
   }
 }
-// 게시글의 댓글 정보
+
+// 2. 게시글의 댓글 정보
 export async function detailCommentController(req, res) {
   /*
    * req.query
@@ -114,7 +115,8 @@ export async function detailCommentController(req, res) {
   // 해당 게시글 정보 가져오기
   else if (modelResult.state === "comment_information") return res.status(OK).json(modelResult.data)
 }
-// 수정시 기존 댓글 정보 불러오기
+
+// 3. 수정시 기존 댓글 정보 불러오기
 export async function getCommentController(req, res) {
   /*
    * req.query
@@ -169,7 +171,7 @@ export async function getCommentController(req, res) {
     return res.status(FORBIDDEN).json({ state: "not_authorization" })
   }
 }
-// 댓글 수정 요청
+// 4. 댓글 수정 요청
 export async function editCommentController(req, res) {
   /*
    * req.query
@@ -225,7 +227,7 @@ export async function editCommentController(req, res) {
     return res.status(FORBIDDEN).json({ state: "not_authorization" })
   }
 }
-// 댓글 삭제
+// 5. 댓글 삭제
 export async function deleteCommentController(req, res) {
   /*
    * req.query
@@ -279,7 +281,7 @@ export async function deleteCommentController(req, res) {
   }
 }
 
-// 유저가 작성한 댓글 조회
+// 6. 유저가 작성한 댓글 조회
 export async function userCommentController(req, res) {
   try {
     //  필요 변수 선언

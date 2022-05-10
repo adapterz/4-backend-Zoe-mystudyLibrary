@@ -34,7 +34,7 @@ import {
  * 참고: models 메서드에 인자로 보낸 요청한 유저의 ip 정보는 models 수행 로그 남기는데 이용
  */
 
-// 특정 도서관 이용 후 후기 등록
+// 1. 특정 도서관 이용 후 후기 등록
 export async function registerReviewController(req, res) {
   /*  req.query
    *   libraryIndex
@@ -74,7 +74,7 @@ export async function registerReviewController(req, res) {
   }
 }
 
-// 도서관의 후기 정보
+// 2. 도서관의 후기 정보
 export async function detailReviewController(req, res) {
   /*
    * req.query
@@ -99,7 +99,8 @@ export async function detailReviewController(req, res) {
   // 해당 게시글 정보 가져오기
   else if (modelResult.state === "library's_review") return res.status(OK).json(modelResult.dataOfReview)
 }
-// 수정시 기존 댓글 정보 불러오기
+
+// 3. 수정시 기존 댓글 정보 불러오기
 export async function getReviewController(req, res) {
   /*
    * req.query
@@ -149,7 +150,8 @@ export async function getReviewController(req, res) {
     return res.status(FORBIDDEN).json({ state: "not_authorization" })
   }
 }
-// 후기 수정 요청
+
+// 4. 후기 수정 요청
 export async function editReviewController(req, res) {
   /*
    * req.body
@@ -204,7 +206,8 @@ export async function editReviewController(req, res) {
     return res.status(FORBIDDEN).json({ state: "not_authorization" })
   }
 }
-// 후기 삭제
+
+// 5. 후기 삭제
 export async function deleteReviewController(req, res) {
   /*
    * req.query
@@ -254,7 +257,7 @@ export async function deleteReviewController(req, res) {
   }
 }
 
-// 유저가 작성한 후기 조회
+// 6. 유저가 작성한 후기 조회
 export async function userReviewController(req, res) {
   try {
     //  필요 변수 선언

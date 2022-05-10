@@ -11,7 +11,7 @@ import { INTERNAL_SERVER_ERROR, OK, NOT_FOUND } from "../customModule/statusCode
  * 참고: models 메서드에 인자로 보낸 요청한 유저의 ip 정보는 models 수행 로그 남기는데 이용
  */
 
-// 전체 도서관 정보
+// 1. 전체 도서관 정보
 export async function allLibraryController(req, res) {
   // 전체 도서관 정보 가져오는 모델실행 결과
   const modelResult = await allLibraryModel(req.ip)
@@ -22,7 +22,7 @@ export async function allLibraryController(req, res) {
   else if (modelResult.state === "entire_library_information") return res.status(OK).json(modelResult.dataOfLibrary)
 }
 
-// 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 메서드
+// 2. 내가 사는 지역을 입력하면 주변 도서관 정보를 주는 메서드
 export async function localLibraryController(req, res) {
   /*
    *  req.query
@@ -40,7 +40,7 @@ export async function localLibraryController(req, res) {
   else if (modelResult.state === "local_library_information") return res.status(OK).json(modelResult.dataOfLibrary)
 }
 
-// 특정 도서관인덱스의 도서관 정보 응답
+// 3. 특정 도서관인덱스의 도서관 정보 응답
 export async function detailLibraryController(req, res) {
   // req.params: libraryIndex
   // 특정 libraryIndex의 도서관 정보 자세히 보는 모델 실행 결과

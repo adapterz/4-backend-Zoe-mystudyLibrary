@@ -1,4 +1,4 @@
-// 메인 리소스가 아닌 리소스의 컨트롤러
+// 명언 컨트롤러
 // 내부모듈
 import { INTERNAL_SERVER_ERROR, NOT_FOUND, OK } from "../customModule/statusCode.js"
 import { wiseSayingModel } from "../models/wiseSaying.js"
