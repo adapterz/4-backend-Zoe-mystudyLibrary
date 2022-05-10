@@ -35,8 +35,8 @@ export async function allLibraryModel(ip) {
         libraryType: await changeLibraryType(tempResult.libraryType),
         closeDay: tempResult.closeDay,
         weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
-        SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
-        HolidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
+        saturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
+        holidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
         districts: results[index].nameOfCity + " " + results[index].districts,
         address: tempResult.address,
         libraryContact: tempResult.libraryContact,
@@ -83,8 +83,8 @@ export async function localLibraryModel(inputLocal, ip) {
         libraryType: await changeLibraryType(tempResult.libraryType),
         closeDay: tempResult.closeDay,
         weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
-        SaturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
-        HolidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
+        saturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
+        holidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
         districts: results[index].nameOfCity + " " + results[index].districts,
         address: tempResult.address,
         libraryContact: tempResult.libraryContact,
@@ -134,9 +134,9 @@ export async function detailLibraryModel(libraryIndex, ip) {
       closeDay: tempResult.closeDay,
       weekDayOperateTime:
         results[0].openWeekday.toString().substring(0, 5) + " ~ " + results[0].endWeekday.toString().substring(0, 5),
-      SaturdayOperateTime:
+      saturdayOperateTime:
         results[0].openSaturday.toString().substring(0, 5) + " ~ " + results[0].endSaturday.toString().substring(0, 5),
-      HolidayOperateTime:
+      holidayOperateTime:
         results[0].openHoliday.toString().substring(0, 5) + " ~ " + results[0].endHoliday.toString().substring(0, 5),
       libraryContact: tempResult.libraryContact,
       countOfGrade: results[0].countOfGrade + " 개",
