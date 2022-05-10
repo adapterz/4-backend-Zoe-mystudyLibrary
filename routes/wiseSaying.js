@@ -7,7 +7,7 @@ import { wiseSayingController } from "../controllers/wiseSaying.js"
 const router = express.Router()
 
 /*
- * 1. 랜덤으로 명언 정보 가져오는 컨트롤러
+ * 1. 랜덤으로 명언 정보 가져오기
  */
 router.get("/", wiseSayingController)
 

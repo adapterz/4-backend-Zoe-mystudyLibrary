@@ -1,9 +1,10 @@
-// 그 밖의 리소스 관련 모델
+// 명언 모델
 // 내장모듈
 import { db, Op } from "../orm/models/index.mjs"
 import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js"
 import { randomNum } from "../customModule/randomNum.js"
 
+// 랜덤으로 DB에서 명언 정보 가져오기
 export async function wiseSayingModel(ip) {
   // 1 ~ 50 랜덤한 값 뽑기
   const random = await randomNum(1, 50)
