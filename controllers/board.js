@@ -23,7 +23,6 @@ import {
   CREATED,
   UNAUTHORIZED,
   NO_CONTENT,
-  BAD_REQUEST,
 } from "../customModule/statusCode.js"
 /*
  * 1. 게시글 조회
