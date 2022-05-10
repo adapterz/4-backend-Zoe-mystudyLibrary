@@ -31,7 +31,7 @@ router.get(
     .trim()
     .isLength({ min: 1, max: 15 })
     .matches(/^[가-힣]+$/),
-  isValidate,
+  isExist,
   localLibraryController
 )
 
