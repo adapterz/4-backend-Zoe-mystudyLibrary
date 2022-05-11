@@ -1,13 +1,14 @@
 // 유효성 체크 메서드
 // 외장 모듈
 import { query, validationResult } from "express-validator";
+import { BAD_REQUEST, NOT_FOUND } from "./statusCode.js";
 
 // body 유효하지 않을 때
 export function isValidate(req, res, next) {
   const errors = validationResult(req);
   // 유효하지 않음
   const errorArray = errors.array();
-  if (!errors.isEmpty()) return res.status(400).json({ state: "invalid_body", error: errorArray[0].param });
+  if (!errors.isEmpty()) return res.status(BAD_REQUEST).json({ state: "invalid_body", error: errorArray[0].param });
 
   next();
 }
@@ -16,7 +17,7 @@ export function isExist(req, res, next) {
   const errors = validationResult(req);
   // 유효하지 않음
   console.log(errors);
-  if (!errors.isEmpty()) return res.status(400).json({ state: "invalid_params_or_query" });
+  if (!errors.isEmpty()) return res.status(BAD_REQUEST).json({ state: "invalid_params_or_query" });
 
   next();
 }
@@ -25,7 +26,7 @@ export function isExist(req, res, next) {
 export function isCategory(req, res, next) {
   // 유효하지 않은 게시판 카테고리
   if (!(req.params.category === "free-bulletin" || req.params.category === "proof-shot"))
-    return res.status(404).json({ state: "non_existent_category" });
+    return res.status(NOT_FOUND).json({ state: "non_existent_category" });
 
   next();
 }
@@ -34,7 +35,7 @@ export function isCategory(req, res, next) {
 export function isCategoryWhenWrite(req, res, next) {
   // 유효하지 않은 게시판 카테고리
   if (!(req.body.category === "자유게시판" || req.body.category === "공부인증샷"))
-    return res.status(400).json({ state: "invalid_category" });
+    return res.status(BAD_REQUEST).json({ state: "invalid_category" });
 
   next();
 }
@@ -44,20 +45,20 @@ export function isSearchOption(req, res, next) {
   if (
     !(req.query.searchOption === "제목만" || req.query.searchOption === "내용만" || req.query.searchOption === "닉네임")
   )
-    return res.status(400).json({ state: "invalid_search_option" });
+    return res.status(BAD_REQUEST).json({ state: "invalid_search_option" });
   next();
 }
 // req.query.page가 있을 때 유효성 체크
 export function checkPageValidation(req, res, next) {
   if (req.query.page !== undefined) query("page").isInt();
   const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(404).json({ state: "non_existent_information" });
+  if (!errors.isEmpty()) return res.status(NOT_FOUND).json({ state: "non_existent_information" });
   next();
 }
 // 대댓글 달 때 req.query.parentIndex 유효성 체크
 export function checkCommentValidation(req, res, next) {
   if (req.query.parentIndex !== undefined) query("parentIndex").isInt();
   const errors = validationResult(req);
-  if (!errors.isEmpty()) return res.status(404).json({ state: "non_existent_information" });
+  if (!errors.isEmpty()) return res.status(NOT_FOUND).json({ state: "non_existent_information" });
   next();
 }
