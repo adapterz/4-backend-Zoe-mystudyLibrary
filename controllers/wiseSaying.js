@@ -17,6 +17,6 @@ export async function wiseSayingController(req, res) {
   if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
   // 명언 리소스 찾는 것을 실패했을 때
   else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
-  // 성공적으로 최신글 정보 가져왔을 때
+  // 성공적으로 명언 정보 가져왔을 때
   else if (modelResult.state === "wiseSaying_information") return res.status(OK).json(modelResult.dataOfWiseSaying);
 }
