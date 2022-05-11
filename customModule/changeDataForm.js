@@ -115,27 +115,6 @@ export async function changeLibraryDataForm(libraryData) {
   if (libraryData.libraryContact === "") {
     libraryData.libraryContact = "연락처 없음";
   }
-  // 휴관일 25글자 단위로 잘라서 줄바꿈 기호 넣어주기
-  const closeDayLength = libraryData.closeDay.length;
-  const closeDayLoopCount = Math.ceil(closeDayLength / 25);
-  // 휴관일 데이터를 임시로 저장할 변수
-  let tempCloseDay = ``;
-  for (let count = 0; count < closeDayLoopCount; ++count) {
-    tempCloseDay += `${libraryData.closeDay.substring(count * 25, (count + 1) * 25)}
-`;
-  }
-  libraryData.closeDay = tempCloseDay;
-
-  // 주소 25글자 단위로 잘라서 줄바꿈 기호 넣어주기
-  const addressLength = libraryData.address.length;
-  const addressLoopCount = Math.ceil(addressLength / 25);
-  // 주소 데이터 임시로 저장할 변수
-  let tempAddress = ``;
-  for (let count = 0; count < addressLoopCount; ++count) {
-    tempAddress += `${libraryData.address.substring(count * 25, (count + 1) * 25)}
-`;
-  }
-  libraryData.address = tempAddress;
   return libraryData;
 }
 
