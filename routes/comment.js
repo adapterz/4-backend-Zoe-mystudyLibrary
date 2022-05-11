@@ -1,10 +1,10 @@
 // 댓글 라우터
 // 외장모듈
-import express from "express"
-import { body, query } from "express-validator"
+import express from "express";
+import { body, query } from "express-validator";
 
 // 내장모듈
-import { checkCommentValidation, checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js"
+import { checkCommentValidation, checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js";
 import {
   deleteCommentController,
   detailCommentController,
@@ -12,7 +12,7 @@ import {
   getCommentController,
   writeCommentController,
   userCommentController,
-} from "../controllers/comment.js"
+} from "../controllers/comment.js";
 
 /*
  * 1. 댓글 작성
@@ -23,7 +23,7 @@ import {
  * 6. 유저가 작성한 댓글 조회
  */
 // 라우터 변수
-const router = express.Router()
+const router = express.Router();
 
 // 댓글 작성
 router.post(
@@ -34,9 +34,9 @@ router.post(
   body("content").isLength({ min: 2, max: 500 }).isString(),
   isValidate,
   writeCommentController
-)
+);
 // 게시글에서 댓글 상세 조회
-router.get("/", query("boardIndex").isInt().trim(), isExist, checkPageValidation, detailCommentController)
+router.get("/", query("boardIndex").isInt().trim(), isExist, checkPageValidation, detailCommentController);
 // 기존 댓글 정보 불러오기
 router.get(
   "/edit",
@@ -44,7 +44,7 @@ router.get(
   query("commentIndex").isInt().trim(),
   isExist,
   getCommentController
-)
+);
 // 댓글 수정 요청
 router.patch(
   "/edit",
@@ -54,7 +54,7 @@ router.patch(
   body("content").isLength({ min: 2, max: 500 }).isString(),
   isValidate,
   editCommentController
-)
+);
 // 댓글 삭제
 router.delete(
   "/delete",
@@ -62,9 +62,9 @@ router.delete(
   query("commentIndex").isInt().trim(),
   isExist,
   deleteCommentController
-)
+);
 // 유저가 작성한 댓글 목록 조회
-router.get("/user", checkPageValidation, userCommentController)
+router.get("/user", checkPageValidation, userCommentController);
 
 // 모듈화
-export default router
+export default router;

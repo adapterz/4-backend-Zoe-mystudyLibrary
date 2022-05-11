@@ -1,10 +1,10 @@
 // 도서관 후기 라우터
 // 외장모듈
-import express from "express"
-import { body, query } from "express-validator"
+import express from "express";
+import { body, query } from "express-validator";
 
 // 내장모듈
-import { checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js"
+import { checkPageValidation, isExist, isValidate } from "../customModule/checkValidation.js";
 import {
   deleteReviewController,
   detailReviewController,
@@ -12,9 +12,9 @@ import {
   getReviewController,
   registerReviewController,
   userReviewController,
-} from "../controllers/review.js"
+} from "../controllers/review.js";
 // 라우터 변수
-const router = express.Router()
+const router = express.Router();
 
 /*
  * 1. 도서관 후기 등록
@@ -34,11 +34,11 @@ router.post(
   body("grade").isFloat({ min: 1, max: 5 }),
   isValidate,
   registerReviewController
-)
+);
 // 도서관 후기 상세 조회
-router.get("/detail", query("libraryIndex").isInt().trim(), isExist, checkPageValidation, detailReviewController)
+router.get("/detail", query("libraryIndex").isInt().trim(), isExist, checkPageValidation, detailReviewController);
 // 수정 시 기존 후기 정보 불러오기
-router.get("/", query("libraryIndex").isInt(), query("reviewIndex").isInt(), isExist, getReviewController)
+router.get("/", query("libraryIndex").isInt(), query("reviewIndex").isInt(), isExist, getReviewController);
 // 후기 수정 요청
 router.patch(
   "/patch",
@@ -49,7 +49,7 @@ router.patch(
   body("grade").isInt({ min: 1, max: 5 }),
   isValidate,
   editReviewController
-)
+);
 // 후기 삭제
 router.delete(
   "/delete",
@@ -57,9 +57,9 @@ router.delete(
   query("reviewIndex").isInt(),
   isExist,
   deleteReviewController
-)
+);
 // 유저가 작성한 도서관 후기 목록 가져오기
-router.get("/user", checkPageValidation, userReviewController)
+router.get("/user", checkPageValidation, userReviewController);
 
 // 모듈화
-export default router
+export default router;

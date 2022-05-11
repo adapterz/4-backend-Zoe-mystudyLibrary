@@ -41,6 +41,6 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
       initialAutoIncrement: 1,
     }
-  )
-  return userLibrary
-}
+  );
+  return userLibrary;
+};
