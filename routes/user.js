@@ -67,7 +67,7 @@ router.post(
 );
 
 // 회원탈퇴 요청
-router.delete("/drop-out", body("checkBox").isBoolean(), isValidate, dropOutController);
+router.delete("/drop-out", dropOutController);
 
 // 2. 로그인/로그아웃
 // 로그인 요청

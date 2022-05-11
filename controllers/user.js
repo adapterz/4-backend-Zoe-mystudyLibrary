@@ -85,10 +85,6 @@ export async function signUpController(req, res) {
 
 // 1-3. 회원탈퇴 요청
 export async function dropOutController(req, res) {
-  /*
-   * req.body
-   *  checkBox: 회원탈퇴 동의 체크박스에 체크했는지 여부 - boolean값
-   */
   try {
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
@@ -99,10 +95,6 @@ export async function dropOutController(req, res) {
     const payloadIndex = await jwt.decode(loginToken).idx;
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
-    // 회원탈퇴 안내조항에 체크 했는지
-    const isAgreed = req.body.checkBox;
-    // 안내조항에 체크하지 않았을 때 회원탈퇴 실패
-    if (!isAgreed) return res.status(BAD_REQUEST).end();
     // 회원탈퇴 모델 실행결과
     const modelResult = await dropOutModel(req.ip, loginIndex);
     // 실행결과에 따라 분기처리
