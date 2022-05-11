@@ -86,7 +86,7 @@ export async function writeCommentController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -97,23 +97,27 @@ export async function detailCommentController(req, res) {
    *  boardIndex
    *  page
    */
-  // 댓글 페이지
-  let page;
-  // 댓글 page 값
-  if (req.query.page !== undefined) page = req.query.page;
-  else page = 1;
-  // 모델 결과 변수
-  const modelResult = await detailCommentModel(req.query.boardIndex, page, req.ip);
+  try {
+    // 댓글 페이지
+    let page;
+    // 댓글 page 값
+    if (req.query.page !== undefined) page = req.query.page;
+    else page = 1;
+    // 모델 결과 변수
+    const modelResult = await detailCommentModel(req.query.boardIndex, page, req.ip);
 
-  // 모델 실행 결과에 따른 분기처리
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 해당 게시글 정보가 없을 때
-  else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
-  // 댓글이 없을 때
-  else if (modelResult.state === "no_comment") return res.status(OK).json(modelResult);
-  // 해당 게시글 정보 가져오기
-  else if (modelResult.state === "comment_information") return res.status(OK).json(modelResult.data);
+    // 모델 실행 결과에 따른 분기처리
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 해당 게시글 정보가 없을 때
+    else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
+    // 댓글이 없을 때
+    else if (modelResult.state === "no_comment") return res.status(OK).json(modelResult);
+    // 해당 게시글 정보 가져오기
+    else if (modelResult.state === "comment_information") return res.status(OK).json(modelResult.data);
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
+  }
 }
 
 // 3. 수정시 기존 댓글 정보 불러오기
@@ -168,7 +172,7 @@ export async function getCommentController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 // 4. 댓글 수정 요청
@@ -224,7 +228,7 @@ export async function editCommentController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 // 5. 댓글 삭제
@@ -277,7 +281,7 @@ export async function deleteCommentController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -315,6 +319,6 @@ export async function userCommentController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }

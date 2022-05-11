@@ -36,74 +36,86 @@ import {
 // 1. 게시글 조회
 // 1-1. 최신 자유게시판 글 5개/공부인증샷 글 4개 불러오기
 export async function getRecentBoardController(req, res) {
-  // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
-  const modelResult = await getRecentBoardModel(req.ip);
+  try {
+    // 최신글 자유게시판 글 5개/공부인증샷 글 4개 불러오는 모델 실행결과
+    const modelResult = await getRecentBoardModel(req.ip);
 
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 성공적으로 최신글 정보 가져왔을 때
-  else if (modelResult.state === "recent_board_information")
-    return res.status(OK).json([modelResult.dataOfFreeBoard, modelResult.dataOfStudyBoard]);
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 성공적으로 최신글 정보 가져왔을 때
+    else if (modelResult.state === "recent_board_information")
+      return res.status(OK).json([modelResult.dataOfFreeBoard, modelResult.dataOfStudyBoard]);
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
+  }
 }
 // 1-2. 전체 게시물 보기
 export async function entireBoardController(req, res) {
-  // req.params: category
-  // 필요 변수 선언
-  let reqCategory;
-  let page;
-  // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷이면 공부인증샷 게시판의 글 정보만 가져오기
-  // 자유게시판
-  if (req.params.category === "free-bulletin") reqCategory = 0;
-  // 공부인증샷
-  if (req.params.category === "proof-shot") reqCategory = 1;
-  // 게시판 page 값
-  if (req.query.page !== undefined) page = req.query.page;
-  else page = 1;
-  // 카테고리에 따른 게시글 전체 정보 가져오는 모듈
-  const modelResult = await entireBoardModel(reqCategory, page, req.ip);
-  // 모델 실행결과에 따른 분기처리
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // return 해줄 게시글이 없을 때
-  else if (modelResult.state === "not_exist") return res.status(OK).json(modelResult);
-  // 성공적으로 게시판 정보 가져오기 수행
-  else if (modelResult.state === "entire_board_information") return res.status(OK).json(modelResult.dataOfBoard);
+  try {
+    // req.params: category
+    // 필요 변수 선언
+    let reqCategory;
+    let page;
+    // 요청 category 값이 자유게시판이면 자유게시판의 글 정보만, 공부인증샷이면 공부인증샷 게시판의 글 정보만 가져오기
+    // 자유게시판
+    if (req.params.category === "free-bulletin") reqCategory = 0;
+    // 공부인증샷
+    if (req.params.category === "proof-shot") reqCategory = 1;
+    // 게시판 page 값
+    if (req.query.page !== undefined) page = req.query.page;
+    else page = 1;
+    // 카테고리에 따른 게시글 전체 정보 가져오는 모듈
+    const modelResult = await entireBoardModel(reqCategory, page, req.ip);
+    // 모델 실행결과에 따른 분기처리
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // return 해줄 게시글이 없을 때
+    else if (modelResult.state === "not_exist") return res.status(OK).json(modelResult);
+    // 성공적으로 게시판 정보 가져오기 수행
+    else if (modelResult.state === "entire_board_information") return res.status(OK).json(modelResult.dataOfBoard);
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
+  }
 }
 
 // 1-3. 게시물 상세보기
 export async function detailBoardController(req, res) {
-  // req.params: category,boardIndex
-  // 필요 변수 선언
-  let reqCategory;
-  let isViewDuplicated = true; // 기존에 이 게시글을 조회한적 있는가? 에 대한 boolean 값
-  const boardIndex = req.params.boardIndex;
-  // 요청 category 값이 자유게시판이면 자유게시판의 글 정보, 공부인증샷면 공부인증샷 게시판의 글 정보 가져오기
-  // 자유게시판
-  if (req.params.category === "free-bulletin") reqCategory = 0;
-  // 공부인증샷
-  if (req.params.category === "proof-shot") reqCategory = 1;
-  // 쿠키를 이용한 중복조회 체크 (undefined : 해당 게시물 조회한 적이 없다는 뜻)
-  if (req.signedCookies[boardIndex] === undefined) {
-    // 최초 조회시 하루짜리 쿠키 생성
-    res.cookie(boardIndex, req.ip, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      signed: true,
-    });
-    // 이 게시글 최초 조회라고 boolean 값 변경해주기
-    isViewDuplicated = false;
-  }
-  // 모델 결과 변수
-  const modelResult = await detailBoardModel(reqCategory, boardIndex, req.ip, isViewDuplicated);
+  try {
+    // req.params: category,boardIndex
+    // 필요 변수 선언
+    let reqCategory;
+    let isViewDuplicated = true; // 기존에 이 게시글을 조회한적 있는가? 에 대한 boolean 값
+    const boardIndex = req.params.boardIndex;
+    // 요청 category 값이 자유게시판이면 자유게시판의 글 정보, 공부인증샷면 공부인증샷 게시판의 글 정보 가져오기
+    // 자유게시판
+    if (req.params.category === "free-bulletin") reqCategory = 0;
+    // 공부인증샷
+    if (req.params.category === "proof-shot") reqCategory = 1;
+    // 쿠키를 이용한 중복조회 체크 (undefined : 해당 게시물 조회한 적이 없다는 뜻)
+    if (req.signedCookies[boardIndex] === undefined) {
+      // 최초 조회시 하루짜리 쿠키 생성
+      res.cookie(boardIndex, req.ip, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        signed: true,
+      });
+      // 이 게시글 최초 조회라고 boolean 값 변경해주기
+      isViewDuplicated = false;
+    }
+    // 모델 결과 변수
+    const modelResult = await detailBoardModel(reqCategory, boardIndex, req.ip, isViewDuplicated);
 
-  // 모델 실행 결과에 따른 분기처리
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 해당 게시글 정보가 없을 때
-  else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
-  // 해당 게시글 정보 가져오기
-  else if (modelResult.state === "detail_board_information") {
-    return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag, modelResult.dataOfUser]);
+    // 모델 실행 결과에 따른 분기처리
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 해당 게시글 정보가 없을 때
+    else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
+    // 해당 게시글 정보 가져오기
+    else if (modelResult.state === "detail_board_information") {
+      return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag, modelResult.dataOfUser]);
+    }
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 // 2. 게시글 작성/수정/삭제
@@ -142,7 +154,7 @@ export async function writeBoardController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -192,7 +204,7 @@ export async function getWriteController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 // 2-3. 게시글 수정요청
@@ -240,7 +252,7 @@ export async function editBoardController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -283,7 +295,7 @@ export async function deleteBoardController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 // 3. 좋아요/검색기능
@@ -319,7 +331,7 @@ export async function favoriteBoardController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 // 3-2. 게시글 검색기능
@@ -331,32 +343,35 @@ export async function searchBoardController(req, res) {
    *  req.params
    *  category (자유게시판/공부인증샷)
    */
-
-  // 필요 변수 선언
-  let reqCategory;
-  let page;
-  // req.category에 따라 DB 값과 비교할 값으로 변경해주기
-  // 자유게시판
-  if (req.params.category === "free-bulletin") reqCategory = 0;
-  // 공부인증샷
-  else if (req.params.category === "proof-shoot") reqCategory = 1;
-  // 댓글 page 값
-  if (req.query.page !== undefined) page = req.query.page;
-  else page = 1;
-  // 검색 모델 실행 결과
-  const modelResult = await searchBoardModel(
-    req.query.searchOption,
-    req.query.searchContent,
-    reqCategory,
-    page,
-    req.ip
-  );
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 검색결과가 없을 때
-  else if (modelResult.state === "not_found") return res.status(OK).json(modelResult);
-  // 검색결과가 있을 때
-  else if (modelResult.state === "search_board_information") return res.status(OK).json(modelResult.dataOfBoard);
+  try {
+    // 필요 변수 선언
+    let reqCategory;
+    let page;
+    // req.category에 따라 DB 값과 비교할 값으로 변경해주기
+    // 자유게시판
+    if (req.params.category === "free-bulletin") reqCategory = 0;
+    // 공부인증샷
+    else if (req.params.category === "proof-shoot") reqCategory = 1;
+    // 댓글 page 값
+    if (req.query.page !== undefined) page = req.query.page;
+    else page = 1;
+    // 검색 모델 실행 결과
+    const modelResult = await searchBoardModel(
+      req.query.searchOption,
+      req.query.searchContent,
+      reqCategory,
+      page,
+      req.ip
+    );
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 검색결과가 없을 때
+    else if (modelResult.state === "not_found") return res.status(OK).json(modelResult);
+    // 검색결과가 있을 때
+    else if (modelResult.state === "search_board_information") return res.status(OK).json(modelResult.dataOfBoard);
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
+  }
 }
 
 // 4. 유저가 작성한 글 조회
@@ -393,6 +408,6 @@ export async function userBoardController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }

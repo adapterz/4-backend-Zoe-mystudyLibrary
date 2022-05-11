@@ -70,7 +70,7 @@ export async function registerReviewController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -81,23 +81,27 @@ export async function detailReviewController(req, res) {
    *  libraryIndex
    *  page
    */
-  // 댓글 페이지
-  let page;
-  // 댓글 page 값
-  if (req.query.page !== undefined) page = req.query.page;
-  else page = 1;
-  // 모델 결과 변수
-  const modelResult = await detailReviewModel(req.query.libraryIndex, page, req.ip);
+  try {
+    // 댓글 페이지
+    let page;
+    // 댓글 page 값
+    if (req.query.page !== undefined) page = req.query.page;
+    else page = 1;
+    // 모델 결과 변수
+    const modelResult = await detailReviewModel(req.query.libraryIndex, page, req.ip);
 
-  // 모델 실행 결과에 따른 분기처리
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 해당 게시글 정보가 없을 때
-  else if (modelResult.state === "non_existent_library") return res.status(NOT_FOUND).json(modelResult);
-  // 후기가 없을 때
-  else if (modelResult.state === "no_review") return res.status(OK).json(modelResult);
-  // 해당 게시글 정보 가져오기
-  else if (modelResult.state === "library's_review") return res.status(OK).json(modelResult.dataOfReview);
+    // 모델 실행 결과에 따른 분기처리
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 해당 게시글 정보가 없을 때
+    else if (modelResult.state === "non_existent_library") return res.status(NOT_FOUND).json(modelResult);
+    // 후기가 없을 때
+    else if (modelResult.state === "no_review") return res.status(OK).json(modelResult);
+    // 해당 게시글 정보 가져오기
+    else if (modelResult.state === "library's_review") return res.status(OK).json(modelResult.dataOfReview);
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
+  }
 }
 
 // 3. 수정시 기존 댓글 정보 불러오기
@@ -147,7 +151,7 @@ export async function getReviewController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -203,7 +207,7 @@ export async function editReviewController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -253,7 +257,7 @@ export async function deleteReviewController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -291,6 +295,6 @@ export async function userReviewController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }

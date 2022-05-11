@@ -43,9 +43,13 @@ import { checkUserLibraryMethod } from "../customModule/checkDataOrAuthority.js"
 // 1. 회원가입/탈퇴
 // 1-1. 회원가입 약관 확인
 export async function signUpGuideController(req, res) {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = dirname(__filename);
-  return res.status(OK).sendFile(path.join(__dirname, "..", "terms/signUpGuide.html"));
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    return res.status(OK).sendFile(path.join(__dirname, "..", "terms/signUpGuide.html"));
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
+  }
 }
 
 // 1-2. 회원가입 요청
@@ -60,19 +64,23 @@ export async function signUpController(req, res) {
    *   nickname: 닉네임
    *   gender : 성별(여 or 남)
    */
-  // 회원가입 요청 모델 실행 결과
-  const modelResult = await signUpModel(req.body, req.ip);
-  // 모델 실행결과에 따른 분기처리
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // 이미 존재하는 id라 회원가입 불가능
-  else if (modelResult.state === "already_exist_id") return res.status(BAD_REQUEST).json(modelResult);
-  // 이미 존재하는 닉네임이라 회원가입 불가능
-  else if (modelResult.state === "already_exist_nickname") return res.status(BAD_REQUEST).json(modelResult);
-  // 비밀번호와 비밀번호확인이 일치하지 않을 때
-  else if (modelResult.state === "pw/pw_confirm_mismatched") return res.status(BAD_REQUEST).json(modelResult);
-  // 성공적으로 회원가입
-  else if (modelResult.state === "sign_up") return res.status(CREATED).json(modelResult);
+  try {
+    // 회원가입 요청 모델 실행 결과
+    const modelResult = await signUpModel(req.body, req.ip);
+    // 모델 실행결과에 따른 분기처리
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // 이미 존재하는 id라 회원가입 불가능
+    else if (modelResult.state === "already_exist_id") return res.status(BAD_REQUEST).json(modelResult);
+    // 이미 존재하는 닉네임이라 회원가입 불가능
+    else if (modelResult.state === "already_exist_nickname") return res.status(BAD_REQUEST).json(modelResult);
+    // 비밀번호와 비밀번호확인이 일치하지 않을 때
+    else if (modelResult.state === "pw/pw_confirm_mismatched") return res.status(BAD_REQUEST).json(modelResult);
+    // 성공적으로 회원가입
+    else if (modelResult.state === "sign_up") return res.status(CREATED).json(modelResult);
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
+  }
 }
 
 // 1-3. 회원탈퇴 요청
@@ -115,7 +123,7 @@ export async function dropOutController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -127,47 +135,55 @@ export async function loginController(req, res) {
    *  id: 아이디
    *  pw: 비밀번호
    */
-  // 기존에 로그인 돼있을 때
-  const loginToken = req.signedCookies.token;
-  if (loginToken !== undefined) return res.status(CONFLICT).json({ state: "already_login" });
+  try {
+    // 기존에 로그인 돼있을 때
+    const loginToken = req.signedCookies.token;
+    if (loginToken !== undefined) return res.status(CONFLICT).json({ state: "already_login" });
 
-  // 로그인 모델 실행 결과
-  const modelResult = await loginModel(req.body, req.ip);
-  // 로그인 모델 실행 결과에 따라 분기처리
-  // sequelize query 메서드 실패
-  if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
-  // DB에 해당 사용자가 로그인 요청한 id가 없을 때
-  if (modelResult.state === "no_matching_id") return res.status(NOT_FOUND).json(modelResult);
-  // 존재하는 id는 있으나 id에 대한 요청 pw가 일치하지 않을 때
-  else if (modelResult.state === "pw_mismatched") return res.status(BAD_REQUEST).json(modelResult);
-  // 성공적으로 로그인 요청 수행
-  else if (modelResult.state === "login") {
-    // 30분 유효기간의 로그인 토큰 발급
-    const tempToken = jwt.sign({ idx: modelResult.userIndex }, process.env.TOKEN_SECRET, {
-      algorithm: "HS256",
-      expiresIn: "30m",
-      issuer: "Zoe",
-    });
-    // 쿠키로 토큰 전달
-    res.cookie("token", tempToken, {
-      maxAge: 30 * 60 * 1000,
-      httpOnly: true,
-      signed: true,
-    });
-    return res.status(OK).json({ state: "login" });
+    // 로그인 모델 실행 결과
+    const modelResult = await loginModel(req.body, req.ip);
+    // 로그인 모델 실행 결과에 따라 분기처리
+    // sequelize query 메서드 실패
+    if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
+    // DB에 해당 사용자가 로그인 요청한 id가 없을 때
+    if (modelResult.state === "no_matching_id") return res.status(NOT_FOUND).json(modelResult);
+    // 존재하는 id는 있으나 id에 대한 요청 pw가 일치하지 않을 때
+    else if (modelResult.state === "pw_mismatched") return res.status(BAD_REQUEST).json(modelResult);
+    // 성공적으로 로그인 요청 수행
+    else if (modelResult.state === "login") {
+      // 30분 유효기간의 로그인 토큰 발급
+      const tempToken = jwt.sign({ idx: modelResult.userIndex }, process.env.TOKEN_SECRET, {
+        algorithm: "HS256",
+        expiresIn: "30m",
+        issuer: "Zoe",
+      });
+      // 쿠키로 토큰 전달
+      res.cookie("token", tempToken, {
+        maxAge: 30 * 60 * 1000,
+        httpOnly: true,
+        signed: true,
+      });
+      return res.status(OK).json({ state: "login" });
+    }
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 // 2-2. 로그아웃
 export async function logoutController(req, res) {
-  const loginToken = req.signedCookies.token;
-  // 기존에 로그인 돼있을 때 성공적으로 로그아웃 요청 수행
-  if (loginToken !== undefined) {
-    res.clearCookie("token");
-    return res.status(OK).json({ state: "logout" });
-  }
-  // 기존에 로그인이 돼있지 않을 때 로그아웃 요청은 올바르지 않은 요청
-  else {
-    return res.status(UNAUTHORIZED).json({ state: "not_previously_logged_in" });
+  try {
+    const loginToken = req.signedCookies.token;
+    // 기존에 로그인 돼있을 때 성공적으로 로그아웃 요청 수행
+    if (loginToken !== undefined) {
+      res.clearCookie("token");
+      return res.status(OK).json({ state: "logout" });
+    }
+    // 기존에 로그인이 돼있지 않을 때 로그아웃 요청은 올바르지 않은 요청
+    else {
+      return res.status(UNAUTHORIZED).json({ state: "not_previously_logged_in" });
+    }
+  } catch {
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -202,7 +218,7 @@ export async function userLibraryController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -239,7 +255,7 @@ export async function registerUserLibraryController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -284,7 +300,7 @@ export async function deleteUserLibraryController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -325,7 +341,7 @@ export async function editProfileNicknameController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -362,7 +378,7 @@ export async function editProfileImageController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -398,7 +414,7 @@ export async function editPhoneNumberController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -440,7 +456,7 @@ export async function editPwController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
 
@@ -479,6 +495,6 @@ export async function getUserController(req, res) {
     if (err.message === "invalid signature") {
       return res.status(FORBIDDEN).json({ state: "incorrect_access" });
     }
-    return res.status(FORBIDDEN).json({ state: "not_authorization" });
+    return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
