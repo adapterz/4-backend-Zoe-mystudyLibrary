@@ -34,7 +34,7 @@ export async function allLibraryModel(ip) {
         libraryName: tempResult.libraryName,
         libraryType: await changeLibraryType(tempResult.libraryType),
         closeDay: tempResult.closeDay,
-        weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
+        weekdayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
         saturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
         holidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
         districts: results[index].nameOfCity + " " + results[index].districts,
@@ -82,7 +82,7 @@ export async function localLibraryModel(inputLocal, ip) {
         libraryName: tempResult.libraryName,
         libraryType: await changeLibraryType(tempResult.libraryType),
         closeDay: tempResult.closeDay,
-        weekDayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
+        weekdayOperateTime: tempResult.openWeekday + " ~ " + tempResult.endWeekday,
         saturdayOperateTime: tempResult.openSaturday + " ~ " + tempResult.endSaturday,
         holidayOperateTime: tempResult.openHoliday + " ~ " + tempResult.endHoliday,
         districts: results[index].nameOfCity + " " + results[index].districts,
@@ -132,7 +132,7 @@ export async function detailLibraryModel(libraryIndex, ip) {
       districts: results[0].nameOfCity + " " + results[0].districts,
       address: tempResult.address,
       closeDay: tempResult.closeDay,
-      weekDayOperateTime:
+      weekdayOperateTime:
         results[0].openWeekday.toString().substring(0, 5) + " ~ " + results[0].endWeekday.toString().substring(0, 5),
       saturdayOperateTime:
         results[0].openSaturday.toString().substring(0, 5) + " ~ " + results[0].endSaturday.toString().substring(0, 5),
