@@ -102,9 +102,11 @@ export async function detailCommentModel(boardIndex, page, ip) {
       `SELECT commentIndex,commentContent,user.nickname, comment.createTimestamp,deleteTimestamp FROM comment ` +
       `LEFT JOIN user ON comment.userIndex=user.userIndex WHERE boardDeleteTimestamp IS NULL AND parentIndex IS NULL AND boardIndex = ? ` +
       `ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT ${5 * (page - 1)},5;`;
+    // 실행 결과
     let [rootResult, metadata1] = await db.sequelize.query(rootCommentQuery, {
       replacements: [boardIndex],
     });
+    // 댓글이 없을 때
     if (rootResult[0] === undefined) {
       await modelSuccessLog(ip, "detailCommentModel");
       return { state: "no_comment" };
@@ -113,11 +115,12 @@ export async function detailCommentModel(boardIndex, page, ip) {
     childCommentQuery =
       `SELECT commentContent,user.nickname, comment.createTimestamp,deleteTimestamp, parentIndex FROM comment ` +
       `LEFT JOIN user ON comment.userIndex=user.userIndex WHERE boardDeleteTimestamp IS NULL AND boardIndex = ?`;
+    // 반복문 돌려서 childCommentQuery 쿼리문의 조건절에 루트댓글 정보 더해주기
     for (let commentIndex in rootResult) {
       childCommentQuery += ` OR parentIndex = ${rootResult[commentIndex].commentIndex}`;
     }
-
-    childCommentQuery += ` ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence`; // 해당 게시글의 댓글 정보
+    // childCommentQuery 쿼리문에 조건에 따라 정렬해주게 하기
+    childCommentQuery += ` ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence`;
     let [childResult, metadata2] = await db.sequelize.query(childCommentQuery, {
       replacements: [boardIndex],
     });
@@ -222,7 +225,6 @@ export async function editCommentModel(commentIndex, loginCookie, inputComment, 
     );
     // 성공 로그
     await modelSuccessLog(ip, "editCommentModel");
-    // DB에 해당 인덱스의 댓글이 있을 때
     return { state: "edit_comment" };
     // 쿼리문 실행시 에러발생
   } catch (err) {
