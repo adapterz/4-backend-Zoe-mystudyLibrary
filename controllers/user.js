@@ -157,7 +157,8 @@ export async function loginController(req, res) {
       });
       return res.status(OK).json({ state: "login" });
     }
-  } catch {
+  } catch (err) {
+    console.log(err);
     return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
   }
 }
