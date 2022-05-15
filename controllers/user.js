@@ -345,13 +345,13 @@ export async function editProfileImageController(req, res) {
    *  profileImage: 프로필로 지정할 사진 파일 -> multer 모듈로 인해 req.file 에 image 정보 들어감
    */
   try {
+    // 업로드 요청한 파일이 이미지 형식이 아닐 때
+    if (req.body.fileValidation !== true)
+      return res.status(BAD_REQUEST).json({ state: "only_jpg,jpeg,gjf,png_format_can_be_uploaded" });
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
     const imagePath = "profileImage/" + req.file.filename;
-    // 업로드 요청한 파일이 이미지 형식이 아닐 때
-    if (req.body.fileValidation === false)
-      return res.status(BAD_REQUEST).json({ state: "only_jpg,jpeg,gjf,png_format_can_be_uploaded" });
     // 프로필 수정 요청 모델 실행결과
     const modelResult = await editProfileImageModel(imagePath, req.ip, loginIndex);
 
