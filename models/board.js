@@ -3,15 +3,15 @@
 import { db, Op } from "../orm/models/index.mjs";
 import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
 import { changeTimestampForm, changeUnit, checkExistUser } from "../customModule/changeDataForm.js";
-import path from "path";
+import path, { dirname } from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
  * 3. 좋아요/검색 기능
  * 4. 유저가 작성한 게시글 조회
  */
-
 // 1. 게시글 조회
 // 1-1. 최신글 정보 가져오기
 export async function getRecentBoardModel(ip) {
@@ -204,7 +204,9 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
       const checkUserIndex = results[0][0].profileImage.split(".");
       if (checkUserIndex[0] !== "profileImage/" + results[0][0].userIndex) return { state: "incorrect_access" };
       // 프로필 사진 이름과 요청 유저의 인덱스가 일치할 때
-      console.log(path.join(__dirname));
+      // es6 버전에서 __filename, __dirname 사용할 수 있게하기
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = dirname(__filename);
       // 경로 명에 맞는 프로필사진 base64로 인코딩해서 전달
       const profileImage = fs.readFileSync(path.join(__dirname, "..", results[0][0].profileImage));
       const encodingImage = new Buffer.from(profileImage).toString("base64");
