@@ -18,6 +18,8 @@ import "dotenv/config.js";
 import morgan from "morgan";
 import winston from "winston";
 import WinstonTransportSequelize from "winston-transport-sequelize";
+// cors 모듈
+import cors from "cors";
 
 // 내장모듈
 // 공공데이터 가져오는 모듈
@@ -90,6 +92,16 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// cors 설정
+const corsOptions = {
+  origin: "http://localhost:37866",
+  credentials: true,
+  methods: ["GET", "PATCH", "POST", "DELETE"],
+  maxAge: 86400,
+  preflightContinue: true,
+  optionsSuccessStatus: 200,
+};
+
 // 서버 설정
 const app = express();
 app.use(bodyParser.json());
@@ -104,6 +116,9 @@ app.use(
     cookie: { maxAge: 24 * 60 * 60 * 1000 },
   })
 );
+
+app.use(cors(corsOptions));
+app.options("http://localhost:37866", cors());
 
 // 요청에 대해 로그
 app.use(morgan("combined", { stream: logger.stream }));
