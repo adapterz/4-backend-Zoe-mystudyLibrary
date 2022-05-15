@@ -3,6 +3,8 @@
 import { db, Op } from "../orm/models/index.mjs";
 import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
 import { changeTimestampForm, changeUnit, checkExistUser } from "../customModule/changeDataForm.js";
+import path from "path";
+import fs from "fs";
 /*
  * 1. 게시글 조회
  * 2. 게시글 작성/수정/삭제
@@ -136,6 +138,7 @@ export async function entireBoardModel(category, page, ip) {
 export async function detailBoardModel(category, boardIndex, ip, isViewDuplicated) {
   const tagData = [];
   const results = [];
+  let userData;
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
     "SELECT postTitle,postContent,viewCount,favoriteCount,board.createTimestamp,user.nickname FROM board LEFT JOIN user ON board.userIndex = user.userIndex" +
@@ -152,7 +155,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     }
     // 게시글 정보 가져오는 쿼리 메서드
     query =
-      "SELECT postTitle,user.nickname,user.profileImage,postContent,viewCount,favoriteCount,board.createTimestamp FROM board LEFT JOIN user ON " +
+      "SELECT user.userIndex,postTitle,user.nickname,user.profileImage,postContent,viewCount,favoriteCount,board.createTimestamp FROM board LEFT JOIN user ON " +
       "board.userIndex = user.userIndex WHERE board.deleteTimestamp IS NULL AND board.category= ? AND boardIndex = ?";
     [result, metadata] = await db.sequelize.query(query, {
       replacements: [category, boardIndex],
@@ -188,10 +191,29 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
       tagData.push({ tag: results[1][tagIndex].tag });
     }
     // 유저 데이터
-    const userData = {
-      nickname: await checkExistUser(results[0][0].nickname),
-      profileImage: results[0][0].profileImage,
-    };
+    // 등록된 프로필 이미지가 없을 때
+    if (results[0][0].profileImage === null) {
+      userData = {
+        isProfileImage: false,
+        nickname: await checkExistUser(results[0][0].nickname),
+      };
+    }
+    // 등록된 프로필 이미지가 있을 때
+    else {
+      // 프로필 사진 파일 이름은 유저인덱스이므로 파일 이름과 요청 유저의 인덱스가 일치하지 않은 경우 분기처리
+      const checkUserIndex = results[0][0].profileImage.split(".");
+      if (checkUserIndex[0] !== "profileImage/" + results[0][0].userIndex) return { state: "incorrect_access" };
+      // 프로필 사진 이름과 요청 유저의 인덱스가 일치할 때
+      console.log(path.join(__dirname));
+      // 경로 명에 맞는 프로필사진 base64로 인코딩해서 전달
+      const profileImage = fs.readFileSync(path.join(__dirname, "..", results[0][0].profileImage));
+      const encodingImage = new Buffer.from(profileImage).toString("base64");
+      userData = {
+        isProfileImage: true,
+        nickname: await checkExistUser(results[0][0].nickname),
+        profileImage: encodingImage,
+      };
+    }
     // 성공로그
     await modelSuccessLog(ip, "detailBoardModel");
     // 성공적으로 게시글 정보 조회

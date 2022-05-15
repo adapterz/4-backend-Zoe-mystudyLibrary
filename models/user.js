@@ -1,12 +1,19 @@
 // 유저 모델
 // 외장 모듈
+import fs from "fs";
 import bcrypt from "bcrypt";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
 
 // 내장 모듈
 import { modelFailLog, modelSuccessLog } from "../customModule/modelLog.js";
 import { hashPw } from "../customModule/pwBcrypt.js";
 import { changeGradeForm, changeLibrarysDataForm, changeLibraryType } from "../customModule/changeDataForm.js";
 import { db, Op } from "../orm/models/index.mjs";
+
+// es6 버전에서 __filename, __dirname 사용할 수 있게하기
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 /*
  * 1. 회원가입/탈퇴
  * 2. 로그인/(로그아웃 - 모델x)
@@ -413,10 +420,14 @@ export async function getUserModel(ip, loginCookie) {
       const checkUserIndex = result[0].profileImage.split(".");
       if (checkUserIndex[0] !== "profileImage/" + loginCookie) return { state: "incorrect_access" };
       // 프로필 사진 이름과 요청 유저의 인덱스가 일치할 때
+      console.log(path.join(__dirname));
+      // 경로 명에 맞는 프로필사진 base64로 인코딩해서 전달
+      const profileImage = fs.readFileSync(path.join(__dirname, "..", result[0].profileImage));
+      const encodingImage = new Buffer.from(profileImage).toString("base64");
       userData = {
         isProfileImage: true,
         nickname: result[0].nickname,
-        profileImage: result[0].profileImage,
+        profileImage: encodingImage,
       };
     }
 
