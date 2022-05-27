@@ -112,7 +112,11 @@ export async function detailBoardController(req, res) {
     else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
     // 해당 게시글 정보 가져오기
     else if (modelResult.state === "detail_board_information") {
-      return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag, modelResult.dataOfUser]);
+      return res.status(OK).json({
+        dataOfBoard: modelResult.dataOfBoard,
+        dataOfTag: modelResult.dataOfTag,
+        dataOfUser: modelResult.dataOfUser,
+      });
     }
   } catch {
     return res.status(INTERNAL_SERVER_ERROR).json({ state: "unexpected_error" });
@@ -193,7 +197,7 @@ export async function getWriteController(req, res) {
       else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
       // 성공적으로 게시글 정보 가져왔을 때
       else if (modelResult.state === "board_information")
-        return res.status(OK).json([modelResult.dataOfBoard, modelResult.dataOfTag]);
+        return res.status(OK).json({ dataOfBoard: modelResult.dataOfBoard, dataOfTag: modelResult.dataOfTag });
     }
   } catch (err) {
     // 만료된 토큰
@@ -319,9 +323,9 @@ export async function favoriteBoardController(req, res) {
     // 게시글이 없을 때
     else if (modelResult.state === "not_exist") return res.status(NOT_FOUND).json(modelResult);
     // 좋아요를 이미 누른적이 있을 때
-    else if (modelResult.state === "cancel_favorite") return res.status(OK).end();
+    else if (modelResult.state === "cancel_favorite") return res.status(OK).json(modelResult);
     // 좋아요 요청 수행
-    else if (modelResult.state === "favorite +1") return res.status(OK).end();
+    else if (modelResult.state === "favorite +1") return res.status(OK).json(modelResult);
   } catch (err) {
     // 만료된 토큰
     if (err.message === "jwt expired") {
