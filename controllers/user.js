@@ -346,8 +346,9 @@ export async function editProfileImageController(req, res) {
    */
   try {
     // 업로드 요청한 파일이 이미지 형식이 아닐 때
-    if (req.body.fileValidation !== true)
+    if (req.body.fileValidation !== true) {
       return res.status(BAD_REQUEST).json({ state: "only_jpg,jpeg,gjf,png(upper_5MB)_format_can_be_uploaded" });
+    }
     //  필요 변수 선언
     const loginToken = req.signedCookies.token;
     const loginIndex = await jwt.verify(loginToken, process.env.TOKEN_SECRET).idx;
