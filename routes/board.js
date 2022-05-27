@@ -38,7 +38,7 @@ const router = express.Router();
 // 유효성 검사를 위한 모듈
 // 1. 게시글 조회
 // 1-1. 최신글 자유게시판 5개, 공부인증샷 4개 정보
-router.get("/get/", isExist, getRecentBoardController);
+router.get("/get", isExist, getRecentBoardController);
 // 1-2. 전체 게시물 목록보기
 router.get("/get/:category", isCategory, checkPageValidation, entireBoardController);
 // 1-3. 각 게시물 상세보기
@@ -63,7 +63,7 @@ router.post(
 router.get("/write", query("boardIndex").isInt(), isExist, getWriteController);
 // 2-3. 게시글 수정 요청
 router.patch(
-  "/write",
+  "/edit",
   query("boardIndex").isInt(),
   isExist,
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
