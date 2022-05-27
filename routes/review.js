@@ -41,7 +41,7 @@ router.get("/detail", query("libraryIndex").isInt().trim(), isExist, checkPageVa
 router.get("/", query("libraryIndex").isInt(), query("reviewIndex").isInt(), isExist, getReviewController);
 // 후기 수정 요청
 router.patch(
-  "/patch",
+  "/edit",
   query("libraryIndex").isInt(),
   query("reviewIndex").isInt(),
   isExist,
