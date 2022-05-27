@@ -420,7 +420,6 @@ export async function getUserModel(ip, loginCookie) {
       const checkUserIndex = result[0].profileImage.split(".");
       if (checkUserIndex[0] !== "profileImage/" + loginCookie) return { state: "incorrect_access" };
       // 프로필 사진 이름과 요청 유저의 인덱스가 일치할 때
-      console.log(path.join(__dirname));
       // 경로 명에 맞는 프로필사진 base64로 인코딩해서 전달
       const profileImage = fs.readFileSync(path.join(__dirname, "..", result[0].profileImage));
       const encodingImage = new Buffer.from(profileImage).toString("base64");
@@ -428,6 +427,7 @@ export async function getUserModel(ip, loginCookie) {
         isProfileImage: true,
         nickname: result[0].nickname,
         profileImage: encodingImage,
+        mime: `image/${checkUserIndex[1]}`,
       };
     }
 
