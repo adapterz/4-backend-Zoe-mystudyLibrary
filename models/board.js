@@ -578,7 +578,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
       replacements: [category, "%" + searchContent + "%"],
     });
     // 검색결과가 없을 때
-    if (results[0] === undefined) {
+    if (results[0][0] === undefined) {
       return { state: "not_found" };
     }
     // 게시글 정보 파싱
