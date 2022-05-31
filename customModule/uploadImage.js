@@ -11,7 +11,7 @@ const imageValidation = function (req, file, cb) {
   let typeArray = file.mimetype.split("/");
   let fileType = typeArray[1];
   // 이미지 타입일 때
-  if (fileType == "jpg" || fileType == "jpeg" || fileType == "png" || fileType == "gif") {
+  if (fileType === "jpg" || fileType === "jpeg" || fileType === "png" || fileType === "gif") {
     req.body.fileValidation = true;
     cb(null, true);
     // 이미지 타입이 아닐 때

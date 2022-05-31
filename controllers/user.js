@@ -104,7 +104,7 @@ export async function dropOutController(req, res) {
     else if (modelResult.state === "user_withdrawal") {
       // 로그인 토큰 삭제
       res.clearCookie("token");
-      return res.status(NO_CONTENT).json(modelResult);
+      return res.status(NO_CONTENT).end();
     }
   } catch (err) {
     // 만료된 토큰
