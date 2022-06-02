@@ -123,7 +123,7 @@ app.options("http://localhost:37866", cors());
 // 요청에 대해 로그
 app.use(morgan("combined", { stream: logger.stream }));
 // 디도스 방어 모듈 모든 요청에 대해 사용
-app.use(apiLimiter);
+//app.use(apiLimiter);
 
 // 홈
 // 라우터 변수

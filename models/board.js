@@ -20,7 +20,7 @@ export async function getRecentBoardModel(ip) {
   const results = [];
   // 최신글 자유게시판 글 5개 불러오기
   let query =
-    "SELECT postTitle,nickname FROM board LEFT JOIN user ON board.userIndex=user.userIndex" +
+    "SELECT boardIndex, postTitle,nickname FROM board LEFT JOIN user ON board.userIndex=user.userIndex" +
     " WHERE board.deleteTimestamp IS NULL AND board.boardIndex IS NOT NULL AND category = 0 order by boardIndex DESC limit 5";
   // 성공시
   try {
@@ -28,16 +28,16 @@ export async function getRecentBoardModel(ip) {
     results.push(result);
     // 최신글 공부인증샷 글 4개 불러오기
     query =
-      "SELECT postTitle,nickname,viewCount,favoriteCount FROM board LEFT JOIN user ON board.userIndex=user.userIndex " +
+      "SELECT boardIndex, postTitle,nickname,viewCount,favoriteCount FROM board LEFT JOIN user ON board.userIndex=user.userIndex " +
       " WHERE board.deleteTimestamp IS NULL AND board.boardIndex IS NOT NULL AND category = 1 order by boardIndex DESC limit 4;";
     [result, metadata] = await db.sequelize.query(query);
     results.push(result);
-
     // 자유게시판 최신글 파싱
     for (const index in results[0]) {
       // 게시글 제목의 글자수가 15자 이하일 때
       if (results[0][index].postTitle.length <= 15) {
         const tempData = {
+          boardIndex: results[0][index].boardIndex,
           postTitle: results[0][index].postTitle,
           nickname: await checkExistUser(results[0][index].nickname),
         };
@@ -46,6 +46,7 @@ export async function getRecentBoardModel(ip) {
       // 게시글 제목의 글자수가 15자 초과일 때
       else if (results[0][index].postTitle.length > 15) {
         const tempData = {
+          boardIndex: results[0][index].boardIndex,
           postTitle: results[0][index].postTitle.substring(0, 15) + "...",
           nickname: await checkExistUser(results[0][index].nickname),
         };
@@ -57,6 +58,7 @@ export async function getRecentBoardModel(ip) {
       // 게시글 제목의 글자수가 10자 이하일 때
       if (results[1][index].postTitle.length <= 10) {
         const tempData = {
+          boardIndex: results[1][index].boardIndex,
           postTitle: results[1][index].postTitle,
           nickname: await checkExistUser(results[1][index].nickname),
           viewCount: await changeUnit(results[1][index].viewCount),
@@ -66,6 +68,7 @@ export async function getRecentBoardModel(ip) {
         // 게시글 제목의 글자수가 10자 초과일 때
       } else if (results[1][index].postTitle.length > 10) {
         const tempData = {
+          boardIndex: results[1][index].boardIndex,
           postTitle: results[1][index].postTitle.substring(0, 10) + "...",
           nickname: await checkExistUser(results[1][index].nickname),
           viewCount: await changeUnit(results[1][index].viewCount),
@@ -88,7 +91,7 @@ export async function entireBoardModel(category, page, ip) {
   const boardData = [];
   // 카테고리에 맞는 전체 게시글 정보 가져오기
   const query =
-    `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex` +
+    `SELECT boardIndex, postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex` +
     ` WHERE board.deleteTimestamp IS NULL AND board.category = ? ORDER BY boardIndex DESC LIMIT ${10 * (page - 1)}, 10`;
   // 성공시
   try {
@@ -102,6 +105,7 @@ export async function entireBoardModel(category, page, ip) {
       // 게시글 제목의 글자수가 25자 미만일 때
       if (results[index].postTitle.length <= 25) {
         const tempData = {
+          boardIndex: results[index].boardIndex,
           postTitle: results[index].postTitle,
           nickname: await checkExistUser(results[index].nickname),
           viewCount: await changeUnit(results[index].viewCount),
@@ -113,6 +117,7 @@ export async function entireBoardModel(category, page, ip) {
       // 게시글 제목의 글자수가 25자 이상일 때
       else if (results[index].postTitle.length > 25) {
         const tempData = {
+          boardIndex: results[index].boardIndex,
           postTitle: results[index].postTitle.substring(0, 25) + "...",
           nickname: await checkExistUser(results[index].nickname),
           viewCount: await changeUnit(results[index].viewCount),
@@ -141,7 +146,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
   let userData;
   // 해당 인덱스의 게시글/태그 정보 가져오는 쿼리문
   let query =
-    "SELECT postTitle,postContent,viewCount,favoriteCount,board.createTimestamp,user.nickname FROM board LEFT JOIN user ON board.userIndex = user.userIndex" +
+    "SELECT boardIndex,postTitle,postContent,viewCount,favoriteCount,board.createTimestamp,user.nickname FROM board LEFT JOIN user ON board.userIndex = user.userIndex" +
     " WHERE board.deleteTimestamp IS NULL AND board.category= ? AND boardIndex = ?";
   // 성공시
   try {
@@ -155,7 +160,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     }
     // 게시글 정보 가져오는 쿼리 메서드
     query =
-      "SELECT user.userIndex,postTitle,user.nickname,user.profileImage,postContent,viewCount,favoriteCount,board.createTimestamp FROM board LEFT JOIN user ON " +
+      "SELECT boardIndex, user.userIndex,postTitle,user.nickname,user.profileImage,postContent,viewCount,favoriteCount,board.createTimestamp FROM board LEFT JOIN user ON " +
       "board.userIndex = user.userIndex WHERE board.deleteTimestamp IS NULL AND board.category= ? AND boardIndex = ?";
     [result, metadata] = await db.sequelize.query(query, {
       replacements: [category, boardIndex],
@@ -180,6 +185,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
     // 해당 게시글의 데이터 파싱
     // 게시글 데이터
     const boardData = {
+      boardIndex: results[0][0].boardIndex,
       postTitle: results[0][0].postTitle,
       postContent: results[0][0].postContent,
       viewCount: await changeUnit(results[0][0].viewCount),
@@ -196,6 +202,7 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
       userData = {
         isProfileImage: false,
         nickname: await checkExistUser(results[0][0].nickname),
+        userIndex: results[0][0].userIndex,
       };
     }
     // 등록된 프로필 이미지가 있을 때
@@ -214,6 +221,8 @@ export async function detailBoardModel(category, boardIndex, ip, isViewDuplicate
         isProfileImage: true,
         nickname: await checkExistUser(results[0][0].nickname),
         profileImage: encodingImage,
+        mime: `image/${checkUserIndex[1]}`,
+        userIndex: results[0][0].userIndex,
       };
     }
     // 성공로그
@@ -579,7 +588,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     });
     // 검색결과가 없을 때
     if (results[0][0] === undefined) {
-      return { state: "not_found" };
+      return { state: "not_exist" };
     }
     // 게시글 정보 파싱
     for (const index in results[0]) {
@@ -606,6 +615,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
         boardData.push(tempData);
       }
     }
+    await modelSuccessLog(ip, "searchBoardModel");
     // 검색결과가 있을 때
     return { state: "search_board_information", dataOfBoard: boardData };
     // 쿼리문 실행시 에러발생

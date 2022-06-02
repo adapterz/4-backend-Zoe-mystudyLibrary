@@ -370,7 +370,7 @@ export async function searchBoardController(req, res) {
     // sequelize query 메서드 실패
     if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 검색결과가 없을 때
-    else if (modelResult.state === "not_found") return res.status(OK).json(modelResult);
+    else if (modelResult.state === "not_exist") return res.status(OK).json(modelResult);
     // 검색결과가 있을 때
     else if (modelResult.state === "search_board_information") return res.status(OK).json(modelResult.dataOfBoard);
   } catch {

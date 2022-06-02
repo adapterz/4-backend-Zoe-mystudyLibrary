@@ -402,7 +402,7 @@ export async function getUserModel(ip, loginCookie) {
   try {
     // 유저 정보 가져오기
     const result = await db["user"].findAll({
-      attributes: ["nickname", "profileImage"],
+      attributes: ["nickname", "profileImage", "userIndex"],
       where: {
         userIndex: { [Op.eq]: loginCookie },
       },
@@ -412,6 +412,7 @@ export async function getUserModel(ip, loginCookie) {
       userData = {
         isProfileImage: false,
         nickname: result[0].nickname,
+        userIndex: result[0].userIndex,
       };
     }
     // 등록된 프로필 이미지가 있을 때
@@ -426,6 +427,7 @@ export async function getUserModel(ip, loginCookie) {
       userData = {
         isProfileImage: true,
         nickname: result[0].nickname,
+        userIndex: result[0].userIndex,
         profileImage: encodingImage,
         mime: `image/${checkUserIndex[1]}`,
       };
