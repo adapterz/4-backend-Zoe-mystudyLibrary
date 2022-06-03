@@ -155,7 +155,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
           if (childResult[childIndex].parentIndex !== null) {
             tempChild = {
               commentIndex: childResult[childIndex].commentIndex,
-              userIndex: rootResult[rootIndex].userIndex,
+              userIndex: childResult[childIndex].userIndex,
               isRoot: false,
               isDeleted: false,
               nickname: await checkExistUser(childResult[childIndex].nickname),
@@ -166,7 +166,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
             if (childResult[childIndex].deleteTimestamp !== null)
               tempChild = {
                 commentIndex: childResult[childIndex].commentIndex,
-                userIndex: rootResult[rootIndex].userIndex,
+                userIndex: childResult[childIndex].userIndex,
                 isRoot: false,
                 isDeleted: true,
                 nickname: await checkExistUser(childResult[childIndex].nickname),
