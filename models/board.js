@@ -629,7 +629,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
 export async function userBoardModel(userIndex, page, ip) {
   const boardData = [];
   // 해당 유저가 작성한 게시글 정보 가져오기
-  const query = `SELECT postTitle,viewCount,favoriteCount FROM board WHERE deleteTimestamp IS NULL AND userIndex = ? ORDER BY boardIndex DESC LIMIT ${
+  const query = `SELECT boardIndex,postTitle,viewCount,favoriteCount FROM board WHERE deleteTimestamp IS NULL AND userIndex = ? ORDER BY boardIndex DESC LIMIT ${
     10 * (page - 1)
   }, 10`;
   // 성공시
@@ -647,6 +647,7 @@ export async function userBoardModel(userIndex, page, ip) {
       // 게시글 제목의 글자수가 25자 미만일 때
       if (results[index].postTitle.length <= 25) {
         const tempData = {
+          boardIndex: results[index].boardIndex,
           postTitle: results[index].postTitle,
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
@@ -657,6 +658,7 @@ export async function userBoardModel(userIndex, page, ip) {
       // 게시글 제목의 글자수가 25자 이상일 때
       else if (results[index].postTitle.length > 25) {
         const tempData = {
+          boardIndex: results[index].boardIndex,
           postTitle: results[index].postTitle.substring(0, 25) + "...",
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
