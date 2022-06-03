@@ -54,7 +54,7 @@ export async function changeTimestampForm(timestamp) {
   let stringTimestamp;
   // 작성일이 오늘일 때
   if (isToday) {
-    stringTimestamp = moment(timestamp).format("YYYY년MM월DD일 HH시MM분");
+    stringTimestamp = moment(timestamp).format("YYYY년MM월DD일 HH시mm분");
     // 작성일이 오늘이 아닐 때
   } else if (!isToday) {
     stringTimestamp = moment(timestamp).format("YYYY년MM월DD일");
