@@ -99,7 +99,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     }
     // 해당 게시글의 루트 댓글만 가져오는 쿼리문
     const rootCommentQuery =
-      `SELECT commentIndex,commentContent,user.nickname, comment.createTimestamp,deleteTimestamp FROM comment ` +
+      `SELECT user.userIndex,commentIndex,commentContent,user.nickname, comment.createTimestamp,deleteTimestamp FROM comment ` +
       `LEFT JOIN user ON comment.userIndex=user.userIndex WHERE boardDeleteTimestamp IS NULL AND parentIndex IS NULL AND boardIndex = ? ` +
       `ORDER BY IF(ISNULL(parentIndex), commentIndex, parentIndex), commentSequence LIMIT ${5 * (page - 1)},5;`;
     // 실행 결과
@@ -113,7 +113,7 @@ export async function detailCommentModel(boardIndex, page, ip) {
     }
     // 해당 페이지 루트댓글의 대댓글 가져오는 쿼리문
     childCommentQuery =
-      `SELECT commentContent,user.nickname, comment.createTimestamp,deleteTimestamp, parentIndex FROM comment ` +
+      `SELECT user.userIndex,commentIndex,commentContent,user.nickname, comment.createTimestamp,deleteTimestamp, parentIndex FROM comment ` +
       `LEFT JOIN user ON comment.userIndex=user.userIndex WHERE boardDeleteTimestamp IS NULL AND boardIndex = ?`;
     // 반복문 돌려서 childCommentQuery 쿼리문의 조건절에 루트댓글 정보 더해주기
     for (let commentIndex in rootResult) {
@@ -127,6 +127,8 @@ export async function detailCommentModel(boardIndex, page, ip) {
     // 댓글 정보 데이터
     for (let rootIndex in rootResult) {
       let tempRoot = {
+        commentIndex: rootResult[rootIndex].commentIndex,
+        userIndex: rootResult[rootIndex].userIndex,
         isRoot: true,
         isDeleted: false,
         nickname: await checkExistUser(rootResult[rootIndex].nickname),
@@ -136,6 +138,8 @@ export async function detailCommentModel(boardIndex, page, ip) {
       // 루트댓글이면서 삭제된 댓글일 때
       if (rootResult[rootIndex].deleteTimestamp !== null)
         tempRoot = {
+          commentIndex: rootResult[rootIndex].commentIndex,
+          userIndex: rootResult[rootIndex].userIndex,
           isRoot: true,
           isDeleted: true,
           nickname: await checkExistUser(rootResult[rootIndex].nickname),
@@ -150,6 +154,8 @@ export async function detailCommentModel(boardIndex, page, ip) {
         if (childResult[childIndex].parentIndex === rootResult[rootIndex].commentIndex) {
           if (childResult[childIndex].parentIndex !== null) {
             tempChild = {
+              commentIndex: childResult[childIndex].commentIndex,
+              userIndex: rootResult[rootIndex].userIndex,
               isRoot: false,
               isDeleted: false,
               nickname: await checkExistUser(childResult[childIndex].nickname),
@@ -159,6 +165,8 @@ export async function detailCommentModel(boardIndex, page, ip) {
             // 대댓글이면서 삭제된 댓글일 때
             if (childResult[childIndex].deleteTimestamp !== null)
               tempChild = {
+                commentIndex: childResult[childIndex].commentIndex,
+                userIndex: rootResult[rootIndex].userIndex,
                 isRoot: false,
                 isDeleted: true,
                 nickname: await checkExistUser(childResult[childIndex].nickname),

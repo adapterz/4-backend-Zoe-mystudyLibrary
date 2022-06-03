@@ -35,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       indexes: [{ fields: ["userIndex"] }, { fields: ["libraryIndex"] }],
-      charset: "utf8",
-      collate: "utf8_general_ci",
+      charset: "utf8mb4",
+      collate: "utf8mb4_unicode_ci",
       tableName: "userLibrary",
       timestamps: false,
       initialAutoIncrement: 1,

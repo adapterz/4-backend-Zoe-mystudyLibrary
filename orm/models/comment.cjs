@@ -60,8 +60,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       indexes: [{ fields: ["boardIndex"] }, { fields: ["userIndex"] }],
-      charset: "utf8",
-      collate: "utf8_general_ci",
+      charset: "utf8mb4",
+      collate: "utf8mb4_unicode_ci",
       tableName: "comment",
       timestamps: false,
       initialAutoIncrement: 1,
