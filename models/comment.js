@@ -267,7 +267,7 @@ export async function userCommentModel(userIndex, page, ip) {
   const commentData = [];
   // 해당 유저가 작성한 댓글 정보 select 해오는 쿼리문
   const query =
-    `SELECT comment.commentContent,comment.createTimestamp,board.postTitle,comment.boardDeleteTimestamp FROM comment LEFT JOIN board ` +
+    `SELECT comment.commentIndex,comment.boardIndex,comment.commentContent,comment.createTimestamp,board.postTitle,comment.boardDeleteTimestamp FROM comment LEFT JOIN board ` +
     `ON comment.boardIndex =board.boardIndex WHERE comment.deleteTimestamp IS NULL AND comment.userIndex= ? ORDER BY commentIndex DESC LIMIT ${
       5 * (page - 1)
     }, 5`;
@@ -290,6 +290,8 @@ export async function userCommentModel(userIndex, page, ip) {
       // 게시글 제목의 글자수가 25자 미만일 때
       if (results[index].postTitle.length <= 25) {
         const tempData = {
+          commentIndex: results[index].commentIndex,
+          boardIndex: results[index].boardIndex,
           postTitle: results[index].postTitle,
           commentContent: results[index].commentContent,
           createDate: await changeTimestampForm(results[index].createTimestamp),
@@ -299,6 +301,8 @@ export async function userCommentModel(userIndex, page, ip) {
       // 게시글 제목의 글자수가 25자 이상일 때
       else if (results[index].postTitle.length > 25) {
         const tempData = {
+          commentIndex: results[index].commentIndex,
+          boardIndex: results[index].boardIndex,
           postTitle: results[index].postTitle.substring(0, 25) + "...",
           commentContent: results[index].commentContent,
           createDate: await changeTimestampForm(results[index].createTimestamp),

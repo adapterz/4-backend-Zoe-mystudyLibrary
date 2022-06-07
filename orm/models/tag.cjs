@@ -40,8 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       indexes: [{ fields: ["boardIndex"] }],
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
+      charset: "utf8",
       tableName: "tag",
       timestamps: false,
       initialAutoIncrement: 1,

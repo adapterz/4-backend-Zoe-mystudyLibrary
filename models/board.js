@@ -560,14 +560,14 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
   // 제목만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   if (searchOption === "제목만") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
+      `SELECT boardIndex,postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
       `WHERE board.deleteTimestamp IS NULL AND board.category = ? AND postTitle LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       } , 10`;
     // 내용만 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "내용만") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
+      `SELECT boardIndex,postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
       `WHERE board.deleteTimestamp IS NULL AND board.category = ? AND postContent LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       }
@@ -575,7 +575,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
     // 일치하는 닉네임 검색한다고 옵션설정했을 때 검색해주는 쿼리문
   } else if (searchOption === "닉네임") {
     query =
-      `SELECT postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
+      `SELECT boardIndex,postTitle,viewCount,favoriteCount,nickname,board.createTimestamp FROM board LEFT JOIN user ON board.userIndex = user.userIndex ` +
       `WHERE board.deleteTimestamp IS NULL AND board.category = ? AND nickname LIKE ? ORDER BY boardIndex DESC LIMIT ${
         10 * (page - 1)
       }
@@ -600,6 +600,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
           viewCount: await changeUnit(results[0][index].viewCount),
           favoriteCount: await changeUnit(results[0][index].favoriteCount),
           createDate: await changeTimestampForm(results[0][index].createTimestamp),
+          boardIndex: results[0][index].boardIndex,
         };
         boardData.push(tempData);
       }
@@ -611,6 +612,7 @@ export async function searchBoardModel(searchOption, searchContent, category, pa
           viewCount: await changeUnit(results[0][index].viewCount),
           favoriteCount: await changeUnit(results[0][index].favoriteCount),
           createDate: await changeTimestampForm(results[0][index].createTimestamp),
+          boardIndex: results[0][index].boardIndex,
         };
         boardData.push(tempData);
       }

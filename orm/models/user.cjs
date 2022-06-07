@@ -59,8 +59,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       indexes: [{ unique: true, fields: ["id"] }],
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
+      charset: "utf8",
       tableName: "user",
       timestamps: false,
       initialAutoIncrement: 1,
