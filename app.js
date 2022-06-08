@@ -20,6 +20,8 @@ import winston from "winston";
 import WinstonTransportSequelize from "winston-transport-sequelize";
 // cors 모듈
 import cors from "cors";
+import * as fs from "fs";
+import https from "https";
 
 // 내장모듈
 // 공공데이터 가져오는 모듈
@@ -91,16 +93,28 @@ const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
-
+let corsOptions;
 // cors 설정
-const corsOptions = {
-  origin: "http://localhost:37866",
-  credentials: true,
-  methods: ["GET", "PATCH", "POST", "DELETE"],
-  maxAge: 86400,
-  preflightContinue: true,
-  optionsSuccessStatus: 200,
-};
+if (process.env.NODE_ENV === "development") {
+  corsOptions = {
+    origin: "http://localhost:36383",
+    credentials: true,
+    methods: ["GET", "PATCH", "POST", "DELETE"],
+    maxAge: 86400,
+    preflightContinue: true,
+    optionsSuccessStatus: 200,
+  };
+}
+if (process.env.NODE_ENV === "production") {
+  corsOptions = {
+    origin: "https://mystudylibrary.pe.kr",
+    credentials: true,
+    methods: ["GET", "PATCH", "POST", "DELETE"],
+    maxAge: 86400,
+    preflightContinue: true,
+    optionsSuccessStatus: 200,
+  };
+}
 
 // 서버 설정
 const app = express();
@@ -118,12 +132,17 @@ app.use(
 );
 
 app.use(cors(corsOptions));
-app.options("http://localhost:37866", cors());
+if (process.env.NODE_ENV === "development") {
+  app.options("http://localhost:36383", cors());
+}
+if (process.env.NODE_ENV === "production") {
+  app.options("https://mystudylibrary.pe.kr", cors());
+}
 
 // 요청에 대해 로그
 app.use(morgan("combined", { stream: logger.stream }));
 // 디도스 방어 모듈 모든 요청에 대해 사용
-//app.use(apiLimiter);
+app.use(apiLimiter);
 
 // 홈
 // 라우터 변수
@@ -150,6 +169,18 @@ app.use("/wise-saying", wiseSayingRouter);
 // getScraping();
 
 // 서버 시작
-app.listen(process.env.PORT, () => {
-  console.log(("Start Backend Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
-});
+if (process.env.NODE_ENV === "development") {
+  app.listen(process.env.PORT, () => {
+    console.log(("Start Backend Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
+  });
+}
+if (process.env.NODE_ENV === "production") {
+  const options = {
+    key: fs.readFileSync("/etc/letsencrypt/live/mystudylibrary.pe.kr/privkey.pem", "utf-8"),
+    cert: fs.readFileSync("/etc/letsencrypt/live/mystudylibrary.pe.kr/cert.pem", "utf-8"),
+    ca: fs.readFileSync("/etc/letsencrypt/live/mystudylibrary.pe.kr/chain.pem", "utf-8"),
+  };
+  https.createServer(options, app).listen(process.env.PORT, () => {
+    console.log(("Start HTTPS Backend Server at" + moment().format(" YYYY-MM-DD HH:mm:ss")).rainbow.bold);
+  });
+}
