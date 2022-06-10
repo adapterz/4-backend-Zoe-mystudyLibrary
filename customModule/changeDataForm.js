@@ -121,7 +121,7 @@ export async function changeLibraryDataForm(libraryData) {
 // 삭제된 닉네임 일 경우 null -> 삭제된 유저입니다로 변경
 export async function checkExistUser(nickname) {
   // 닉네임이 null이면 삭제된 닉네임 취급
-  if (nickname === null) return "삭제된 유저입니다.";
+  if (nickname === null) return "탈퇴한 유저";
   return nickname;
 }
 

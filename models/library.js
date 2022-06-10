@@ -139,7 +139,7 @@ export async function detailLibraryModel(libraryIndex, ip) {
       holidayOperateTime:
         results[0].openHoliday.toString().substring(0, 5) + " ~ " + results[0].endHoliday.toString().substring(0, 5),
       libraryContact: tempResult.libraryContact,
-      countOfGrade: results[0].countOfGrade + " 개",
+      countOfGrade: results[0].countOfGrade,
       averageGrade: grade,
     };
     // 유저가 요청한 도서관 정보가 존재할 때

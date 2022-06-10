@@ -103,7 +103,7 @@ export async function entireBoardModel(category, page, ip) {
     // 게시글 정보 파싱
     for (const index in results) {
       // 게시글 제목의 글자수가 25자 미만일 때
-      if (results[index].postTitle.length <= 25) {
+      if (results[index].postTitle.length <= 15) {
         const tempData = {
           boardIndex: results[index].boardIndex,
           postTitle: results[index].postTitle,
@@ -115,10 +115,10 @@ export async function entireBoardModel(category, page, ip) {
         boardData.push(tempData);
       }
       // 게시글 제목의 글자수가 25자 이상일 때
-      else if (results[index].postTitle.length > 25) {
+      else if (results[index].postTitle.length > 15) {
         const tempData = {
           boardIndex: results[index].boardIndex,
-          postTitle: results[index].postTitle.substring(0, 25) + "...",
+          postTitle: results[index].postTitle.substring(0, 15) + "...",
           nickname: await checkExistUser(results[index].nickname),
           viewCount: await changeUnit(results[index].viewCount),
           favoriteCount: await changeUnit(results[index].favoriteCount),
