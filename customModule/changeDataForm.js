@@ -80,17 +80,17 @@ export async function changeGradeForm(grade) {
 
 // 도서관 정보 가공(전체도서관/ 지역도서관)
 export async function changeLibrarysDataForm(libraryData) {
-  // 도서관명이 15글자 이상일 때 자르고 ... 붙이기
-  if (libraryData.libraryName.length >= 15) {
-    libraryData.libraryName = libraryData.libraryName.substring(0, 15) + "...";
+  // 도서관명이 8글자 이상일 때 자르고 ... 붙이기
+  if (libraryData.libraryName.length >= 8) {
+    libraryData.libraryName = libraryData.libraryName.substring(0, 8) + "...";
   }
-  // 도서관 유형이 10글자 이상일때 자르고 ... 붙이기
-  if (libraryData.libraryType.length >= 10) {
-    libraryData.libraryType = libraryData.libraryType.substring(0, 10) + "...";
+  // 도서관 유형이 8글자 이상일때 자르고 ... 붙이기
+  if (libraryData.libraryType.length >= 8) {
+    libraryData.libraryType = libraryData.libraryType.substring(0, 8) + "...";
   }
-  // 휴관일이 15글자 이상일때 자르고 ... 붙이기
-  if (libraryData.closeDay.length >= 15) {
-    libraryData.closeDay = libraryData.closeDay.substring(0, 15) + "...";
+  // 휴관일이 8글자 이상일때 자르고 ... 붙이기
+  if (libraryData.closeDay.length >= 8) {
+    libraryData.closeDay = libraryData.closeDay.substring(0, 8) + "...";
   }
   // 시작, 종료시간 5글자까지일떄 자르기(00:00:00 -> 00:00 형태)
   libraryData.openWeekday = libraryData.openWeekday.toString().substring(0, 5);
@@ -100,9 +100,9 @@ export async function changeLibrarysDataForm(libraryData) {
   libraryData.openHoliday = libraryData.openHoliday.toString().substring(0, 5);
   libraryData.endHoliday = libraryData.endHoliday.toString().substring(0, 5);
 
-  // 주소 20글자까지 자르고 ... 붙이기
-  if (libraryData.address.length >= 20) {
-    libraryData.address = libraryData.address.substring(0, 20) + "...";
+  // 주소 8글자까지 자르고 ... 붙이기
+  if (libraryData.address.length >= 8) {
+    libraryData.address = libraryData.address.substring(0, 8) + "...";
   }
   // 연락처 문자열이 비어있을 때
   if (libraryData.libraryContact === "") libraryData.libraryContact = "연락처 없음";
