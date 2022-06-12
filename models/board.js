@@ -102,7 +102,7 @@ export async function entireBoardModel(category, page, ip) {
     }
     // 게시글 정보 파싱
     for (const index in results) {
-      // 게시글 제목의 글자수가 12자 미만일 때
+      // 게시글 제목의 글자수가 10자 미만일 때
       if (results[index].postTitle.length <= 10) {
         const tempData = {
           boardIndex: results[index].boardIndex,
@@ -114,7 +114,7 @@ export async function entireBoardModel(category, page, ip) {
         };
         boardData.push(tempData);
       }
-      // 게시글 제목의 글자수가 25자 이상일 때
+      // 게시글 제목의 글자수가 10자 이상일 때
       else if (results[index].postTitle.length > 10) {
         const tempData = {
           boardIndex: results[index].boardIndex,

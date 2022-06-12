@@ -81,15 +81,15 @@ export async function changeGradeForm(grade) {
 // 도서관 정보 가공(전체도서관/ 지역도서관)
 export async function changeLibrarysDataForm(libraryData) {
   // 도서관명이 8글자 이상일 때 자르고 ... 붙이기
-  if (libraryData.libraryName.length >= 8) {
+  if (libraryData.libraryName.length > 8) {
     libraryData.libraryName = libraryData.libraryName.substring(0, 8) + "...";
   }
   // 도서관 유형이 8글자 이상일때 자르고 ... 붙이기
-  if (libraryData.libraryType.length >= 8) {
+  if (libraryData.libraryType.length > 8) {
     libraryData.libraryType = libraryData.libraryType.substring(0, 8) + "...";
   }
   // 휴관일이 8글자 이상일때 자르고 ... 붙이기
-  if (libraryData.closeDay.length >= 8) {
+  if (libraryData.closeDay.length > 8) {
     libraryData.closeDay = libraryData.closeDay.substring(0, 8) + "...";
   }
   // 시작, 종료시간 5글자까지일떄 자르기(00:00:00 -> 00:00 형태)
@@ -101,7 +101,7 @@ export async function changeLibrarysDataForm(libraryData) {
   libraryData.endHoliday = libraryData.endHoliday.toString().substring(0, 5);
 
   // 주소 8글자까지 자르고 ... 붙이기
-  if (libraryData.address.length >= 8) {
+  if (libraryData.address.length > 8) {
     libraryData.address = libraryData.address.substring(0, 8) + "...";
   }
   // 연락처 문자열이 비어있을 때
