@@ -91,10 +91,10 @@ export async function detailBoardController(req, res) {
     if (req.params.category === "free-bulletin") reqCategory = 0;
     // 공부인증샷
     if (req.params.category === "proof-shot") reqCategory = 1;
-    // 쿠키를 이용한 중복조회 체크 (undefined : 해당 게시물 조회한 적이 없다는 뜻)
-    if (req.signedCookies[boardIndex] === undefined) {
+    // 쿠키를 이용한 중복조회 체크 (undefined : 어떤 게시물이든 조회한 적이 없다는 뜻)
+    if (req.signedCookies.board === undefined) {
       // 최초 조회시 하루짜리 쿠키 생성
-      res.cookie(boardIndex, req.ip, {
+      res.cookie("board", `${boardIndex};`, {
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
         signed: true,
@@ -102,6 +102,28 @@ export async function detailBoardController(req, res) {
       // 이 게시글 최초 조회라고 boolean 값 변경해주기
       isViewDuplicated = false;
     }
+    // 해당 게시글을 조회한적이 없는지 확인
+    else {
+      const boardIndexString = req.signedCookies.board;
+      const boardIndexArray = boardIndexString.split(";");
+      for (let cookieBoardIndex of boardIndexArray) {
+        if (boardIndex !== cookieBoardIndex) isViewDuplicated = false;
+        if (boardIndex === cookieBoardIndex) {
+          isViewDuplicated = true;
+          break;
+        }
+      }
+      // 게시글을 조회한적이 없으면 board 쿠키 string 에 해당 게시글인덱스 추가
+      if (!isViewDuplicated) {
+        res.clearCookie("board");
+        res.cookie("board", `${boardIndexString}${boardIndex};`, {
+          maxAge: 24 * 60 * 60 * 1000,
+          httpOnly: true,
+          signed: true,
+        });
+      }
+    }
+
     // 모델 결과 변수
     const modelResult = await detailBoardModel(reqCategory, boardIndex, req.ip, isViewDuplicated);
 
