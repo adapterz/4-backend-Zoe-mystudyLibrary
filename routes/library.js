@@ -28,9 +28,8 @@ router.get(
     .matches(/^[가-힣]+$/), // 한글만
   query("districts")
     .isString()
-    .trim()
     .isLength({ min: 1, max: 15 })
-    .matches(/^[가-힣]+$/),
+    .matches(/^[가-힣\s]+$/),
   isExist,
   localLibraryController
 );
