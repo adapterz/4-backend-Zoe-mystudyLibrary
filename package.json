@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development pm2 start app.js",
+    "dev": "cross-env NODE_ENV=development nodemon app.js",
     "start": "pm2 start app.js"
   },
   "dependencies": {
