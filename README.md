@@ -136,15 +136,6 @@ ovenapp.io 툴 이용했습니다.
 <!-- summary 아래 한칸 공백 두고 내용 삽입 -->
 
 </details>
-
-#### 보편화 된 디렉토리
-
-- routes/controllers/models
-
-#### 사용자 정의 디렉토리
-
-- customModule: 보편화 된 디렉토리에 포함되지 않으며 해당 프로젝트에 필요한 모듈/메서드들이 정의 및 설정돼있는 메서드들을 모아 둔 디렉토리
-
 ---
 
 ## :blue_book: 주요 기능
@@ -203,19 +194,12 @@ ovenapp.io 툴 이용했습니다.
 
 ## :closed_book: 개발 스택
 
-- 사용언어: JS ES6 + 일부 commonJS(orm model 정의 부분)
-- 그 밖의 스택: Node.js + Express, MySQL, GitHub
+- 사용스택: js, node.js + express.js, mysql, sequelize, pm2(서버에 무중단 배포)
 
 ---
 
 ## 문제사항과 해결방안
 
 ### 1
-
-첫번째 문제/해결방안 링크:
-https://closed-glade-095.notion.site/myStudyLibrary-23cd8182b9674678a7025ce443f11df7
-
-### 2
-
-두번째 문제/해결방안 링크:
+문제/해결방안 링크:
 https://closed-glade-095.notion.site/myStudyLibrary-2-ec21cf5b53b0428f9bce3c5fa2ff9736
