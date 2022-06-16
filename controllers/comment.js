@@ -124,7 +124,9 @@ export async function detailCommentController(req, res) {
 export async function getCommentController(req, res) {
   /*
    * req.query
-   *  boardIndex,commentIndex
+   *  boardIndex
+   * req.params
+   *  commentIndex
    */
   try {
     //  필요 변수 선언
@@ -139,7 +141,7 @@ export async function getCommentController(req, res) {
     // 해당 댓글유무 체크, 댓글에 대한 유저의 권한 체크
     const checkComment = await checkCommentMethod(
       req.query.boardIndex,
-      req.query.commentIndex,
+      req.params.commentIndex,
       loginIndex,
       false,
       req.ip
@@ -155,7 +157,7 @@ export async function getCommentController(req, res) {
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkComment.state === "success_access") {
       // 해당 인덱스의 댓글 정보 가져오기
-      const modelResult = await getCommentModel(req.query.commentIndex, loginIndex, req.ip);
+      const modelResult = await getCommentModel(req.params.commentIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
       if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 해당 댓글이 존재하지 않을 때
@@ -179,7 +181,9 @@ export async function getCommentController(req, res) {
 export async function editCommentController(req, res) {
   /*
    * req.query
-   *  boardIndex, commentIndex
+   *  boardIndex
+   * req.params
+   *  commentIndex
    * req.body
    *  content (댓글내용)
    */
@@ -196,7 +200,7 @@ export async function editCommentController(req, res) {
     // 해당 댓글에 존재유무와 유저의 권한 체크
     const checkComment = await checkCommentMethod(
       req.query.boardIndex,
-      req.query.commentIndex,
+      req.params.commentIndex,
       loginIndex,
       false,
       req.ip
@@ -212,7 +216,7 @@ export async function editCommentController(req, res) {
     // 해당 댓글 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkComment.state === "success_access") {
       // 댓글수정 모델 실행 결과
-      const modelResult = await editCommentModel(req.query.commentIndex, loginIndex, req.body, req.ip);
+      const modelResult = await editCommentModel(req.params.commentIndex, loginIndex, req.body, req.ip);
       // 모델 실행결과에 따른 분기처리
       // sequelize query 메서드 실패
       if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
@@ -235,7 +239,9 @@ export async function editCommentController(req, res) {
 export async function deleteCommentController(req, res) {
   /*
    * req.query
-   *  boardIndex, commentIndex
+   *  boardIndex
+   * req.params
+   *  commentIndex
    */
   try {
     //  필요 변수 선언
@@ -250,7 +256,7 @@ export async function deleteCommentController(req, res) {
     // 해당 게시글,댓글 유무와 댓글에 대한 유저의 권한 체크
     const checkComment = await checkCommentMethod(
       req.query.boardIndex,
-      req.query.commentIndex,
+      req.params.commentIndex,
       loginIndex,
       false,
       req.ip
@@ -266,7 +272,7 @@ export async function deleteCommentController(req, res) {
     // 해당 댓글 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkComment.state === "success_access") {
       // 댓글삭제 모델 실행 결과
-      const modelResult = await deleteCommentModel(req.query.commentIndex, loginIndex, req.ip);
+      const modelResult = await deleteCommentModel(req.params.commentIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
       if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 댓글삭제 요청 수행

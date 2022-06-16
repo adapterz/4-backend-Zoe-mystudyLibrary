@@ -155,9 +155,9 @@ app.use(
 );
 
 // 경로별로 라우팅
-app.use("/comment", commentRouter);
-app.use("/library", libraryRouter);
-app.use("/review", reviewRouter);
+app.use("/comments", commentRouter);
+app.use("/librarys", libraryRouter);
+app.use("/reviews", reviewRouter);
 app.use("/user", userRouter);
 app.use("/board", boardRouter);
 app.use("/wise-saying", wiseSayingRouter);

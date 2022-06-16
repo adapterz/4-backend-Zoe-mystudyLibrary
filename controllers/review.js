@@ -109,6 +109,7 @@ export async function getReviewController(req, res) {
   /*
    * req.query
    *  libraryIndex
+   * req.params
    *  reviewIndex
    */
   try {
@@ -122,7 +123,7 @@ export async function getReviewController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 해당 도서관, 후기 정보가 있는지 확인하고 해당 후기에 대한 유저의 권한 체크
-    const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
+    const checkReview = await checkReviewMethod(req.query.libraryIndex, req.params.reviewIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
     if (checkReview.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
     // 해당 도서관이 정보가 없을 때
@@ -134,7 +135,7 @@ export async function getReviewController(req, res) {
     // 해당 후기 작성 유저와 로그인한 유저가 일치할 때
     else if (checkReview.state === "success_access") {
       // 해당 인덱스의 후기 정보 가져오기
-      const modelResults = await getReviewModel(req.query.reviewIndex, req.query.libraryIndex, loginIndex, req.ip);
+      const modelResults = await getReviewModel(req.params.reviewIndex, req.query.libraryIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
       if (modelResults.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
       // 해당 후기 정보가 없을 때
@@ -173,7 +174,7 @@ export async function editReviewController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 해당 도서관,후기가 있는지 확인하고 후기에 대한 유저의 권한 체크
-    const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
+    const checkReview = await checkReviewMethod(req.query.libraryIndex, req.params.reviewIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
     if (checkReview.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
     // 해당 도서관 정보가 없을 때
@@ -186,7 +187,7 @@ export async function editReviewController(req, res) {
     else if (checkReview.state === "success_access") {
       // 댓글수정 모델 실행 결과
       const modelResult = await editReviewModel(
-        req.query.reviewIndex,
+        req.params.reviewIndex,
         req.query.libraryIndex,
         loginIndex,
         req.body,
@@ -229,7 +230,7 @@ export async function deleteReviewController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 해당 도서관,후기 존재 유무와 해당 후기에 대한 유저의 권한 체크
-    const checkReview = await checkReviewMethod(req.query.libraryIndex, req.query.reviewIndex, loginIndex, req.ip);
+    const checkReview = await checkReviewMethod(req.query.libraryIndex, req.params.reviewIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
     if (checkReview.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkReview);
     // 해당 도서관 정보가 없을 때
@@ -241,7 +242,7 @@ export async function deleteReviewController(req, res) {
     // 접근 성공
     else if (checkReview.state === "success_access") {
       // 후기삭제 모델 실행 결과
-      const modelResult = await deleteReviewModel(req.query.reviewIndex, loginIndex, req.ip);
+      const modelResult = await deleteReviewModel(req.params.reviewIndex, loginIndex, req.ip);
       // 모델 실행결과에 따른 분기처리
       // sequelize query 메서드 실패
       if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);

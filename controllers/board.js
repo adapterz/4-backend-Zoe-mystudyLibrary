@@ -253,7 +253,7 @@ export async function editBoardController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-    const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
+    const checkPost = await checkBoardMethod(req.params.boardIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
     if (checkPost.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
@@ -263,7 +263,7 @@ export async function editBoardController(req, res) {
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkPost.state === "success_access") {
       // 게시글 수정 모델 실행 결과
-      const modelResults = await editBoardModel(req.body, req.query.boardIndex, loginIndex, req.ip);
+      const modelResults = await editBoardModel(req.body, req.params.boardIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
       if (modelResults.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResults);
       // 성공적으로 게시글 수정 요청 수행
@@ -284,7 +284,6 @@ export async function editBoardController(req, res) {
 
 // 2-4. 게시글 삭제하기
 export async function deleteBoardController(req, res) {
-  // req.query: boardIndex
   try {
     // 필요 변수 선언
     const loginToken = req.signedCookies.token;
@@ -296,7 +295,7 @@ export async function deleteBoardController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 해당 게시글이 존재하는지 확인하고 게시글에 대한 유저의 권한 체크
-    const checkPost = await checkBoardMethod(req.query.boardIndex, loginIndex, req.ip);
+    const checkPost = await checkBoardMethod(req.params.boardIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
     if (checkPost.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(checkPost);
     // 해당 게시글 정보가 없을 때
@@ -306,7 +305,7 @@ export async function deleteBoardController(req, res) {
     // 해당 게시물 작성한 유저와 로그인한 유저가 일치할 때
     else if (checkPost.state === "success_access") {
       // 해당 인덱스 게시글 삭제
-      const modelResult = await deleteBoardModel(req.query.boardIndex, loginIndex, req.ip);
+      const modelResult = await deleteBoardModel(req.params.boardIndex, loginIndex, req.ip);
       // sequelize query 메서드 실패
       if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
       // 성공적으로 게시글 삭제 요청 수행
@@ -327,7 +326,6 @@ export async function deleteBoardController(req, res) {
 // 3. 좋아요/검색기능
 // 3-1. 게시글 좋아요 요청
 export async function favoriteBoardController(req, res) {
-  // req.query: boardIndex
   try {
     // 필요 변수 선언
     const loginToken = req.signedCookies.token;
@@ -339,7 +337,7 @@ export async function favoriteBoardController(req, res) {
     // payload의 유저인덱스와 signature의 유저인덱스 비교 (조작여부 확인)
     if (loginIndex !== payloadIndex) return res.status(FORBIDDEN).json({ state: "not_authorization" });
     // 좋아요 모델 실행 결과
-    const modelResult = await favoriteBoardModel(req.query.boardIndex, loginIndex, req.ip);
+    const modelResult = await favoriteBoardModel(req.params.boardIndex, loginIndex, req.ip);
     // sequelize query 메서드 실패
     if (modelResult.state === "fail_sequelize") return res.status(INTERNAL_SERVER_ERROR).json(modelResult);
     // 게시글이 없을 때

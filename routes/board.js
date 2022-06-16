@@ -29,24 +29,40 @@ import {
 const router = express.Router();
 
 /*
- * 1. 게시글 조회
- * 2. 게시글 작성/수정/삭제
- * 3. 좋아요/검색 기능
- * 4. 유저가 작성한 글 목록 조회
+ * 1. 유저가 작성한 글 목록 조회
+ * 2. 좋아요/검색 기능
+ * 3. 게시글 조회
+ * 4. 게시글 작성/수정/삭제
  */
 
 // 유효성 검사를 위한 모듈
-// 1. 게시글 조회
-// 1-1. 최신글 자유게시판 5개, 공부인증샷 4개 정보
-router.get("/get", isExist, getRecentBoardController);
-// 1-2. 전체 게시물 목록보기
-router.get("/get/:category", isCategory, checkPageValidation, entireBoardController);
-// 1-3. 각 게시물 상세보기
-router.get("/get/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, detailBoardController);
-// 2. 게시글 작성/수정/삭제
-// 2-1. 최초 게시글 작성 요청
+
+// 1. 유저가 쓴 글 목록 가져오기
+router.get("/user", checkPageValidation, userBoardController);
+// 2. 좋아요/검색기능
+// 2-1. 좋아요 기능
+router.patch("/:boardIndex/favorite-count", param("boardIndex").isInt(), isExist, favoriteBoardController);
+// 2-2. 검색관련 기능
+router.get(
+  "/:category/result",
+  isCategory,
+  isSearchOption,
+  query("searchContent").isLength({ min: 1 }).isString(),
+  isValidate,
+  checkPageValidation,
+  searchBoardController
+);
+// 3. 게시글 조회
+// 3-1. 최신글 자유게시판 5개, 공부인증샷 4개 정보
+router.get("/recent-post", isExist, getRecentBoardController);
+// 3-2. 전체 게시물 목록보기
+router.get("/:category", isCategory, checkPageValidation, entireBoardController);
+// 3-3. 각 게시물 상세보기
+router.get("/:category/:boardIndex", param("boardIndex").isInt(), isCategory, isExist, detailBoardController);
+// 4. 게시글 작성/수정/삭제
+// 4-1. 최초 게시글 작성 요청
 router.post(
-  "/write",
+  "/",
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
   body("postContent").isLength({ min: 2, max: 5000 }).isString(),
   body("tags").isArray({ max: 5 }),
@@ -59,12 +75,12 @@ router.post(
   isCategoryWhenWrite,
   writeBoardController
 );
-// 2-2. 수정시 기존 게시글 정보 가져오기
-router.get("/write", query("boardIndex").isInt(), isExist, getWriteController);
-// 2-3. 게시글 수정 요청
+// 4-2. 수정시 기존 게시글 정보 가져오기
+router.get("/", query("boardIndex").isInt(), isExist, getWriteController);
+// 4-3. 게시글 수정 요청
 router.patch(
-  "/edit",
-  query("boardIndex").isInt(),
+  "/:boardIndex",
+  param("boardIndex").isInt(),
   isExist,
   body("postTitle").isLength({ min: 2, max: 50 }).isString(),
   body("postContent").isLength({ min: 2, max: 5000 }).isString(),
@@ -78,25 +94,8 @@ router.patch(
   isCategoryWhenWrite,
   editBoardController
 );
-// 2-4. 게시물 삭제 요청
-router.delete("/delete", query("boardIndex").isInt(), isExist, deleteBoardController);
-
-// 3. 좋아요/검색기능
-// 3-1. 좋아요 기능
-router.patch("/like", query("boardIndex").isInt(), isExist, favoriteBoardController);
-// 3-2. 검색관련 기능
-router.get(
-  "/search/:category",
-  isCategory,
-  isSearchOption,
-  query("searchContent").isLength({ min: 1 }).isString(),
-  isValidate,
-  checkPageValidation,
-  searchBoardController
-);
-
-// 4. 유저가 쓴 글 목록 가져오기
-router.get("/user", checkPageValidation, userBoardController);
+// 4-4. 게시물 삭제 요청
+router.delete("/:boardIndex", param("boardIndex").isInt(), isExist, deleteBoardController);
 
 // 모듈화
 export default router;

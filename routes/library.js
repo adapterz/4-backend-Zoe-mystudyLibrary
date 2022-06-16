@@ -20,7 +20,7 @@ const router = express.Router();
 router.get("/", allLibraryController);
 // 내 지역의 도서관 정보(시도명, 시군구명 body 로 보내기)
 router.get(
-  "/search",
+  "/user-address",
   query("nameOfCity")
     .isString()
     .trim()
@@ -35,7 +35,7 @@ router.get(
 );
 
 // 특정 도서관 자세히 보기
-router.get("/librarys/:libraryIndex", param("libraryIndex").isInt(), isExist, detailLibraryController);
+router.get("/:libraryIndex", param("libraryIndex").isInt(), isExist, detailLibraryController);
 
 // 모듈화
 export default router;
