@@ -26,8 +26,8 @@ export const sequelize = new Sequelize(development.database, development.usernam
   dialect: development.dialect,
   port: development.port,
   pool: {
-    max: 10,
-    min: 0,
+    max: 40,
+    min: 5,
     acquire: 30000, // 오류 발생 전 연결 시도하는 최대 시간 (밀리초)
     idle: 10000, // 10초간 사용되지 않은 풀 연결 제거 (밀리초)
   },
