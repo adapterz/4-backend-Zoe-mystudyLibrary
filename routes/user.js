@@ -33,11 +33,11 @@ const router = express.Router();
  */
 // 1. 회원가입/탈퇴
 // 회원가입 약관확인
-router.get("/sign-up/guide", signUpGuideController);
+router.get("/guide", signUpGuideController);
 
 // 회원가입 요청
 router.post(
-  "/sign-up",
+  "/",
   body("id")
     .isString()
     .trim()
@@ -67,27 +67,27 @@ router.post(
 );
 
 // 회원탈퇴 요청
-router.delete("/drop-out", dropOutController);
+router.delete("/", dropOutController);
 
 // 2. 로그인/로그아웃
 // 로그인 요청
-router.post("/login", body("id").isString().trim(), body("pw").isString().trim(), isValidate, loginController);
+router.post("/token", body("id").isString().trim(), body("pw").isString().trim(), isValidate, loginController);
 // 로그아웃 요청
-router.post("/logout", logoutController);
+router.delete("/token", logoutController);
 
 // 3. 관심도서관 조회/등록/삭제
 // 관심도서관 조회
-router.get("/user-lib", userLibraryController);
+router.get("/library", userLibraryController);
 // 관심도서관 등록
 router.patch(
-  "/user-lib",
+  "/library",
   query("libraryIndex").isInt().isLength({ min: 1, max: 4 }),
   isExist,
   registerUserLibraryController
 );
 // 관심도서관 삭제
 router.delete(
-  "/user-lib",
+  "/library",
   query("libraryIndex").isInt().isLength({ min: 1, max: 4 }),
   isExist,
   deleteUserLibraryController
@@ -95,7 +95,7 @@ router.delete(
 // 4. 유저 정보 수정
 // 내 닉네임 변경
 router.patch(
-  "/profile/nickname",
+  "/info/nickname",
   body("nickname")
     .isString()
     .trim()
@@ -105,10 +105,10 @@ router.patch(
   editProfileNicknameController
 );
 // 프로필 이미지 변경
-router.patch("/profile/profileImage", checkLoginToken, uploadImage, editProfileImageController);
+router.patch("/info/profile-image", checkLoginToken, uploadImage, editProfileImageController);
 // 연락처변경 요청
 router.patch(
-  "/new-contact",
+  "/info/contact",
   body("phoneNumber")
     .matches(/^01([0|1|6|7|8|9])([0-9]{3,4})([0-9]{4})$/) // 휴대전화 정규식
     .notEmpty(),
@@ -117,7 +117,7 @@ router.patch(
 );
 // 비밀번호변경 요청
 router.patch(
-  "/new-pw",
+  "/info/pw",
   body("newPw")
     .isString()
     .trim()
