@@ -14,7 +14,7 @@
 
 read.me 작성연월: 2022-06
 
-:clipboard:프로젝트 링크: https://mystudylibrary.pe.kr
+:clipboard: [프로젝트 링크](https://mystudylibrary.pe.kr)
 
 * 참고사항: 보안상 letsencrypt에서 발급받은 ssl인증서를 적용했고 비밀번호는 암호화돼서 저장됩니다.
 
@@ -66,6 +66,12 @@ ovenapp.io 툴 이용했습니다.
 
 :clipboard: [테이블과 테이블 구성요소](https://closed-glade-095.notion.site/myStudyLibrary-DB-6bc5bd5da4f9483ab37bf6af83cf3e55)
 
+
+### 프로젝트 API 정리본
+
+* 해당 사항은 프로젝트 중 계속 업데이트 했으나 누락된 항목이 있을 수 있으니 참고 바랍니다.
+
+:clipboard: [API 스프레드시트](https://docs.google.com/spreadsheets/d/1ILv18z0Ckho2yMjsH23r4AeFmRbhaJ7szSSHIAQCU3U/edit?usp=sharing)
 
 -----------------------------
 ###  📁 디렉토리 구조
@@ -245,16 +251,20 @@ https://www.notion.so/myStudyLibrary-2-2cc8fc2aa67d4224bb7336ad2e08c744
 ## 📷 실제 프로젝트 캡쳐(POSTMAN을 이용한 요청과 응답)
 
 * 전체 도서관 정보
+
 ![image](https://user-images.githubusercontent.com/98700133/174222491-20b15668-80b3-4584-9f7b-042fb92fde4a.png)
 
 * 특정 도서관 조회
+
 ![image](https://user-images.githubusercontent.com/98700133/174222508-7d845c2b-ca15-48c4-814c-284a1b37739e.png)
 
 * 로그인 요청
-![image](https://user-images.githubusercontent.com/98700133/174029886-22edca99-f2ab-4780-a8ae-3b7ccadbf276.png)
+
+![image](https://user-images.githubusercontent.com/98700133/174229112-a6d00918-0005-4c24-9a3e-587d35e6f27f.png)
 
 * 로그인 성공 응답 받은 뒤 쿠키 확인('token' 이라는 이름의 쿠키가 있으면 로그인 성공)
-![image](https://user-images.githubusercontent.com/98700133/174029938-ed9fcfe1-a217-4cca-8c66-d5ab19701728.png)
+
+![image](https://user-images.githubusercontent.com/98700133/174229166-8a5eedd4-bfa6-427a-8e9c-c490833e3b04.png)
 
 
 
