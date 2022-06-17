@@ -26,7 +26,7 @@ read.me 작성연월: 2022-06
 
 ---
 
-## :ledger: 프로젝트 기획 및 설계
+## 📙 프로젝트 기획 및 설계
 
 ### 프로젝트 기획
 
@@ -141,7 +141,7 @@ ovenapp.io 툴 이용했습니다.
 
 
 ------------------
-## :blue_book: 주요 기능
+## :ledger: 주요 기능
  
 * express-validator 미들웨어를 통해 route에서 유효성검사를 해줬습니다. 필요한 경우 정규표현식을 사용했습니다.
     
@@ -195,13 +195,13 @@ ovenapp.io 툴 이용했습니다.
 
 ---
 
-## :closed_book: 개발 스택
+## 📗 개발 스택
 
 - 사용스택: js, node.js + express.js, mysql, sequelize, pm2(서버에 무중단 배포)
 
 ---
 
-## 문제사항과 해결방안
+## :blue_book: 문제사항과 해결방안
 
 ### 1.
 문제/해결방안 링크:
@@ -230,7 +230,7 @@ https://www.notion.so/myStudyLibrary-2-2cc8fc2aa67d4224bb7336ad2e08c744
 4. controller에서 로그인을 했는지 여부가 체크가 필요한 기능인 경우 로그인 체크 여부가 매번 똑같은 코드로 반복됩니다. 마찬가지로 controller의 에러 핸들러에서도 거의 비슷한 코드들이 반복됩니다. 이 코드를 따로 메서드로 정의하면 좋을 것 같다는 생각을 했습니다.
 
 -----------------------
-## 회고록
+## 📝 회고록
 
  처음에 REST API 의 존재에 대해서 몰라서 uri를 작성하는데 많은 어려움을 겪었습니다. 그러다보니 uri가 지나치게 길어지고 HTTP 메서드에 이미 동사 정보가 있는데 uri에도 포함되다보니 비효율적이었습니다. 프로젝트가 어느정도 진행되고나서야 REST API에 대해 알게돼서 진행된 프로젝트를 크게 바꾸지 않아도 규범을 적용할 수 있는 부분은 적용해줬습니다. 기술 구현에 집중하다 보니 규범에 신경쓰지 못하는 경우가 종종 생기는 것 같습니다. 이 부분은 차차 개선해나가고 싶습니다.
 
@@ -238,18 +238,17 @@ https://www.notion.so/myStudyLibrary-2-2cc8fc2aa67d4224bb7336ad2e08c744
  대댓글 기능 구현을 할 때 재밋게 작업했습니다. 복잡한 문제를 해결할 때 성취감이 큰 것 같습니다. 다만 대댓글을 정렬할 때의 로직이 조금 아쉽습니다. DB 설계시 'comment' 테이블에commentSequence 컬럼을 두고 대댓글이 달릴 때마다 같은 루트 댓글에 대해 작성한 순번를 값으로 부여했고 순번대로 정렬을 했습니다. 그런데 굳이 순서 컬럼을 두지 않았어도 먼저 작성한 시점 순으로 정렬을 해도됐을 것 같다는 생각이 듭니다. 다음에는 DB 설계 시점부터 로직까지 고민을 해서 공간 상의 이득을 볼 수 있다면 없어도 되는 컬럼은 추가하지 않도록 해야겠습니다.
 
 ------
-## 프로젝트 시연 영상(보류)
+## 🎬 프로젝트 시연 영상(보류)
 
 
 -------
-## 실제 프로젝트 캡쳐(POSTMAN을 이용한 요청과 응답)
+## 📷 실제 프로젝트 캡쳐(POSTMAN을 이용한 요청과 응답)
 
 * 전체 도서관 정보
-
-![image](https://user-images.githubusercontent.com/98700133/174029682-ed73cf99-45b7-45b8-b6ed-bacd5dc6bf50.png)
+![image](https://user-images.githubusercontent.com/98700133/174222491-20b15668-80b3-4584-9f7b-042fb92fde4a.png)
 
 * 특정 도서관 조회
-![image](https://user-images.githubusercontent.com/98700133/174029740-4824e9f9-02eb-425b-a45d-fd12198cc5d0.png)
+![image](https://user-images.githubusercontent.com/98700133/174222508-7d845c2b-ca15-48c4-814c-284a1b37739e.png)
 
 * 로그인 요청
 ![image](https://user-images.githubusercontent.com/98700133/174029886-22edca99-f2ab-4780-a8ae-3b7ccadbf276.png)
